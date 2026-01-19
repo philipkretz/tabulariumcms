@@ -1,0 +1,48 @@
+# Custom dashboard route (must be first)
+sonata_admin_dashboard:
+    path: /admin/
+    controller: App\Controller\Admin\DashboardController::dashboard
+    methods: [GET]
+
+# Core Sonata admin routes
+sonata_admin_search:
+    path: /admin/search
+    controller: sonata.admin.action.search
+    methods: [GET, POST]
+
+sonata_admin_retrieve_form_element:
+    path: /admin/core/get-form-field-element
+    controller: sonata.admin.action.retrieve_form_field_element
+    methods: [GET]
+
+sonata_admin_append_form_field_element:
+    path: /admin/core/append-form-field-element
+    controller: sonata.admin.action.append_form_field_element
+    methods: [GET]
+
+# Alias for backward compatibility
+sonata_admin_append_form_element:
+    path: /admin/core/append-form-field-element
+    controller: sonata.admin.action.append_form_field_element
+    methods: [GET]
+
+sonata_admin_short_object_information:
+    path: /admin/core/get-short-object-description
+    controller: sonata.admin.action.get_short_object_description
+    methods: [GET]
+
+sonata_admin_set_object_field_value:
+    path: /admin/core/set-object-field-value
+    controller: sonata.admin.action.set_object_field_value
+    methods: [POST]
+
+sonata_admin_retrieve_autocomplete_items:
+    path: /admin/core/autocomplete
+    controller: sonata.admin.action.retrieve_autocomplete_items
+    methods: [GET]
+
+# Load model-specific admin routes
+_sonata_admin:
+    resource: .
+    type: sonata_admin
+    prefix: /admin

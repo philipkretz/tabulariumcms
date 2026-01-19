@@ -1,0 +1,81 @@
+{# templates/components/language_switch.html.twig #}
+{% if language_switch_enabled %}
+    {% set current_locale = app.request.locale %}
+    {% set active_languages = active_languages|default(['en', 'es', 'fr', 'de']) %}
+    
+    <div class="language-switch {{ class|default('') }}">
+        <div class="relative">
+            <button id="language-toggle" class="language-toggle flex items-center space-x-2 px-3 py-2 rounded-md border border-gray-300 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <span class="flag-icon flag-icon-{{ current_locale|upper }} rounded"></span>
+                <span class="font-medium">{{ current_locale|upper }}</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </button>
+            
+            <div id="language-dropdown" class="language-dropdown hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
+                {% for locale in active_languages %}
+                    {% if locale != current_locale %}
+                        <a href="{{ path(app.request.attributes.get('_route'), app.request.attributes.get('_route_params')|merge({ '_locale': locale })) }}" 
+                           class="language-option flex items-center space-x-2 px-4 py-2 hover:bg-gray-50 transition-colors"
+                           data-locale="{{ locale }}">
+                            <span class="flag-icon flag-icon-{{ locale|upper }} rounded"></span>
+                            <span>{{ locale|upper }}</span>
+                        </a>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .language-switch {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .language-toggle {
+            min-width: 100px;
+        }
+        
+        .language-dropdown {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .language-option {
+            text-decoration: none;
+            color: #374151;
+            display: block;
+        }
+        
+        .language-option:hover {
+            color: #1f2937;
+        }
+        
+        .flag-icon {
+            width: 18px;
+            height: 18px;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggle = document.getElementById('language-toggle');
+            const dropdown = document.getElementById('language-dropdown');
+            
+            toggle.addEventListener('click', function(e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('hidden');
+            });
+            
+            document.addEventListener('click', function() {
+                dropdown.classList.add('hidden');
+            });
+            
+            dropdown.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+        });
+    </script>
+{% endif %}

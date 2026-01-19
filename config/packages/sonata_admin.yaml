@@ -1,0 +1,51 @@
+sonata_admin:
+    title: 'TabulariumCMS Admin'
+    title_logo: tabulariumcms.png
+
+    dashboard:
+        blocks:
+            - { type: sonata.admin.block.admin_list, position: left }
+            - { type: sonata.admin.block.stats, position: right }
+        groups:
+            Administration:
+                label: Administration
+                icon: '<i class="fas fa-tachometer-alt"></i>'
+            CMS:
+                label: CMS
+                icon: '<i class="fas fa-file-alt"></i>'
+            ECommerce:
+                label: E-Commerce
+                icon: '<i class="fas fa-shopping-cart"></i>'
+            System:
+                label: System
+                icon: '<i class="fas fa-cogs"></i>'
+            API:
+                label: API
+                icon: '<i class="fas fa-code"></i>'
+
+    options:
+        use_icheck: false
+        use_bootlint: false
+        use_select2: true
+        html5_validate: true
+
+    security:
+        handler: sonata.admin.security.handler.role
+        role_admin: ROLE_ADMIN
+        role_super_admin: ROLE_SUPER_ADMIN
+
+    templates:
+        layout: '@SonataAdmin/standard_layout.html.twig'
+        ajax: '@SonataAdmin/ajax_layout.html.twig'
+        dashboard: 'admin/dashboard.html.twig'
+        list: '@SonataAdmin/CRUD/list.html.twig'
+        show: '@SonataAdmin/CRUD/show.html.twig'
+        edit: '@SonataAdmin/CRUD/edit.html.twig'
+
+    assets:
+        extra_stylesheets:
+            - css/admin-custom.css
+            - css/ai-buttons.css
+        extra_javascripts:
+            - js/grapesjs-init.js
+            - js/ai-content-generator.js

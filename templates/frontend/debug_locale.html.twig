@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Locale</title>
+</head>
+<body>
+    <h1>Debug Information</h1>
+    <pre>
+Locale type: {{ app.request.locale is iterable ? 'ARRAY/ITERABLE' : 'SCALAR' }}
+Locale value: {{ app.request.locale|json_encode }}
+Get locale string function: {{ get_locale_string() }}
+Page title: {{ page.title }}
+Page template: {{ page.template }}
+    </pre>
+</body>
+</html>

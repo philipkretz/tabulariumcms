@@ -1,0 +1,30 @@
+services:
+  php:
+    volumes:
+      - ./:/var/www/html
+      - ./docker/php/logs:/var/log
+    environment:
+      - XDEBUG_MODE=develop
+      - XDEBUG_CONFIG=client_host=host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  nginx:
+    volumes:
+      - ./docker/nginx/xdebug.conf:/etc/nginx/conf.d/debug.conf
+
+  node:
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+
+  # Add mailhog for development
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: tabulariumcms_mailhog
+    restart: unless-stopped
+    ports:
+      - "1025:1025"  # SMTP
+      - "8025:8025"  # Web Interface
+    networks:
+      - tabulariumcms_network

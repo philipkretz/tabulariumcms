@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for TabulariumCMS */
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.btn {
+    @apply px-4 py-2 rounded-lg font-medium transition-colors duration-200;
+}
+
+.btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+}
+
+.btn-secondary {
+    @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+}
+
+.card {
+    @apply bg-white rounded-lg shadow-md p-6;
+}
+
+.form-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
+/* Admin panel styles */
+.admin-sidebar {
+    @apply bg-gray-900 text-white w-64 min-h-screen;
+}
+
+.admin-main {
+    @apply flex-1 bg-gray-50;
+}
+
+/* Editor styles */
+.wysiwyg-editor {
+    @apply border border-gray-300 rounded-lg p-4 min-h-[300px];
+}
+
+/* Responsive utilities */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        @apply fixed transform -translate-x-full transition-transform;
+    }
+
+    .admin-sidebar.open {
+        @apply translate-x-0;
+    }
+}
+
+/* SonataAdmin header logo & layout adjustments */
+.logo img {
+    display: inline;
+    max-height: 120px;
+    max-width: 100%;
+    padding-bottom: 4px;
+}
+
+.main-header {
+    height: 120px;
+}
+
+@media (min-width: 768px) {
+    .navbar-static-side {
+        top: 120px;
+    }
+}

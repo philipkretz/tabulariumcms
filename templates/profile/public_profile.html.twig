@@ -1,0 +1,357 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ targetUser.fullName }}{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    {# Cover Photo Section #}
+    <div class="relative h-64 bg-gradient-to-br from-yellow-400 to-yellow-600">
+        {% if profile.coverPhoto %}
+            <img src="{{ asset('uploads/profiles/' ~ targetUser.id ~ '/' ~ profile.coverPhoto) }}" alt="Cover Photo" class="w-full h-full object-cover">
+        {% endif %}
+
+        {# Profile Actions - Top Right #}
+        <div class="absolute top-4 right-4 flex gap-2">
+            {% if isOwnProfile %}
+                <a href="{{ path('app_profile_edit') }}" class="bg-white text-gray-700 px-4 py-2 rounded-lg shadow hover:bg-gray-50 transition">
+                    <i class="fas fa-edit mr-2"></i>{{ 'profile.edit_profile'|trans }}
+                </a>
+            {% else %}
+                {# Friend Request Button #}
+                {% if not isFriend and profile.allowFriendRequests %}
+                    <button
+                        onclick="sendFriendRequest({{ targetUser.id }}, '{{ targetUser.username }}')"
+                        id="friend-request-btn"
+                        class="bg-yellow-500 text-white px-4 py-2 rounded-lg shadow hover:bg-yellow-600 transition"
+                    >
+                        <i class="fas fa-user-plus mr-2"></i>{{ 'profile.add_friend'|trans }}
+                    </button>
+                {% elseif isFriend %}
+                    <span class="bg-green-500 text-white px-4 py-2 rounded-lg shadow">
+                        <i class="fas fa-check mr-2"></i>{{ 'profile.friends_status'|trans }}
+                    </span>
+                {% endif %}
+
+                {# Message Button #}
+                {% if profile.allowMessages and app.user %}
+                    <button
+                        onclick="openComposeModal({{ targetUser.id }}, '{{ targetUser.username }}')"
+                        class="bg-blue-500 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-600 transition"
+                    >
+                        <i class="fas fa-envelope mr-2"></i>{{ 'profile.message'|trans }}
+                    </button>
+                {% endif %}
+
+                {# Report Button #}
+                {% if app.user %}
+                    <button onclick="document.getElementById('reportModal').classList.remove('hidden')" class="bg-red-500 text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition">
+                        <i class="fas fa-flag mr-2"></i>{{ 'profile.report'|trans }}
+                    </button>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    {# Profile Header #}
+    <div class="max-w-6xl mx-auto px-4 -mt-20">
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex flex-col md:flex-row gap-6">
+                {# Avatar #}
+                <div class="flex-shrink-0">
+                    {% if profile.avatar %}
+                        <img src="{{ asset('uploads/profiles/' ~ targetUser.id ~ '/' ~ profile.avatar) }}" alt="{{ targetUser.fullName }}" class="w-32 h-32 rounded-full border-4 border-white shadow-lg">
+                    {% else %}
+                        {% set initials = targetUser.firstName|slice(0, 1)|upper ~ targetUser.lastName|slice(0, 1)|upper %}
+                        <div class="w-32 h-32 rounded-full border-4 border-white shadow-lg bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-white text-3xl font-bold">
+                            {{ initials }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {# Profile Info #}
+                <div class="flex-grow">
+                    <h1 class="text-3xl font-bold text-gray-900">{{ targetUser.fullName }}</h1>
+
+                    {% if profile.tagline %}
+                        <p class="text-lg text-gray-600 mt-1">{{ profile.tagline }}</p>
+                    {% endif %}
+
+                    <div class="flex flex-wrap gap-4 mt-4 text-gray-600">
+                        {% if profile.location %}
+                            <div class="flex items-center">
+                                <i class="fas fa-map-marker-alt mr-2"></i>
+                                {{ profile.location }}
+                            </div>
+                        {% endif %}
+
+                        {% if profile.website %}
+                            <div class="flex items-center">
+                                <i class="fas fa-globe mr-2"></i>
+                                <a href="{{ profile.website }}" target="_blank" rel="noopener" class="text-yellow-600 hover:underline">
+                                    {{ profile.website|replace({'https://': '', 'http://': '', 'www.': ''}) }}
+                                </a>
+                            </div>
+                        {% endif %}
+
+                        <div class="flex items-center">
+                            <i class="fas fa-calendar mr-2"></i>
+                            {{ 'profile.joined'|trans }} {{ targetUser.createdAt|date('F Y') }}
+                        </div>
+
+                        <div class="flex items-center">
+                            <i class="fas fa-eye mr-2"></i>
+                            {{ profile.profileViews }} {{ 'profile.views'|trans }}
+                        </div>
+                    </div>
+
+                    {# Social Links #}
+                    {% if profile.socialLinks and profile.socialLinks|length > 0 %}
+                        <div class="flex gap-3 mt-4">
+                            {% for platform, url in profile.socialLinks %}
+                                <a href="{{ url }}" target="_blank" rel="noopener" class="text-gray-600 hover:text-{{ platform }} transition" title="{{ platform|capitalize }}">
+                                    <i class="fab fa-{{ platform }} text-2xl"></i>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                {# Stats #}
+                <div class="flex md:flex-col gap-4 text-center">
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-gray-900">{{ friendCount }}</div>
+                        <div class="text-sm text-gray-600">{{ 'profile.friends'|trans }}</div>
+                    </div>
+                    <div class="bg-gray-50 rounded-lg p-4">
+                        <div class="text-2xl font-bold text-gray-900">{{ recentMedia|length }}</div>
+                        <div class="text-sm text-gray-600">{{ 'profile.media'|trans }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Main Content #}
+    <div class="max-w-6xl mx-auto px-4 mt-6 pb-12">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {# Left Column - About & Custom Content #}
+            <div class="lg:col-span-2 space-y-6">
+                {# Privacy Notice #}
+                {% if not canViewFullProfile %}
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <div class="flex items-center">
+                            <i class="fas fa-lock text-yellow-600 mr-3 text-xl"></i>
+                            <div>
+                                <h3 class="font-semibold text-yellow-900">{{ 'profile.private_profile'|trans }}</h3>
+                                <p class="text-sm text-yellow-700">{{ 'profile.private_profile_message'|trans({'%name%': targetUser.firstName}) }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {# About Section with Custom HTML/CSS #}
+                {% if canViewFullProfile and profile.bio %}
+                    <div class="bg-white rounded-xl shadow p-6">
+                        <h2 class="text-xl font-bold text-gray-900 mb-4">{{ 'profile.about'|trans }}</h2>
+                        {# Custom CSS (scoped to bio-content) #}
+                        {% if profile.customTemplate %}
+                            <style>.bio-content { {{ profile.customTemplate|raw }} }</style>
+                        {% endif %}
+                        {# Bio content rendered as HTML #}
+                        <div class="bio-content text-gray-700">{{ profile.bio|raw }}</div>
+                    </div>
+                {% endif %}
+
+                {# Looking For #}
+                {% if canViewFullProfile and profile.lookingFor %}
+                    <div class="bg-white rounded-xl shadow p-6">
+                        <h2 class="text-xl font-bold text-gray-900 mb-4">
+                            <i class="fas fa-search text-yellow-600 mr-2"></i>
+                            {{ 'profile.looking_for'|trans|default('I am looking for') }}
+                        </h2>
+                        <div class="text-gray-700 whitespace-pre-line">{{ profile.lookingFor|raw }}</div>
+                    </div>
+                {% endif %}
+
+                {# What I Offer #}
+                {% if canViewFullProfile and profile.offering %}
+                    <div class="bg-white rounded-xl shadow p-6">
+                        <h2 class="text-xl font-bold text-gray-900 mb-4">
+                            <i class="fas fa-gift text-yellow-600 mr-2"></i>
+                            {{ 'profile.offering'|trans|default('What I offer') }}
+                        </h2>
+                        <div class="text-gray-700 whitespace-pre-line">{{ profile.offering|raw }}</div>
+                    </div>
+                {% endif %}
+
+                {# Interests #}
+                {% if canViewFullProfile and profile.interests and profile.interests|length > 0 %}
+                    <div class="bg-white rounded-xl shadow p-6">
+                        <h2 class="text-xl font-bold text-gray-900 mb-4">{{ 'profile.interests'|trans|default('Interests') }}</h2>
+                        <div class="flex flex-wrap gap-2">
+                            {% for interest in profile.interests %}
+                                <span class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">
+                                    {{ interest }}
+                                </span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+
+
+                {# Recent Media #}
+                {% if recentMedia|length > 0 %}
+                    <div class="bg-white rounded-xl shadow p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-gray-900">{{ 'profile.recent_media'|trans }}</h2>
+                            <a href="{{ path('app_profile_media', {slug: profile.profileSlug ?? targetUser.username}) }}" class="text-yellow-600 hover:underline text-sm">
+                                {{ 'profile.view_all'|trans }}
+                            </a>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {% for media in recentMedia %}
+                                <div class="relative aspect-square rounded-lg overflow-hidden group cursor-pointer">
+                                    {% if media.type == 'image' %}
+                                        <img src="{{ asset('uploads/user-media/' ~ media.user.id ~ '/' ~ media.filename) }}" alt="{{ media.originalFilename }}" class="w-full h-full object-cover">
+                                    {% elseif media.type == 'video' %}
+                                        <video src="{{ asset('uploads/user-media/' ~ media.user.id ~ '/' ~ media.filename) }}" class="w-full h-full object-cover"></video>
+                                        <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30">
+                                            <i class="fas fa-play-circle text-white text-4xl"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition flex items-center justify-center opacity-0 group-hover:opacity-100">
+                                        <i class="fas fa-eye text-white text-2xl"></i>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            {# Right Column - Friends #}
+            <div class="space-y-6">
+                {# Friends Section #}
+                {% if friends|length > 0 %}
+                    <div class="bg-white rounded-xl shadow p-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-gray-900">{{ 'profile.friends'|trans }}</h2>
+                            <a href="{{ path('app_profile_friends', {slug: profile.profileSlug ?? targetUser.username}) }}" class="text-yellow-600 hover:underline text-sm">
+                                {{ 'profile.view_all'|trans }} ({{ friendCount }})
+                            </a>
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            {% for friend in friends %}
+                                <a href="{{ path('app_public_profile', {slug: friend.profile.profileSlug ?? friend.username}) }}" class="text-center group">
+                                    {% if friend.profile.avatar %}
+                                        <img src="{{ asset('uploads/profiles/' ~ friend.id ~ '/' ~ friend.profile.avatar) }}" alt="{{ friend.fullName }}" class="w-16 h-16 rounded-full mx-auto group-hover:opacity-80 transition">
+                                    {% else %}
+                                        {% set friendInitials = friend.firstName|slice(0, 1)|upper ~ friend.lastName|slice(0, 1)|upper %}
+                                        <div class="w-16 h-16 rounded-full mx-auto bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center text-white text-sm font-bold group-hover:opacity-80 transition">
+                                            {{ friendInitials }}
+                                        </div>
+                                    {% endif %}
+                                    <div class="text-xs text-gray-700 mt-1 truncate">{{ friend.firstName }}</div>
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{# Report Modal #}
+<div id="reportModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-xl shadow-lg p-6 max-w-md w-full mx-4">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">{{ 'profile.report_profile'|trans }}</h3>
+        <form method="POST" action="{{ path('app_profile_report', {slug: profile.profileSlug ?? targetUser.username}) }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('profile_report') }}">
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'profile.report_reason'|trans }}</label>
+                <select name="reason" required class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    <option value="">{{ 'profile.report_reason_select'|trans }}</option>
+                    <option value="spam">{{ 'profile.report_spam'|trans }}</option>
+                    <option value="inappropriate">{{ 'profile.report_inappropriate'|trans }}</option>
+                    <option value="harassment">{{ 'profile.report_harassment'|trans }}</option>
+                    <option value="impersonation">{{ 'profile.report_impersonation'|trans }}</option>
+                    <option value="other">{{ 'profile.report_other'|trans }}</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'profile.report_details'|trans }}</label>
+                <textarea name="details" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-yellow-500 focus:border-yellow-500"></textarea>
+            </div>
+
+            <div class="flex gap-3">
+                <button type="button" onclick="document.getElementById('reportModal').classList.add('hidden')" class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition">
+                    {{ 'profile.cancel'|trans }}
+                </button>
+                <button type="submit" class="flex-1 bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
+                    {{ 'profile.submit_report'|trans }}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# Include Compose Message Modal #}
+{% if app.user and not isOwnProfile and profile.allowMessages %}
+    {% include 'messages/_compose_modal.html.twig' with {'recipientId': targetUser.id, 'recipientName': targetUser.username} %}
+{% endif %}
+
+<script>
+    async function sendFriendRequest(userId, username) {
+        const btn = document.getElementById('friend-request-btn');
+        if (!btn) return;
+
+        // Disable button
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+
+        try {
+            const response = await fetch(`/friends/add/${userId}`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                // Update button to show "Request Sent"
+                btn.className = 'bg-gray-500 text-white px-4 py-2 rounded-lg shadow cursor-not-allowed';
+                btn.innerHTML = '<i class="fas fa-clock mr-2"></i>Request Sent';
+                showNotification('Friend request sent to ' + username, 'success');
+            } else {
+                const error = await response.json();
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-plus mr-2"></i>Add Friend';
+                showNotification(error.error || 'Failed to send friend request', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-user-plus mr-2"></i>Add Friend';
+            showNotification('Network error. Please try again.', 'error');
+        }
+    }
+
+    function showNotification(message, type = 'info') {
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
+            type === 'success' ? 'bg-green-600' :
+            type === 'error' ? 'bg-red-600' :
+            'bg-blue-600'
+        }`;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        setTimeout(() => {
+            notification.style.transition = 'opacity 0.3s';
+            notification.style.opacity = '0';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+</script>
+{% endblock %}

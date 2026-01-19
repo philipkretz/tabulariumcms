@@ -1,0 +1,249 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Export Content{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-100">
+    <!-- Admin Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-semibold text-gray-900">
+                    <a href="{{ path('app_admin') }}" class="text-gray-500 hover:text-gray-900 mr-2">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    Export Content
+                </h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <form action="{{ path('admin_export_execute') }}" method="post" class="space-y-8">
+            <!-- Export Selection -->
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                    <i class="fas fa-download text-blue-600 mr-3"></i>
+                    Select Content to Export
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="border rounded-lg p-4 bg-blue-50">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-file-text text-blue-600 mr-3"></i>
+                            <h3 class="font-medium text-gray-900">Content</h3>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="content_types[]" 
+                                       value="posts"
+                                       checked
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Blog Posts</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="content_types[]" 
+                                       value="pages"
+                                       checked
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Pages</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="border rounded-lg p-4 bg-green-50">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-cog text-green-600 mr-3"></i>
+                            <h3 class="font-medium text-gray-900">System</h3>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="content_types[]" 
+                                       value="settings"
+                                       checked
+                                       class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                <span class="ml-2 text-sm text-gray-700">Settings</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="content_types[]" 
+                                       value="seo_urls"
+                                       class="rounded border-gray-300 text-green-600 focus:ring-green-500">
+                                <span class="ml-2 text-sm text-gray-700">SEO URLs</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="border rounded-lg p-4 bg-purple-50">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-database text-purple-600 mr-3"></i>
+                            <h3 class="font-medium text-gray-900">Data</h3>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="content_types[]" 
+                                       value="users"
+                                       class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                <span class="ml-2 text-sm text-gray-700">Users (basic info)</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="content_types[]" 
+                                       value="media"
+                                       class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                <span class="ml-2 text-sm text-gray-700">Media Files (metadata)</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="content_types[]" 
+                                       value="bookings"
+                                       class="rounded border-gray-300 text-purple-600 focus:ring-purple-500">
+                                <span class="ml-2 text-sm text-gray-700">Bookings</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export Options -->
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                    <i class="fas fa-sliders-h text-orange-600 mr-3"></i>
+                    Export Options
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-medium text-gray-900 mb-4">Content Options</h3>
+                        
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="include_translations" 
+                                       value="1"
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Include Translations</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="include_media_files" 
+                                       value="1"
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Include Media Files</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-medium text-gray-900 mb-4">Filtering</h3>
+                        
+                        <div class="space-y-3">
+                            <div>
+                                <label class="block text-sm text-gray-700 mb-2">Date Range</label>
+                                <select name="date_range" class="form-input">
+                                    <option value="all">All Time</option>
+                                    <option value="last_year">Last Year</option>
+                                    <option value="last_month">Last Month</option>
+                                    <option value="last_week">Last Week</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm text-gray-700 mb-2">Status Filter</label>
+                                <select name="status_filter" class="form-input">
+                                    <option value="all">All Statuses</option>
+                                    <option value="published">Published Only</option>
+                                    <option value="draft">Draft Only</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Export History -->
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                    <i class="fas fa-history text-indigo-600 mr-3"></i>
+                    Recent Exports
+                </h2>
+                
+                <div class="text-center py-8 text-gray-500">
+                    <i class="fas fa-inbox text-4xl mb-4"></i>
+                    <p>No export history available</p>
+                    <p class="text-sm mt-2">After you export content, the history will appear here.</p>
+                </div>
+            </div>
+
+            <!-- Export Actions -->
+            <div class="flex justify-between items-center">
+                <div class="text-sm text-gray-500">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Export will be downloaded as a JSON file that can be imported into another TabulariumCMS instance.
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button type="button" 
+                            onclick="previewExport()" 
+                            class="btn btn-secondary">
+                        <i class="fas fa-eye mr-2"></i>
+                        Preview Export
+                    </button>
+                    
+                    <button type="submit" 
+                            class="btn btn-primary">
+                        <i class="fas fa-download mr-2"></i>
+                        Export Content
+                    </button>
+                </div>
+            </div>
+        </form>
+    </main>
+</div>
+
+<script>
+function previewExport() {
+    const form = document.querySelector('form');
+    const formData = new FormData(form);
+    
+    // Convert FormData to JSON for preview
+    const data = {};
+    for (let [key, value] of formData.entries()) {
+        if (!data[key]) {
+            data[key] = [];
+        }
+        data[key].push(value);
+    }
+    
+    console.log('Export Preview:', data);
+    alert('Export preview logged to console. This would show what will be exported.');
+}
+
+// Enable/disable options based on selections
+document.querySelectorAll('input[name="content_types[]"]').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+        const hasSelected = document.querySelectorAll('input[name="content_types[]"]:checked').length > 0;
+        
+        document.querySelector('button[type="submit"]').disabled = !hasSelected;
+        if (hasSelected) {
+            document.querySelector('button[type="submit"]').classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            document.querySelector('button[type="submit"]').classList.add('opacity-50', 'cursor-not-allowed');
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Theme Preview: {{ theme.displayName }}</title>
+    <link rel="stylesheet" href="{{ asset('admin-assets/css/theme-preview.css') }}">
+</head>
+<body>
+    <div class="theme-preview-container">
+        <!-- Theme Editor Panel -->
+        <div class="theme-editor-panel">
+            <div class="editor-header">
+                <h1>🎨 Theme Builder</h1>
+                <p class="theme-name">{{ theme.displayName }}</p>
+            </div>
+
+            <div class="editor-content" id="theme-editor">
+                <!-- Colors Section -->
+                <div class="editor-section">
+                    <h3>Colors</h3>
+                    <div class="color-group">
+                        <div class="color-input-group">
+                            <label>Primary Color</label>
+                            <input type="color" id="primaryColor" value="{{ theme.primaryColor ?? '#3b82f6' }}" class="color-input">
+                            <input type="text" class="color-hex" value="{{ theme.primaryColor ?? '#3b82f6' }}" readonly>
+                        </div>
+                        <div class="color-input-group">
+                            <label>Secondary Color</label>
+                            <input type="color" id="secondaryColor" value="{{ theme.secondaryColor ?? '#8b5cf6' }}" class="color-input">
+                            <input type="text" class="color-hex" value="{{ theme.secondaryColor ?? '#8b5cf6' }}" readonly>
+                        </div>
+                        <div class="color-input-group">
+                            <label>Accent Color</label>
+                            <input type="color" id="accentColor" value="{{ theme.accentColor ?? '#10b981' }}" class="color-input">
+                            <input type="text" class="color-hex" value="{{ theme.accentColor ?? '#10b981' }}" readonly>
+                        </div>
+                        <div class="color-input-group">
+                            <label>Background</label>
+                            <input type="color" id="backgroundColor" value="{{ theme.backgroundColor ?? '#ffffff' }}" class="color-input">
+                            <input type="text" class="color-hex" value="{{ theme.backgroundColor ?? '#ffffff' }}" readonly>
+                        </div>
+                        <div class="color-input-group">
+                            <label>Text Color</label>
+                            <input type="color" id="textColor" value="{{ theme.textColor ?? '#1f2937' }}" class="color-input">
+                            <input type="text" class="color-hex" value="{{ theme.textColor ?? '#1f2937' }}" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Typography Section -->
+                <div class="editor-section">
+                    <h3>Typography</h3>
+                    <div class="form-group">
+                        <label>Heading Font</label>
+                        <select id="headingFont" class="form-select">
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="Helvetica, sans-serif">Helvetica</option>
+                            <option value="Inter, sans-serif">Inter</option>
+                            <option value="Roboto, sans-serif" selected>Roboto</option>
+                            <option value="'Open Sans', sans-serif">Open Sans</option>
+                            <option value="Lato, sans-serif">Lato</option>
+                            <option value="Montserrat, sans-serif">Montserrat</option>
+                            <option value="Poppins, sans-serif">Poppins</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Body Font</label>
+                        <select id="bodyFont" class="form-select">
+                            <option value="Arial, sans-serif">Arial</option>
+                            <option value="Georgia, serif">Georgia</option>
+                            <option value="Helvetica, sans-serif">Helvetica</option>
+                            <option value="Inter, sans-serif">Inter</option>
+                            <option value="Roboto, sans-serif" selected>Roboto</option>
+                            <option value="'Open Sans', sans-serif">Open Sans</option>
+                            <option value="Lato, sans-serif">Lato</option>
+                            <option value="Montserrat, sans-serif">Montserrat</option>
+                            <option value="Poppins, sans-serif">Poppins</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Font Size</label>
+                        <select id="fontSize" class="form-select">
+                            <option value="14px">14px</option>
+                            <option value="16px" selected>16px</option>
+                            <option value="18px">18px</option>
+                            <option value="20px">20px</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="editor-actions">
+                    <button id="applyPreview" class="btn btn-primary">
+                        <i class="fa fa-refresh"></i> Update Preview
+                    </button>
+                    <a href="{{ path('admin_app_theme_edit', {id: theme.id}) }}" class="btn btn-secondary">
+                        <i class="fa fa-arrow-left"></i> Back to Edit
+                    </a>
+                </div>
+
+                <div class="editor-note">
+                    <p><strong>Note:</strong> Changes here are for preview only. To save your theme, use the "Back to Edit" button and save the form.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Preview Panel -->
+        <div class="theme-preview-panel">
+            <div class="preview-header">
+                <span class="preview-label">Live Preview</span>
+                <div class="device-selector">
+                    <button class="device-btn active" data-device="desktop"><i class="fa fa-desktop"></i></button>
+                    <button class="device-btn" data-device="tablet"><i class="fa fa-tablet"></i></button>
+                    <button class="device-btn" data-device="mobile"><i class="fa fa-mobile"></i></button>
+                </div>
+            </div>
+            <iframe id="preview-iframe"
+                    src="{{ path('admin_theme_preview_iframe', {id: theme.id}) }}"
+                    class="preview-frame">
+            </iframe>
+        </div>
+    </div>
+
+    <script src="{{ asset('admin-assets/js/theme-preview.js') }}"></script>
+</body>
+</html>

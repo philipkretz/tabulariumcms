@@ -1,0 +1,23 @@
+{% extends '@SonataAdmin/CRUD/base_list_field.html.twig' %}
+
+{% block field %}
+    {% if object.openedAt %}
+        <span class="badge badge-success" title="Opened at {{ object.openedAt|date('Y-m-d H:i:s') }}">
+            <i class="fas fa-envelope-open me-1"></i>
+            {{ object.openedAt|date('M d, H:i') }}
+        </span>
+    {% else %}
+        <span class="text-muted">
+            <i class="fas fa-envelope me-1"></i>
+            Not opened
+        </span>
+    {% endif %}
+
+    {% if object.clickedAt %}
+        <br>
+        <span class="badge badge-info mt-1" title="Clicked at {{ object.clickedAt|date('Y-m-d H:i:s') }}">
+            <i class="fas fa-mouse-pointer me-1"></i>
+            Clicked
+        </span>
+    {% endif %}
+{% endblock %}

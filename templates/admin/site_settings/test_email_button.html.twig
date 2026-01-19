@@ -1,0 +1,37 @@
+<button type="button" class="btn btn-info" id="test-email-btn">
+    <i class="fa fa-envelope"></i> Test Email
+</button>
+
+<script>
+document.getElementById('test-email-btn').addEventListener('click', function() {
+    if (!confirm('Send a test email to verify SMTP settings?')) return;
+
+    const button = this;
+    button.disabled = true;
+    button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Sending...';
+
+    fetch('{{ path('admin_site_settings_test_email') }}', {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        button.disabled = false;
+        button.innerHTML = '<i class="fa fa-envelope"></i> Test Email';
+
+        if (data.success) {
+            alert('Success: ' + data.message);
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        button.disabled = false;
+        button.innerHTML = '<i class="fa fa-envelope"></i> Test Email';
+        alert('Error: ' + error.message);
+    });
+});
+</script>

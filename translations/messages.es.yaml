@@ -1,0 +1,443 @@
+dashboard: Panel de control
+language: Idioma
+sign_out: Cerrar sesión
+admin_login: Inicio de sesión de administrador
+username: Nombre de usuario
+password: Contraseña
+enter_your_username: Ingrese su nombre de usuario
+enter_your_password: Ingrese su contraseña
+remember_me: Recuérdame
+sign_in: Iniciar sesión
+sign_in_with_admin_credentials: Inicie sesión con sus credenciales de administrador
+
+# Homepage
+homepage:
+  title: Inicio
+  meta_description: Bienvenido a TabulariumCMS - Tu plataforma profesional de gestión de contenidos y comercio electrónico
+  hero:
+    title: Bienvenido a TabulariumCMS
+    subtitle: Tu plataforma profesional de gestión de contenidos y comercio electrónico
+    browse_products: Explorar productos
+    admin_login: Inicio de sesión de administrador
+  featured_products:
+    title: Productos destacados
+    view_all: Ver todos
+  latest_products:
+    title: Últimos productos
+    view_all: Ver todos
+  product:
+    featured: Destacado
+    in_stock: En stock
+    out_of_stock: Agotado
+    view_details: Ver detalles
+  cta:
+    title: ¿Listo para empezar?
+    subtitle: Descubre nuestra gama completa de productos y servicios
+    explore_products: Explorar productos
+
+# Login page
+login:
+  title: Iniciar sesión
+  welcome_back: Bienvenido de nuevo
+  sign_in_account: Inicia sesión en tu cuenta
+  username: Nombre de usuario
+  username_placeholder: Ingresa tu nombre de usuario
+  password: Contraseña
+  password_placeholder: Ingresa tu contraseña
+  remember_me: Recuérdame
+  sign_in: Iniciar sesión
+  no_account: ¿No tienes una cuenta?
+  register_here: Regístrate aquí
+  back_to_homepage: Volver a la página de inicio
+
+# Menu
+menu:
+  home: Inicio
+  products: Productos
+  admin: Admin
+  language: Idioma
+
+# Products
+products:
+  title: Productos
+  subtitle: Descubre nuestra gama completa de productos de calidad
+  meta_description: Explore nuestra colección de productos y servicios profesionales
+  showing_count: Mostrando %count% productos
+  featured: Destacado
+  in_stock: En stock
+  out_of_stock: Agotado
+  view_details: Ver detalles
+  back_to_all: Volver a todos los productos
+  no_products:
+    title: No hay productos disponibles
+    message: Actualmente no hay productos disponibles. Por favor, vuelve más tarde.
+  back_to_home: Volver al inicio
+
+# Category
+category:
+  no_products:
+    title: No hay productos en esta categoría
+    message: Esta categoría no tiene productos todavía. Vuelve pronto o explora otras categorías.
+
+# Newsletter
+newsletter:
+  title: Mantente Actualizado
+  subtitle: Suscríbete a nuestro boletín para recibir los últimos productos, ofertas y noticias
+  email_placeholder: Ingresa tu dirección de correo
+  subscribe: Suscribirse
+  sending: Enviando...
+  error: Ocurrió un error. Por favor, inténtalo de nuevo.
+  privacy_notice: Respetamos tu privacidad. Cancela tu suscripción en cualquier momento.
+
+# Two-Factor Authentication
+Two-Factor Authentication: Autenticación de Dos Factores
+Secure your account with an additional layer of protection: Asegure su cuenta con una capa adicional de protección
+2FA is Active: 2FA está Activo
+Your account is protected with two-factor authentication: Su cuenta está protegida con autenticación de dos factores
+Are you sure you want to disable 2FA?: ¿Está seguro de que desea desactivar 2FA?
+Disable 2FA: Desactivar 2FA
+Enable Two-Factor Authentication: Activar Autenticación de Dos Factores
+Scan the QR code below with your authenticator app (Google Authenticator, Microsoft Authenticator, or any TOTP app), then enter the 6-digit code to verify.: Escanee el código QR a continuación con su aplicación de autenticación (Google Authenticator, Microsoft Authenticator o cualquier aplicación TOTP), luego ingrese el código de 6 dígitos para verificar.
+Setup Instructions: Instrucciones de Configuración
+Download an authenticator app (Google Authenticator, Microsoft Authenticator, Authy, etc.): Descargue una aplicación de autenticación (Google Authenticator, Microsoft Authenticator, Authy, etc.)
+Open the app and tap the add button (+): Abra la aplicación y toque el botón de agregar (+)
+Scan the QR code shown above: Escanee el código QR mostrado arriba
+Enter the 6-digit code from the app below: Ingrese el código de 6 dígitos de la aplicación a continuación
+Verification Code: Código de Verificación
+Enable 2FA: Activar 2FA
+Back to Profile: Volver al Perfil
+Enter the 6-digit code from your authenticator app: Ingrese el código de 6 dígitos de su aplicación de autenticación
+Authentication Code: Código de Autenticación
+Open your authenticator app and enter the current code: Abra su aplicación de autenticación e ingrese el código actual
+Trust this device for 30 days: Confiar en este dispositivo durante 30 días
+Verify: Verificar
+Having trouble? Contact support for help.: ¿Tiene problemas? Contacte al soporte para obtener ayuda.
+Cancel and Logout: Cancelar y Cerrar Sesión
+Two-factor authentication has been enabled successfully!: ¡La autenticación de dos factores se ha activado correctamente!
+Invalid verification code. Please try again.: Código de verificación no válido. Por favor, inténtelo de nuevo.
+Two-factor authentication has been disabled.: La autenticación de dos factores se ha desactivado.
+Please enter the verification code.: Por favor ingrese el código de verificación.
+
+# Cart
+cart:
+  title: Carrito de compras
+  empty: Tu carrito está vacío
+  empty_message: Aún no has añadido ningún artículo a tu carrito.
+  add_to_cart: Añadir al carrito
+  adding: Añadiendo...
+  added_success: ✓ ¡Añadido al carrito! Redirigiendo...
+  add_failed: Error al añadir al carrito
+  add_error: ✗ Error al añadir al carrito
+
+# Profile translations
+profile:
+  edit_profile: Editar Perfil
+  profile_images: Imágenes del Perfil
+  cover_photo: Foto de Portada
+  cover_photo_hint: 1200x400px recomendado, máx. 10MB
+  click_to_upload: Haz clic para subir
+  change_cover_photo: Cambiar Foto de Portada
+  profile_picture: Foto de Perfil
+  profile_picture_hint: 400x400px recomendado, máx. 5MB
+  avatar: Avatar
+  upload_new_photo: Subir Nueva Foto
+  photo_format_hint: La imagen cuadrada funciona mejor. Acepta JPEG, PNG, GIF, WebP
+  personal_information: Información Personal
+  first_name: Nombre
+  first_name_placeholder: Introduce tu nombre
+  last_name: Apellidos
+  last_name_placeholder: Introduce tus apellidos
+  username: Nombre de usuario
+  username_cannot_change: El nombre de usuario no se puede cambiar
+  profile_details: Detalles del Perfil
+  tagline: Eslogan
+  tagline_hint: se muestra debajo de tu nombre
+  tagline_placeholder: "ej., Desarrollador Web | Diseñador | Amante del Café"
+  max_characters: "Máx. %count% caracteres"
+  characters_remaining: caracteres restantes
+  bio: Biografía
+  bio_hint: cuéntale a la gente sobre ti
+  bio_placeholder: Escribe algo sobre ti...
+  looking_for: Estoy buscando
+  looking_for_placeholder: "Describe lo que estás buscando, ej., conexiones, oportunidades, colaboraciones..."
+  offering: Lo que ofrezco
+  offering_placeholder: "Describe lo que puedes ofrecer, ej., habilidades, servicios, productos, conocimiento..."
+  location: Ubicación
+  location_placeholder: "Ciudad, País"
+  website: Sitio Web
+  website_placeholder: "https://tusitioweb.com"
+  interests: Intereses
+  interests_placeholder: "ej., Fotografía, Viajes, Programación, Música"
+  comma_separated: separados por comas
+  interests_hint: Separa múltiples intereses con comas
+  social_media_links: Enlaces de Redes Sociales
+  social_media_description: Conecta tus cuentas de redes sociales para mostrarlas en tu perfil
+  custom_links: Enlaces Personalizados
+  custom_links_description: "Añade otros enlaces (portafolio, blog, etc.)"
+  link_label: Etiqueta del Enlace
+  add_custom_link: Añadir Enlace Personalizado
+  email_address: Dirección de Correo Electrónico
+  email_change_warning: Cambiar tu correo requiere verificación de contraseña. Tu estado de verificación de correo se restablecerá.
+  new_email_address: Nueva Dirección de Correo
+  email_placeholder: tu@correo.com
+  current_password: Contraseña Actual
+  password_required_hint: Requerido para cambiar el correo
+  password_only_for_email: Solo requerido si cambias el correo
+  preferences: Preferencias
+  language: Idioma
+  preview: Vista Previa
+  preview_mode: Modo Vista Previa
+  preview_hint: Así es como otros verán tu perfil
+  view_public: Ver Público
+  about: Acerca de
+  joined: Se unió
+  views: vistas
+  friends: Amigos
+  media: Multimedia
+  recent_media: Multimedia Reciente
+  manage_gallery: Gestionar Galería
+  no_media: Aún no hay multimedia subida
+  upload_media: Subir multimedia
+  no_friends: Aún no hay amigos
+  # Social media platforms
+  facebook: Facebook
+  instagram: Instagram
+  twitter: Twitter / X
+  linkedin: LinkedIn
+  youtube: YouTube
+  tiktok: TikTok
+  snapchat: Snapchat
+  pinterest: Pinterest
+  # Social media placeholders
+  facebook_placeholder: "https://facebook.com/tuperfil"
+  instagram_placeholder: "https://instagram.com/tuperfil"
+  twitter_placeholder: "https://twitter.com/tuperfil"
+  linkedin_placeholder: "https://linkedin.com/in/tuperfil"
+  youtube_placeholder: "https://youtube.com/@tucanal"
+  tiktok_placeholder: "https://tiktok.com/@tuperfil"
+  snapchat_placeholder: "https://snapchat.com/add/tunombredeusuario"
+  pinterest_placeholder: "https://pinterest.com/tuperfil"
+  # Profile actions
+  add_friend: Añadir amigo
+  friends_status: Amigos
+  message: Mensaje
+  report: Reportar
+  cancel: Cancelar
+  save_changes: Guardar cambios
+  # Private profile
+  private_profile: Perfil Privado
+  private_profile_message: Este perfil es privado. Añade a %name% como amigo para ver más.
+  # View all
+  view_all: Ver todo
+  # Report modal
+  report_profile: Reportar Perfil
+  report_reason: Motivo
+  report_reason_select: Selecciona un motivo...
+  report_spam: Spam
+  report_inappropriate: Contenido inapropiado
+  report_harassment: Acoso
+  report_impersonation: Suplantación de identidad
+  report_other: Otro
+  report_details: Detalles adicionales (Opcional)
+  submit_report: Enviar reporte
+  # Friend request
+  sending: Enviando...
+  request_sent: Solicitud enviada
+  friend_request_sent: Solicitud de amistad enviada a %name%
+  friend_request_failed: Error al enviar la solicitud de amistad
+  network_error: Error de red. Por favor, inténtalo de nuevo.
+  # Media gallery
+  media_gallery: Galería de Medios
+  files_uploaded: "%count% archivos subidos"
+  max_file_size_info: "(máx. %size%MB por archivo)"
+  upload_media_button: Subir multimedia
+  gallery_full: Galería llena
+  uploading: Subiendo...
+  no_media_title: Aún no hay multimedia
+  no_media_description: Sube imágenes y vídeos para mostrar en tu perfil
+  upload_first_file: Sube tu primer archivo
+  supported_formats: "Formatos soportados:"
+  formats_list: "JPEG, PNG, GIF, WebP, MP4, WebM"
+  maximum_file_size: "Tamaño máximo de archivo:"
+  storage_limit: "Límite de almacenamiento:"
+  files_per_user: "archivos por usuario"
+  delete_media: Eliminar multimedia
+  delete_media_confirm: ¿Estás seguro de que quieres eliminar esta multimedia? Esta acción no se puede deshacer.
+  delete: Eliminar
+  max_files_reached: Has alcanzado el número máximo de archivos.
+  file_size_exceeded: "El archivo supera el tamaño máximo de %size%MB"
+  upload_failed: Error al subir. Por favor, inténtalo de nuevo.
+  delete_failed: Error al eliminar. Por favor, inténtalo de nuevo.
+  view_full_size: Ver tamaño completo
+  public_click_hide: Público - Clic para ocultar
+  hidden_click_show: Oculto - Clic para mostrar
+
+# Common/shared translations
+common:
+  save: Guardar
+  cancel: Cancelar
+  delete: Eliminar
+  edit: Editar
+  close: Cerrar
+  back: Atrás
+  language_english: English
+  language_spanish: Español
+  language_catalan: Català
+  language_german: Deutsch
+  language_french: Français
+
+# Checkout
+checkout:
+  title: Pagar
+  subtitle: Complete su pedido en unos simples pasos
+  guest_checkout_title: Pago como invitado
+  guest_checkout_message: Complete su pedido rápidamente sin crear una cuenta
+  logged_in_title: "¡Bienvenido de nuevo!"
+  logged_in_message: La información de su cuenta se ha rellenado automáticamente.
+  steps:
+    customer_info: Información del cliente
+    address: Dirección
+    shipping: Envío
+    payment: Pago
+  customer_information: Información del Cliente
+  billing_and_shipping: Dirección de Facturación y Envío
+  shipping_method_title: Método de Envío
+  payment_and_review: Pago y Revisión
+  payment_method_title: Método de Pago
+  order_notes_optional: Notas del Pedido (Opcional)
+  order_notes_placeholder: Instrucciones especiales para su pedido...
+  select_title: Seleccionar título
+  select_country: Seleccionar país
+  optional: Opcional
+  address_line2_placeholder: Apartamento, suite, unidad, edificio, piso, etc.
+  continue_to_address: Continuar a Dirección
+  continue_to_shipping: Continuar a Envío
+  continue_to_payment: Continuar a Pago
+  back: Atrás
+  create_account_text: Guarde su información para un pago más rápido la próxima vez y siga sus pedidos
+  password_min_8: Mínimo 8 caracteres
+  passwords_no_match: Las contraseñas no coinciden
+  subtotal: Subtotal
+  shipping: Envío
+  payment_fee: Tarifa de Pago
+  total: Total
+  place_order: Realizar Pedido
+  secure_checkout: Pago seguro - Sus datos están encriptados
+  order_summary: Resumen del Pedido
+  # Store finder
+  nearby_stores: Tiendas Cercanas
+  store_finder_info: Encuentre tiendas cerca de usted donde puede recoger su pedido.
+  detect_location: Detectar Mi Ubicación
+  location_permission_hint: Permita el acceso GPS para encontrar tiendas cercanas
+  finding_stores: Buscando tiendas cercanas...
+  no_stores_found: No se encontraron tiendas cerca de su ubicación. Por favor contáctenos.
+  store_load_error: Error al cargar las tiendas. Por favor inténtelo de nuevo.
+  selected_pickup_location: Punto de Recogida Seleccionado
+  please_select_store: Por favor seleccione una tienda de recogida antes de realizar el pedido
+
+# Setup Wizard
+setup:
+  title: Asistente de Configuración
+  subtitle: Bienvenido al asistente de instalación de TabulariumCMS
+
+  steps:
+    welcome: Bienvenido
+    database: Base de Datos
+    migrations: Migraciones
+    admin: Usuario Admin
+    settings: Configuración
+    complete: Completado
+
+  welcome_title: Bienvenido a TabulariumCMS
+  welcome_description: Este asistente le guiará a través de la configuración inicial de su CMS. Comencemos verificando los requisitos del sistema.
+  before_you_begin: Antes de comenzar
+  requirement_database: Asegúrese de tener una base de datos MySQL/MariaDB lista
+  requirement_credentials: Tenga sus credenciales de base de datos disponibles
+  requirement_email: Prepare una dirección de correo electrónico para la cuenta de administrador
+  system_requirements: Requisitos del Sistema
+  click_check_requirements: Haga clic en "Verificar Requisitos" para verificar la configuración de su sistema
+  check_requirements: Verificar Requisitos
+  checking: Verificando...
+  required: Requerido
+  current: Actual
+  all_requirements_met: ¡Todos los requisitos cumplidos!
+  recheck_requirements: Volver a Verificar
+  error_checking_requirements: Error al verificar los requisitos
+  retry: Reintentar
+
+  database_config_title: Configuración de Base de Datos
+  database_config_description: Ingrese los datos de conexión de su base de datos MySQL/MariaDB. Asegúrese de que la base de datos ya exista.
+  db_host: Host de Base de Datos
+  db_port: Puerto de Base de Datos
+  db_name: Nombre de Base de Datos
+  db_user: Usuario de Base de Datos
+  db_password: Contraseña de Base de Datos
+  test_connection: Probar Conexión
+  testing: Probando conexión...
+  connection_error: Error de conexión
+  database_warning: La configuración de la base de datos se guardará en .env.local. Asegúrese de hacer una copia de seguridad de este archivo después de la instalación.
+  error_saving_config: Error al guardar la configuración
+
+  migrations_title: Migraciones de Base de Datos
+  migrations_description: Haga clic en el botón de abajo para crear todas las tablas de base de datos necesarias.
+  migrations_info: Este paso ejecutará todas las migraciones de base de datos para crear las tablas necesarias.
+  migration_progress: Progreso de Migración
+  run_migrations: Ejecutar Migraciones
+  running_migrations: Ejecutando migraciones...
+  migrations_complete: Migraciones Completadas
+  retry_migrations: Reintentar Migraciones
+
+  admin_title: Crear Cuenta de Administrador
+  admin_description: Cree la cuenta de super administrador que tendrá acceso completo al sistema.
+  admin_firstname: Nombre
+  admin_lastname: Apellido
+  admin_email: Correo Electrónico
+  admin_username: Nombre de Usuario
+  admin_password: Contraseña
+  admin_password_confirm: Confirmar Contraseña
+  password_placeholder: Ingrese contraseña (mín. 8 caracteres)
+  password_confirm_placeholder: Confirme su contraseña
+  password_min_chars: Mínimo 8 caracteres requeridos
+  create_admin: Crear Cuenta Admin
+  creating_admin: Creando cuenta de admin...
+  passwords_dont_match: Las contraseñas no coinciden
+  error_creating_admin: Error al crear la cuenta de admin
+  admin_security_note: Guarde sus credenciales de forma segura. Esta cuenta tiene acceso administrativo completo a todo el sistema.
+
+  settings_title: Configuración del Sitio
+  settings_description: Configure los ajustes básicos de su sitio web. Puede cambiarlos más tarde en el panel de administración.
+  site_name: Nombre del Sitio
+  site_name_placeholder: Mi Sitio Web Increíble
+  default_language: Idioma Predeterminado
+  primary_color: Color Primario
+  secondary_color: Color Secundario
+  color_help: Usado para botones, encabezados y acentos
+  color_preview: Vista Previa de Colores
+  primary: Primario
+  secondary: Secundario
+  save_settings: Guardar Configuración
+  saving_settings: Guardando configuración...
+  error_saving_settings: Error al guardar la configuración
+
+  complete_title: ¡Instalación Completada!
+  complete_description: Su instalación de TabulariumCMS ha sido configurada exitosamente y está lista para usar.
+  complete_checklist: Pasos Completados
+  complete_requirements: Requisitos del sistema verificados
+  complete_database: Base de datos configurada
+  complete_migrations: Tablas de base de datos creadas
+  complete_admin: Cuenta de administrador creada
+  complete_settings: Configuración del sitio establecida
+  complete_installation: Completar Instalación
+  completing: Completando instalación...
+  installation_complete: ¡Instalación Completada!
+  completion_error: Error al completar la instalación
+  error_completing: Error al completar la instalación
+  whats_next: ¿Qué Sigue?
+  whats_next_description: Ahora puede iniciar sesión en el panel de administración para comenzar a crear contenido y personalizar su sitio.
+  go_to_admin: Ir al Panel de Admin
+  go_to_frontend: Visitar Sitio Web
+
+  continue: Continuar
+  back: Atrás
+  saving: Guardando...
+

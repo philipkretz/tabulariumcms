@@ -1,0 +1,93 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'products.title'|trans }} - {{ parent() }}{% endblock %}
+
+{% block meta_description %}{{ 'products.meta_description'|trans }}{% endblock %}
+
+{% block body %}
+<!-- Include Navigation -->
+{% include 'components/navigation.html.twig' %}
+
+<!-- Cookie Banner -->
+{% include 'components/cookie_banner.html.twig' %}
+
+<!-- Page Header -->
+<div class="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-200 py-16">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl font-bold mb-3 bg-gradient-to-r from-amber-800 to-amber-950 bg-clip-text text-transparent">{{ 'products.title'|trans }}</h1>
+        <p class="text-lg text-amber-900">{{ 'products.subtitle'|trans }}</p>
+    </div>
+</div>
+
+<!-- Products Grid -->
+<div class="container mx-auto px-4 py-12">
+    {% if products|length > 0 %}
+        <div class="mb-6 flex items-center justify-between">
+            <p class="text-gray-600">{{ 'products.showing_count'|trans({'count': products|length}) }}</p>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for product in products %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 border border-amber-100">
+                <!-- Product Image -->
+                <div class="bg-gray-100 h-56 flex items-center justify-center">
+                    {% if product.mainImage %}
+                    <img src="/uploads/media/{{ product.mainImage.filename }}"
+                         alt="{{ product.mainImage.alt ?? product.name }}"
+                         class="w-full h-full object-cover">
+                    {% else %}
+                    <span class="text-6xl">📦</span>
+                    {% endif %}
+                </div>
+
+                <!-- Product Info -->
+                <div class="p-5">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2 line-clamp-2 min-h-[3.5rem]">{{ product.name }}</h3>
+
+                    {% if product.shortDescription %}
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ product.shortDescription }}</p>
+                    {% endif %}
+
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-2xl font-bold text-green-600">{{ product.grossPrice|price(app.request.locale) }}</span>
+
+                        <!-- Stock Status -->
+                        {% if product.ignoreStock or product.stock > 0 %}
+                        <span class="text-xs text-green-600 font-semibold flex items-center gap-1">
+                            <span class="w-2 h-2 bg-green-600 rounded-full"></span>
+                            {{ 'products.in_stock'|trans }}
+                        </span>
+                        {% else %}
+                        <span class="text-xs text-red-600 font-semibold flex items-center gap-1">
+                            <span class="w-2 h-2 bg-red-600 rounded-full"></span>
+                            {{ 'products.out_of_stock'|trans }}
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <a href="{{ path('app_product_detail', {slug: product.slug}) }}"
+                       class="block w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white text-center py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-900 transition shadow-md">
+                        {{ 'products.view_details'|trans }}
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="text-center py-16">
+            <div class="text-6xl mb-4">🛍️</div>
+            <h2 class="text-2xl font-bold text-gray-700 mb-2">{{ 'products.no_products.title'|trans }}</h2>
+            <p class="text-gray-600">{{ 'products.no_products.message'|trans }}</p>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+{% endblock %}

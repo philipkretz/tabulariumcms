@@ -1,0 +1,139 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Conversation with {{ otherUser.username }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+<!-- Include Navigation -->
+{% include 'components/navigation.html.twig' %}
+
+<!-- Cookie Banner -->
+{% include 'components/cookie_banner.html.twig' %}
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8"
+     data-conversation-user-id="{{ otherUser.id }}"
+     data-current-username="{{ currentUser.username }}">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6">
+            <div class="flex items-center space-x-4">
+                <a href="{{ path('app_messages_inbox') }}" class="flex-shrink-0 p-2 hover:bg-gray-100 rounded-lg transition">
+                    <i class="fas fa-arrow-left text-gray-600"></i>
+                </a>
+
+                <!-- Other User Info -->
+                <div class="flex items-center space-x-3 flex-1">
+                    {% if otherUser.profile and otherUser.profile.avatar %}
+                        <img src="{{ asset(otherUser.profile.avatar) }}"
+                             alt="{{ otherUser.username }}"
+                             class="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover">
+                    {% else %}
+                        <div class="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+                            <span class="text-white font-bold text-lg">
+                                {{ otherUser.username|slice(0, 1)|upper }}
+                            </span>
+                        </div>
+                    {% endif %}
+
+                    <div class="flex-1">
+                        <h1 class="text-xl sm:text-2xl font-bold text-gray-900">
+                            {{ otherUser.username }}
+                        </h1>
+                        {% if otherUser.profile and otherUser.profile.firstName %}
+                            <p class="text-sm text-gray-600">
+                                {{ otherUser.profile.firstName }} {{ otherUser.profile.lastName }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    <a href="{{ path('app_public_profile', {slug: otherUser.profile.profileSlug ?? otherUser.username}) }}"
+                       class="hidden sm:inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm">
+                        <i class="fas fa-user mr-2"></i>
+                        View Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div class="bg-white rounded-lg shadow-lg">
+            <!-- Messages List -->
+            <div id="messages-container" class="p-4 sm:p-6 space-y-4 max-h-[500px] overflow-y-auto">
+                {% if messages is empty %}
+                    <div class="text-center py-8 text-gray-500">
+                        <p>No messages yet. Start the conversation below!</p>
+                    </div>
+                {% else %}
+                    {% for message in messages %}
+                        {% set isCurrentUser = message.sender.id == currentUser.id %}
+
+                        <div class="flex {{ isCurrentUser ? 'justify-end' : 'justify-start' }}" data-message-id="{{ message.id }}">
+                            <div class="flex {{ isCurrentUser ? 'flex-row-reverse' : 'flex-row' }} max-w-[80%] sm:max-w-[70%]">
+                                <!-- Avatar (only for other user) -->
+                                {% if not isCurrentUser %}
+                                    <div class="flex-shrink-0 mr-2">
+                                        {% if otherUser.profile and otherUser.profile.avatar %}
+                                            <img src="{{ asset(otherUser.profile.avatar) }}"
+                                                 alt="{{ otherUser.username }}"
+                                                 class="w-8 h-8 rounded-full object-cover">
+                                        {% else %}
+                                            <div class="w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+                                                <span class="text-white font-bold text-xs">
+                                                    {{ otherUser.username|slice(0, 1)|upper }}
+                                                </span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                <!-- Message Bubble -->
+                                <div class="{{ isCurrentUser ? 'ml-2' : 'mr-2' }}">
+                                    <div class="rounded-lg px-4 py-2 {{ isCurrentUser ? 'bg-yellow-600 text-white' : 'bg-gray-100 text-gray-900' }}">
+                                        <p class="text-sm break-words whitespace-pre-wrap">{{ message.content }}</p>
+                                    </div>
+                                    <div class="flex items-center mt-1 space-x-2 {{ isCurrentUser ? 'justify-end' : 'justify-start' }}">
+                                        <span class="text-xs text-gray-500">
+                                            {{ message.sentAt|date('H:i') }}
+                                        </span>
+                                        {% if isCurrentUser and message.isRead %}
+                                            <i class="fas fa-check-double text-xs text-blue-500" title="Read"></i>
+                                        {% elseif isCurrentUser %}
+                                            <i class="fas fa-check text-xs text-gray-400" title="Sent"></i>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Send Message Form -->
+            <div class="border-t border-gray-200 p-4">
+                <form id="send-message-form" action="{{ path('app_messages_send') }}" method="POST" class="flex space-x-2">
+                    <input type="hidden" name="receiver_id" value="{{ otherUser.id }}">
+                    <textarea
+                        id="message-input"
+                        name="content"
+                        rows="1"
+                        placeholder="Type your message..."
+                        class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:border-transparent resize-none"
+                        required
+                    ></textarea>
+                    <button
+                        type="submit"
+                        class="px-6 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg transition flex-shrink-0"
+                    >
+                        <i class="fas fa-paper-plane"></i>
+                        <span class="hidden sm:inline ml-2">Send</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="module" src="{{ asset('assets/js/messaging.js') }}"></script>
+{% endblock %}
+{% endblock %}

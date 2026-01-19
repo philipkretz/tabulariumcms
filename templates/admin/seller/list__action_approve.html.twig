@@ -1,0 +1,9 @@
+{% if object.isApproved %}
+    <a href="{{ admin.generateObjectUrl('approve', object) }}" class="btn btn-sm btn-warning" title="Revoke approval">
+        <i class="fa fa-ban"></i> Unapprove
+    </a>
+{% else %}
+    <a href="{{ admin.generateObjectUrl('approve', object) }}" class="btn btn-sm btn-success" title="Approve this seller">
+        <i class="fa fa-check"></i> Approve
+    </a>
+{% endif %}

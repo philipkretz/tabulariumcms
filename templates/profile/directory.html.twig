@@ -1,0 +1,273 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Member Directory{% endblock %}
+
+{% block body %}
+<!-- Include Navigation -->
+{% include 'components/navigation.html.twig' %}
+
+<!-- Cookie Banner -->
+{% include 'components/cookie_banner.html.twig' %}
+
+<div class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-7xl mx-auto px-4">
+        {# Header #}
+        <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-900">Member Directory</h1>
+            <p class="text-gray-600 mt-2">Discover and connect with members of our community</p>
+        </div>
+
+        {# Search and Filters #}
+        <div class="bg-white rounded-xl shadow p-6 mb-8">
+            <form method="GET" action="{{ path('app_profile_directory') }}" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {# Search Input #}
+                    <div class="lg:col-span-2">
+                        <label for="search" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-search mr-2"></i>Search
+                        </label>
+                        <input type="text"
+                               id="search"
+                               name="search"
+                               value="{{ search }}"
+                               placeholder="Name or username..."
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    </div>
+
+                    {# Location Filter #}
+                    <div>
+                        <label for="location" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-map-marker-alt mr-2"></i>Location
+                        </label>
+                        <input type="text"
+                               id="location"
+                               name="location"
+                               value="{{ location }}"
+                               placeholder="City, Country..."
+                               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-yellow-500 focus:border-yellow-500">
+                    </div>
+
+                    {# Sort By #}
+                    <div>
+                        <label for="sort" class="block text-sm font-medium text-gray-700 mb-2">
+                            <i class="fas fa-sort mr-2"></i>Sort By
+                        </label>
+                        <select id="sort"
+                                name="sort"
+                                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-yellow-500 focus:border-yellow-500">
+                            <option value="newest" {% if sortBy == 'newest' %}selected{% endif %}>Newest Members</option>
+                            <option value="popular" {% if sortBy == 'popular' %}selected{% endif %}>Most Popular</option>
+                            <option value="active" {% if sortBy == 'active' %}selected{% endif %}>Recently Active</option>
+                            <option value="alphabetical" {% if sortBy == 'alphabetical' %}selected{% endif %}>A-Z</option>
+                        </select>
+                    </div>
+                </div>
+
+                {# Advanced Filters (collapsible) #}
+                <div x-data="{ showAdvanced: false }" class="border-t border-gray-200 pt-4">
+                    <button type="button"
+                            @click="showAdvanced = !showAdvanced"
+                            class="text-sm text-yellow-600 hover:text-yellow-700 font-medium flex items-center">
+                        <i class="fas fa-chevron-down mr-2 transition-transform" :class="showAdvanced ? 'rotate-180' : ''"></i>
+                        Advanced Filters
+                    </button>
+
+                    <div x-show="showAdvanced"
+                         x-transition:enter="transition ease-out duration-200"
+                         x-transition:enter-start="opacity-0 transform -translate-y-2"
+                         x-transition:enter-end="opacity-100 transform translate-y-0"
+                         class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4"
+                         style="display: none;">
+
+                        {# Interest Filter #}
+                        <div>
+                            <label for="interest" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-star mr-2"></i>Interest
+                            </label>
+                            <input type="text"
+                                   id="interest"
+                                   name="interest"
+                                   value="{{ app.request.query.get('interest') }}"
+                                   placeholder="e.g., Photography"
+                                   class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-yellow-500 focus:border-yellow-500">
+                        </div>
+
+                        {# User Role Filter #}
+                        <div>
+                            <label for="role" class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-user-tag mr-2"></i>User Type
+                            </label>
+                            <select id="role"
+                                    name="role"
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-yellow-500 focus:border-yellow-500">
+                                <option value="">All Users</option>
+                                <option value="seller" {% if app.request.query.get('role') == 'seller' %}selected{% endif %}>Sellers Only</option>
+                                <option value="buyer" {% if app.request.query.get('role') == 'buyer' %}selected{% endif %}>Buyers Only</option>
+                            </select>
+                        </div>
+
+                        {# Has Profile Photo #}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                <i class="fas fa-image mr-2"></i>Profile Photo
+                            </label>
+                            <label class="flex items-center cursor-pointer">
+                                <input type="checkbox"
+                                       name="has_photo"
+                                       value="1"
+                                       {% if app.request.query.get('has_photo') %}checked{% endif %}
+                                       class="w-4 h-4 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500">
+                                <span class="ml-2 text-sm text-gray-700">Has profile photo</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-center pt-4 border-t border-gray-200">
+                    <a href="{{ path('app_profile_directory') }}"
+                       class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 transition">
+                        Clear Filters
+                    </a>
+                    <button type="submit"
+                            class="bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition">
+                        <i class="fas fa-filter mr-2"></i>Apply Filters
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        {# Results Count and View Toggle #}
+        <div class="mb-6 flex justify-between items-center">
+            <p class="text-gray-600">
+                <span class="font-semibold text-gray-900">{{ users|length }}</span> members found
+            </p>
+
+            {# Grid/List View Toggle #}
+            <div class="flex gap-2" x-data="{ view: '{{ app.request.query.get('view', 'grid') }}' }">
+                <button @click="view = 'grid'; document.getElementById('member-container').className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'"
+                        :class="view === 'grid' ? 'bg-yellow-500 text-white' : 'bg-gray-200 text-gray-700'"
+                        class="px-4 py-2 rounded-lg hover:bg-yellow-600 transition">
+                    <i class="fas fa-th"></i>
+                    <span class="ml-2 hidden sm:inline">Grid</span>
+                </button>
+                <button @click="view = 'list'; document.getElementById('member-container').className = 'space-y-4'"
+                        :class="view === 'list' ? 'bg-yellow-500 text-white' : 'bg-gray-200 text-gray-700'"
+                        class="px-4 py-2 rounded-lg hover:bg-yellow-600 transition">
+                    <i class="fas fa-list"></i>
+                    <span class="ml-2 hidden sm:inline">List</span>
+                </button>
+            </div>
+        </div>
+
+        {# Member Grid #}
+        {% if users|length > 0 %}
+            <div id="member-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {% for user in users %}
+                    {% set profile = user.profile %}
+                    <div class="bg-white rounded-xl shadow hover:shadow-lg transition overflow-hidden">
+                        {# Cover Photo #}
+                        <div class="relative h-32 bg-gradient-to-br from-yellow-400 to-yellow-600">
+                            {% if profile.coverPhoto %}
+                                <img src="{{ asset('uploads/profiles/' ~ profile.coverPhoto) }}" alt="Cover" class="w-full h-full object-cover">
+                            {% endif %}
+                        </div>
+
+                        {# Profile Content #}
+                        <div class="p-6 -mt-12">
+                            {# Avatar #}
+                            <div class="flex justify-center mb-4">
+                                {% if profile.avatar %}
+                                    <img src="{{ asset('uploads/profiles/' ~ profile.avatar) }}" alt="{{ user.fullName }}" class="w-24 h-24 rounded-full border-4 border-white shadow-lg">
+                                {% else %}
+                                    {% set initials = user.firstName|slice(0, 1)|upper ~ user.lastName|slice(0, 1)|upper %}
+                                    <div class="w-24 h-24 rounded-full border-4 border-white shadow-lg bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-white text-2xl font-bold">
+                                        {{ initials }}
+                                    </div>
+                                {% endif %}
+                            </div>
+
+                            {# User Info #}
+                            <div class="text-center">
+                                <h3 class="text-xl font-bold text-gray-900">{{ user.fullName }}</h3>
+
+                                {% if profile.tagline %}
+                                    <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ profile.tagline }}</p>
+                                {% endif %}
+
+                                {% if profile.location %}
+                                    <div class="flex items-center justify-center text-sm text-gray-500 mt-2">
+                                        <i class="fas fa-map-marker-alt mr-1"></i>
+                                        {{ profile.location }}
+                                    </div>
+                                {% endif %}
+
+                                {# Stats #}
+                                <div class="flex justify-center gap-4 mt-4 text-sm">
+                                    <div class="text-center">
+                                        <div class="font-bold text-gray-900">{{ profile.profileViews }}</div>
+                                        <div class="text-gray-500">Views</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="font-bold text-gray-900">
+                                            {% set friendCount = 0 %}
+                                            {# This would need a method in UserProfile to get friend count #}
+                                            {{ friendCount }}
+                                        </div>
+                                        <div class="text-gray-500">Friends</div>
+                                    </div>
+                                </div>
+
+                                {# Interests Tags #}
+                                {% if profile.interests and profile.interests|length > 0 %}
+                                    <div class="flex flex-wrap justify-center gap-2 mt-4">
+                                        {% for interest in profile.interests|slice(0, 3) %}
+                                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">
+                                                {{ interest }}
+                                            </span>
+                                        {% endfor %}
+                                        {% if profile.interests|length > 3 %}
+                                            <span class="text-gray-500 text-xs px-2 py-1">
+                                                +{{ profile.interests|length - 3 }} more
+                                            </span>
+                                        {% endif %}
+                                    </div>
+                                {% endif %}
+
+                                {# View Profile Button #}
+                                <a href="{{ path('app_public_profile', {slug: profile.profileSlug ?? user.username}) }}" class="block w-full bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition mt-4">
+                                    View Profile
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            {# Empty State #}
+            <div class="bg-white rounded-xl shadow p-12 text-center">
+                <i class="fas fa-users text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">No Members Found</h3>
+                <p class="text-gray-600">Try adjusting your search filters to find members.</p>
+                <a href="{{ path('app_profile_directory') }}" class="inline-block mt-4 text-yellow-600 hover:underline">
+                    Clear all filters
+                </a>
+            </div>
+        {% endif %}
+
+        {# Pagination - Placeholder for future implementation #}
+        {% if users|length > 0 %}
+            <div class="mt-8 flex justify-center">
+                <nav class="inline-flex rounded-lg shadow">
+                    {# Pagination will be added in future phase #}
+                </nav>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block javascripts %}
+    {{ parent() }}
+    <!-- Alpine.js for interactive components -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+{% endblock %}
+{% endblock %}

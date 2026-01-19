@@ -1,0 +1,64 @@
+{# User info sidebar component #}
+<div class="bg-white rounded-lg shadow-lg p-6 sticky top-6">
+    <div class="text-center mb-6">
+        {% include 'profile/_avatar.html.twig' with {'user': app.user, 'size': 'xl', 'showOnline': true} %}
+
+        <h2 class="mt-4 text-xl font-bold text-gray-900">
+            {% if app.user.firstName %}
+                {{ app.user.firstName }} {{ app.user.lastName }}
+            {% else %}
+                {{ app.user.username }}
+            {% endif %}
+        </h2>
+
+        <p class="text-sm text-gray-600 mt-1">{{ app.user.email }}</p>
+
+        {% if not app.user.isVerified %}
+            <div class="mt-3 inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                <i class="fas fa-exclamation-triangle mr-1"></i>
+                Email Not Verified
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="border-t pt-4 space-y-3">
+        <div class="flex items-center text-sm">
+            <i class="fas fa-calendar-alt w-5 text-gray-400"></i>
+            <span class="text-gray-600 ml-2">Joined {{ app.user.createdAt|date('M Y') }}</span>
+        </div>
+
+        {% if is_granted('ROLE_SELLER') %}
+            <div class="flex items-center text-sm">
+                <i class="fas fa-store w-5 text-yellow-500"></i>
+                <span class="text-gray-600 ml-2">Seller Account</span>
+            </div>
+        {% endif %}
+
+        {% if app.user.isTwoFactorEnabled %}
+            <div class="flex items-center text-sm">
+                <i class="fas fa-shield-alt w-5 text-green-500"></i>
+                <span class="text-gray-600 ml-2">2FA Enabled</span>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="mt-6 pt-4 border-t space-y-2">
+        <a href="{{ path('app_profile_preview') }}"
+           class="block w-full px-4 py-2 text-center text-sm font-medium text-yellow-600 bg-yellow-50 hover:bg-yellow-100 rounded-lg transition">
+            <i class="fas fa-eye mr-2"></i>
+            Preview Profile
+        </a>
+        {% if app.user.profile and (app.user.profile.profileSlug or app.user.username) %}
+            <a href="{{ path('app_public_profile', {slug: app.user.profile.profileSlug ?? app.user.username}) }}"
+               class="block w-full px-4 py-2 text-center text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-lg transition">
+                <i class="fas fa-external-link-alt mr-2"></i>
+                View Public Profile
+            </a>
+        {% endif %}
+        <a href="{{ path('app_logout') }}"
+           class="block w-full px-4 py-2 text-center text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition">
+            <i class="fas fa-sign-out-alt mr-2"></i>
+            Sign Out
+        </a>
+    </div>
+</div>

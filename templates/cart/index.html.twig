@@ -1,0 +1,272 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Shopping Cart - {{ parent() }}{% endblock %}
+
+{% block body %}
+<!-- Include Navigation -->
+{% include 'components/navigation.html.twig' %}
+
+<!-- Cookie Banner -->
+{% include 'components/cookie_banner.html.twig' %}
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
+    <div class="max-w-6xl mx-auto px-4">
+        <h1 class="text-4xl font-bold mb-8 bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 text-transparent bg-clip-text">
+            Shopping Cart
+        </h1>
+
+        <script>
+            console.log('Cart data:', {{ cart ? 'exists' : 'null' }});
+            console.log('Cart items count:', {{ cart and cart.items ? cart.items|length : 0 }});
+        </script>
+
+        <div id="cart-content">
+            {% if cart and cart.items|length > 0 %}
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Cart Items -->
+                    <div class="lg:col-span-2 space-y-4">
+                        {% for item in cart.items %}
+                            <div class="bg-white rounded-2xl shadow-lg p-6 cart-item" data-item-id="{{ item.id }}">
+                                <div class="flex flex-col md:flex-row gap-6">
+                                    <!-- Product Image -->
+                                    <div class="flex-shrink-0">
+                                        <div class="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                                            {% if item.article.mainImage %}
+                                                <img src="/uploads/media/{{ item.article.mainImage.filename }}"
+                                                     alt="{{ item.article.name }}"
+                                                     class="w-full h-full object-cover">
+                                            {% else %}
+                                                <span class="text-4xl">📦</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Product Info -->
+                                    <div class="flex-1">
+                                        <a href="{{ path('app_product_detail', {slug: item.article.slug}) }}"
+                                           class="text-xl font-bold text-gray-900 hover:text-amber-600 transition">
+                                            {{ item.article.name }}
+                                        </a>
+                                        <p class="text-sm text-gray-600 mt-1">SKU: {{ item.article.sku }}</p>
+                                        <p class="text-lg font-semibold text-green-600 mt-2">
+                                            {{ item.price|price(app.request.locale) }}
+                                        </p>
+
+                                        <!-- Quantity Controls -->
+                                        <div class="flex items-center gap-4 mt-4">
+                                            <div class="flex items-center border-2 border-gray-300 rounded-lg">
+                                                <button onclick="updateQuantity({{ item.id }}, {{ item.quantity - 1 }})"
+                                                        class="px-4 py-2 text-gray-600 hover:bg-gray-100 transition"
+                                                        {% if item.quantity <= 1 %}disabled{% endif %}>
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <span class="px-6 py-2 font-semibold quantity-display">{{ item.quantity }}</span>
+                                                <button onclick="updateQuantity({{ item.id }}, {{ item.quantity + 1 }})"
+                                                        class="px-4 py-2 text-gray-600 hover:bg-gray-100 transition">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+
+                                            <button onclick="removeItem({{ item.id }})"
+                                                    class="text-red-600 hover:text-red-800 transition font-semibold">
+                                                <i class="fas fa-trash mr-2"></i>Remove
+                                            </button>
+                                        </div>
+
+                                        <!-- Subtotal -->
+                                        <div class="mt-4 text-right">
+                                            <span class="text-gray-600">Subtotal: </span>
+                                            <span class="text-xl font-bold text-gray-900 item-subtotal">{{ item.subtotal|price(app.request.locale) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Order Summary -->
+                    <div class="lg:col-span-1">
+                        <div class="bg-white rounded-2xl shadow-lg p-6 sticky top-24">
+                            <h2 class="text-2xl font-bold mb-6">Order Summary</h2>
+
+                            <div class="space-y-4 mb-6">
+                                <div class="flex justify-between text-lg">
+                                    <span class="text-gray-600">Subtotal:</span>
+                                    <span class="font-semibold" id="cart-subtotal">{{ cart.total|price(app.request.locale) }}</span>
+                                </div>
+                                <div class="flex justify-between text-lg">
+                                    <span class="text-gray-600">Items:</span>
+                                    <span class="font-semibold" id="cart-item-count">{{ cart.itemCount }}</span>
+                                </div>
+                            </div>
+
+                            <div class="border-t pt-4 mb-6">
+                                <div class="flex justify-between text-2xl font-bold">
+                                    <span>Total:</span>
+                                    <span class="text-green-600" id="cart-total">{{ cart.total|price(app.request.locale) }}</span>
+                                </div>
+                            </div>
+
+                            <a href="{{ path('app_checkout') }}"
+                               class="block w-full bg-gradient-to-r from-green-600 via-green-500 to-green-600 hover:from-green-700 hover:via-green-600 hover:to-green-700 text-white font-bold py-4 rounded-lg transition duration-300 shadow-lg text-center">
+                                Proceed to Checkout
+                            </a>
+
+                            <a href="{{ path('app_products') }}"
+                               class="block w-full mt-4 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-3 rounded-lg transition text-center">
+                                Continue Shopping
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Empty Cart -->
+                <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
+                    <div class="mb-6">
+                        <i class="fas fa-shopping-cart text-6xl text-gray-300"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">Your cart is empty</h2>
+                    <p class="text-gray-600 mb-8">Looks like you haven't added any items to your cart yet.</p>
+                    <a href="{{ path('app_products') }}"
+                       class="inline-block bg-gradient-to-r from-amber-600 to-amber-800 text-white px-8 py-3 rounded-lg font-semibold hover:from-amber-700 hover:to-amber-900 transition shadow-lg">
+                        Browse Products
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" style="display: none; position: fixed; bottom: 2rem; right: 2rem; background: #16a34a; color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 1000; animation: slideIn 0.3s ease-out;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span id="toast-message" style="font-weight: 600;"></span>
+    </div>
+</div>
+
+<script>
+async function updateQuantity(itemId, newQuantity) {
+    if (newQuantity < 1) return;
+
+    try {
+        const response = await fetch(`/api/cart/update/${itemId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                quantity: newQuantity
+            })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Update the display
+            const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
+            if (itemElement) {
+                itemElement.querySelector('.quantity-display').textContent = newQuantity;
+
+                // Update subtotal for this item
+                const item = data.cart.items.find(i => i.id === itemId);
+                if (item) {
+                    itemElement.querySelector('.item-subtotal').textContent = formatPrice(item.subtotal);
+                }
+            }
+
+            // Update cart totals
+            updateCartTotals(data.cart.totals);
+            updateCartCount(data.cart.totals.itemCount);
+            showToast('Cart updated successfully');
+        } else {
+            showToast(data.error || 'Failed to update cart', true);
+        }
+    } catch (error) {
+        console.error('Error updating cart:', error);
+        showToast('Error updating cart', true);
+    }
+}
+
+async function removeItem(itemId) {
+    if (!confirm('Are you sure you want to remove this item from your cart?')) {
+        return;
+    }
+
+    try {
+        const response = await fetch(`/api/cart/remove/${itemId}`, {
+            method: 'DELETE',
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+            // Remove the item from display
+            const itemElement = document.querySelector(`[data-item-id="${itemId}"]`);
+            if (itemElement) {
+                itemElement.style.opacity = '0';
+                itemElement.style.transform = 'scale(0.95)';
+                itemElement.style.transition = 'all 0.3s ease-out';
+
+                setTimeout(() => {
+                    itemElement.remove();
+
+                    // Check if cart is empty
+                    if (data.cart.items.length === 0) {
+                        location.reload();
+                    } else {
+                        updateCartTotals(data.cart.totals);
+                        updateCartCount(data.cart.totals.itemCount);
+                    }
+                }, 300);
+            }
+
+            showToast('Item removed from cart');
+        } else {
+            showToast(data.error || 'Failed to remove item', true);
+        }
+    } catch (error) {
+        console.error('Error removing item:', error);
+        showToast('Error removing item', true);
+    }
+}
+
+function updateCartTotals(totals) {
+    document.getElementById('cart-subtotal').textContent = formatPrice(totals.subtotal);
+    document.getElementById('cart-total').textContent = formatPrice(totals.subtotal);
+    document.getElementById('cart-item-count').textContent = totals.itemCount;
+}
+
+function formatPrice(amount) {
+    return new Intl.NumberFormat('{{ app.request.locale }}', {
+        style: 'currency',
+        currency: 'EUR'
+    }).format(amount);
+}
+
+function showToast(message, isError = false) {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+
+    toast.style.background = isError ? '#ef4444' : '#16a34a';
+    toastMessage.textContent = message;
+    toast.style.display = 'block';
+
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 3000);
+}
+</script>
+
+<style>
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+</style>
+{% endblock %}

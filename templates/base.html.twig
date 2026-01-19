@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="{% block html_lang %}en{% endblock %}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+
+    {# SEO Title #}
+    <title>{% block title %}TabulariumCMS{% endblock %}</title>
+
+    {# SEO Meta Tags - Can be overridden in child templates #}
+    {% block meta_tags %}
+        <meta name="description" content="{% block meta_description %}Professional CMS platform for content management, e-commerce, and digital experiences{% endblock %}">
+        <meta name="keywords" content="{% block meta_keywords %}cms, content management, ecommerce, website builder{% endblock %}">
+        <meta name="author" content="{% block meta_author %}TabulariumCMS{% endblock %}">
+        <meta name="robots" content="{% block meta_robots %}index, follow{% endblock %}">
+        <link rel="canonical" href="{% block canonical_url %}{{ app.request.uri }}{% endblock %}">
+
+        {# Open Graph / Facebook #}
+        <meta property="og:type" content="{% block og_type %}website{% endblock %}">
+        <meta property="og:url" content="{% block og_url %}{{ app.request.uri }}{% endblock %}">
+        <meta property="og:title" content="{% block og_title %}{{ block('title') }}{% endblock %}">
+        <meta property="og:description" content="{% block og_description %}{{ block('meta_description') }}{% endblock %}">
+        <meta property="og:image" content="{% block og_image %}{{ app.request.schemeAndHttpHost }}{{ asset('tabulariumcms.png') }}{% endblock %}">
+        <meta property="og:locale" content="{% block og_locale %}en_US{% endblock %}">
+        <meta property="og:site_name" content="TabulariumCMS">
+
+        {# Twitter Card #}
+        <meta name="twitter:card" content="{% block twitter_card %}summary_large_image{% endblock %}">
+        <meta name="twitter:url" content="{% block twitter_url %}{{ app.request.uri }}{% endblock %}">
+        <meta name="twitter:title" content="{% block twitter_title %}{{ block('title') }}{% endblock %}">
+        <meta name="twitter:description" content="{% block twitter_description %}{{ block('meta_description') }}{% endblock %}">
+        <meta name="twitter:image" content="{% block twitter_image %}{{ app.request.schemeAndHttpHost }}{{ asset('tabulariumcms.png') }}{% endblock %}">
+
+        {# Additional SEO Meta Tags #}
+        <meta name="theme-color" content="{% block theme_color %}{{ theme.primary_color }}{% endblock %}">
+        <meta name="format-detection" content="telephone=no">
+    {% endblock %}
+
+    {# Favicon #}
+    <link rel="icon" href="{{ asset('tabulariumcms.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('tabulariumcms.png') }}">
+    <link rel="shortcut icon" href="{{ asset('tabulariumcms.png') }}">
+
+    <!-- Tailwind CSS - Load immediately for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome for icons - Load immediately for UI -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Flags icon CSS for language switcher -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flag-icon-css@4.1.7/css/flag-icons.min.css">
+
+    <!-- Theme CSS Variables from Active Theme -->
+    <style>
+        :root {
+            --primary-color: {{ theme.primary_color }};
+            --secondary-color: {{ theme.secondary_color }};
+            --accent-color: {{ theme.accent_color }};
+            --background-color: {{ theme.background_color }};
+            --text-color: {{ theme.text_color }};
+            --navigation-bg-color: {{ theme.navigation_bg_color }};
+            --navigation-text-color: {{ theme.navigation_text_color }};
+            --button-color: {{ theme.button_color }};
+            --button-hover-color: {{ theme.button_hover_color }};
+            --heading-font: {{ theme.heading_font }};
+            --body-font: {{ theme.body_font }};
+            --font-size: {{ theme.font_size }};
+            --container-width: {{ theme.container_width }};
+            --container-max-width: {{ theme.container_max_width }}px;
+        }
+
+        /* Apply theme fonts */
+        body {
+            font-family: var(--body-font);
+            font-size: var(--font-size);
+            color: var(--text-color);
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--heading-font);
+        }
+
+        /* Theme-aware button styles */
+        .btn-primary, .bg-amber-600 {
+            background-color: var(--button-color) !important;
+        }
+        .btn-primary:hover, .hover\:bg-amber-700:hover {
+            background-color: var(--button-hover-color) !important;
+        }
+
+        /* Theme-aware link colors */
+        a.text-amber-600, .text-amber-600 {
+            color: var(--primary-color) !important;
+        }
+        a.text-amber-700, .text-amber-700 {
+            color: var(--secondary-color) !important;
+        }
+
+        /* Navigation theming */
+        .navigation {
+            background-color: var(--navigation-bg-color);
+            color: var(--navigation-text-color);
+        }
+
+        /* Cookie consent blocking */
+        .cookie-consent-pending #page-content-wrapper {
+            display: none !important;
+        }
+    </style>
+
+    <!-- Custom CSS from Theme Editor -->
+    {% if theme.custom_css %}
+    <style>
+        {{ theme.custom_css|raw }}
+    </style>
+    {% endif %}
+
+    <!-- GDPR Cookie Consent Check - Inline to execute immediately -->
+    <script>
+        // Block content until cookie consent
+        (function() {
+            const COOKIE_NAME = 'cookie_consent';
+            function getCookie(name) {
+                const nameEQ = name + '=';
+                const ca = document.cookie.split(';');
+                for (let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                    if (c.indexOf(nameEQ) === 0) {
+                        return decodeURIComponent(c.substring(nameEQ.length, c.length));
+                    }
+                }
+                return null;
+            }
+
+            const consent = getCookie(COOKIE_NAME);
+            if (!consent) {
+                // Hide page content until consent
+                document.documentElement.classList.add('cookie-consent-pending');
+            }
+        })();
+    </script>
+
+    {# Structured Data / JSON-LD #}
+    {% block structured_data %}
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "TabulariumCMS",
+            "url": "{{ app.request.schemeAndHttpHost }}",
+            "logo": "{{ app.request.schemeAndHttpHost }}{{ asset('tabulariumcms.png') }}"
+        }
+        </script>
+    {% endblock %}
+
+    {% block stylesheets %}
+        {{ importmap('app') }}
+    {% endblock %}
+</head>
+<body class="bg-gradient-to-br from-amber-50/30 to-amber-100/30 min-h-screen">
+
+    <!-- Cookie Banner - Must be outside content wrapper to always be visible -->
+    {% include 'components/cookie_banner.html.twig' %}
+
+    <div id="page-content-wrapper">
+        {% block body %}{% endblock %}
+    </div>
+    
+    {% block javascripts %}
+        {{ importmap('app') }}
+        <!-- Notifications AJAX Polling (global - for navigation badges) -->
+        {% if app.user %}
+            <script type="module" src="{{ asset('assets/js/notifications.js') }}"></script>
+        {% endif %}
+    {% endblock %}
+</body>
+</html>

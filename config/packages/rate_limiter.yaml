@@ -1,0 +1,32 @@
+framework:
+    rate_limiter:
+        # Search API Rate Limiter: 10 requests per minute per IP
+        search_api:
+            policy: 'sliding_window'
+            limit: 10
+            interval: '1 minute'
+
+        # Authentication Rate Limiters
+        # Login attempts: 5 attempts per 15 minutes per IP
+        login_ip:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '15 minutes'
+
+        # Login attempts per username: 5 attempts per 15 minutes
+        login_username:
+            policy: 'sliding_window'
+            limit: 5
+            interval: '15 minutes'
+
+        # Registration: 3 registrations per hour per IP
+        register_ip:
+            policy: 'sliding_window'
+            limit: 3
+            interval: '1 hour'
+
+        # Global authentication endpoint protection: 20 requests per minute per IP
+        auth_global:
+            policy: 'sliding_window'
+            limit: 20
+            interval: '1 minute'

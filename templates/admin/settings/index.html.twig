@@ -1,0 +1,316 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Settings{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-100">
+    <!-- Admin Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-semibold text-gray-900">Settings</h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <form method="post" action="{{ path('admin_settings_save') }}" class="space-y-8">
+            <!-- Payment Settings -->
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                    <i class="fas fa-credit-card text-blue-600 mr-3"></i>
+                    Payment Settings
+                </h2>
+                
+                <div class="space-y-6">
+                    <!-- Stripe Settings -->
+                    <div class="border rounded-lg p-4 bg-gray-50">
+                        <h3 class="text-md font-medium text-gray-900 mb-4">Stripe</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" 
+                                           name="stripe_enabled" 
+                                           value="1"
+                                           {{ paymentSettings.stripe_enabled ? 'checked' : '' }}
+                                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-700">Enable Stripe Payments</span>
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Mode</label>
+                                <select class="form-input">
+                                    <option value="test" {{ paymentSettings.stripe_sandbox ? 'selected' : '' }}>Test Mode</option>
+                                    <option value="live" {{ not paymentSettings.stripe_sandbox ? 'selected' : '' }}>Live Mode</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Public Key</label>
+                                <input type="text" 
+                                       name="stripe_public_key" 
+                                       value="{{ paymentSettings.stripe_public_key }}" 
+                                       class="form-input"
+                                       placeholder="pk_test_...">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Secret Key</label>
+                                <input type="password" 
+                                       name="stripe_secret_key" 
+                                       value="{{ paymentSettings.stripe_secret_key }}" 
+                                       class="form-input"
+                                       placeholder="sk_test_...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PayPal Settings -->
+                    <div class="border rounded-lg p-4 bg-gray-50">
+                        <h3 class="text-md font-medium text-gray-900 mb-4">PayPal</h3>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="flex items-center">
+                                    <input type="checkbox" 
+                                           name="paypal_enabled" 
+                                           value="1"
+                                           {{ paymentSettings.paypal_enabled ? 'checked' : '' }}
+                                           class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                    <span class="ml-2 text-sm text-gray-700">Enable PayPal Payments</span>
+                                </label>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Mode</label>
+                                <select name="paypal_sandbox" class="form-input">
+                                    <option value="1" {{ paymentSettings.paypal_sandbox ? 'selected' : '' }}>Sandbox Mode</option>
+                                    <option value="0" {{ not paymentSettings.paypal_sandbox ? 'selected' : '' }}>Live Mode</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Client ID</label>
+                                <input type="text" 
+                                       name="paypal_client_id" 
+                                       value="{{ paymentSettings.paypal_client_id }}" 
+                                       class="form-input"
+                                       placeholder="Your PayPal Client ID">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Client Secret</label>
+                                <input type="password" 
+                                       name="paypal_client_secret" 
+                                       value="{{ paymentSettings.paypal_client_secret }}" 
+                                       class="form-input"
+                                       placeholder="Your PayPal Client Secret">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- General Payment Settings -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Default Currency</label>
+                            <select name="default_currency" class="form-input">
+                                <option value="EUR" {{ paymentSettings.default_currency == 'EUR' ? 'selected' : '' }}>EUR - Euro</option>
+                                <option value="USD" {{ paymentSettings.default_currency == 'USD' ? 'selected' : '' }}>USD - US Dollar</option>
+                                <option value="GBP" {{ paymentSettings.default_currency == 'GBP' ? 'selected' : '' }}>GBP - British Pound</option>
+                                <option value="JPY" {{ paymentSettings.default_currency == 'JPY' ? 'selected' : '' }}>JPY - Japanese Yen</option>
+                                <option value="CHF" {{ paymentSettings.default_currency == 'CHF' ? 'selected' : '' }}>CHF - Swiss Franc</option>
+                                <option value="CAD" {{ paymentSettings.default_currency == 'CAD' ? 'selected' : '' }}>CAD - Canadian Dollar</option>
+                                <option value="AUD" {{ paymentSettings.default_currency == 'AUD' ? 'selected' : '' }}>AUD - Australian Dollar</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Payment Timeout (minutes)</label>
+                            <input type="number" 
+                                   name="payment_timeout" 
+                                   value="{{ paymentSettings.payment_timeout }}" 
+                                   class="form-input"
+                                   min="5"
+                                   max="120">
+                        </div>
+                        
+                        <div>
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="auto_invoice" 
+                                       value="1"
+                                       {{ paymentSettings.auto_invoice ? 'checked' : '' }}
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Auto-generate Invoices</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEO Settings -->
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                    <i class="fas fa-search text-green-600 mr-3"></i>
+                    SEO Settings
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Site Title</label>
+                        <input type="text" 
+                               name="site_title" 
+                               value="{{ seoSettings.site_title }}" 
+                               class="form-input"
+                               placeholder="Your Website Title">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Default Language</label>
+                        <select name="default_locale" class="form-input">
+                            <option value="en" {{ seoSettings.default_locale == 'en' ? 'selected' : '' }}>English</option>
+                            <option value="es" {{ seoSettings.default_locale == 'es' ? 'selected' : '' }}>Spanish</option>
+                            <option value="ca" {{ seoSettings.default_locale == 'ca' ? 'selected' : '' }}>Catalan</option>
+                            <option value="de" {{ seoSettings.default_locale == 'de' ? 'selected' : '' }}>German</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Site Description</label>
+                    <textarea name="site_description" 
+                              class="form-input"
+                              rows="3"
+                              placeholder="Brief description of your website for search engines">{{ seoSettings.site_description }}</textarea>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" 
+                                   name="structured_data_enabled" 
+                                   value="1"
+                                   {{ seoSettings.structured_data_enabled ? 'checked' : '' }}
+                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Enable Structured Data</span>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" 
+                                   name="enable_rss" 
+                                   value="1"
+                                   {{ seoSettings.enable_rss ? 'checked' : '' }}
+                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Enable RSS Feed</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Blog Settings -->
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                    <i class="fas fa-blog text-purple-600 mr-3"></i>
+                    Blog Settings
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Posts Per Page</label>
+                        <input type="number" 
+                               name="posts_per_page" 
+                               value="{{ blogSettings.posts_per_page }}" 
+                               class="form-input"
+                               min="5"
+                               max="50">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Excerpt Length</label>
+                        <input type="number" 
+                               name="excerpt_length" 
+                               value="{{ blogSettings.excerpt_length }}" 
+                               class="form-input"
+                               min="50"
+                               max="500">
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" 
+                                   name="enable_comments" 
+                                   value="1"
+                                   {{ blogSettings.enable_comments ? 'checked' : '' }}
+                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Enable Comments</span>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" 
+                                   name="comment_moderation" 
+                                   value="1"
+                                   {{ blogSettings.comment_moderation ? 'checked' : '' }}
+                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Require Comment Moderation</span>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" 
+                                   name="auto_generate_excerpt" 
+                                   value="1"
+                                   {{ blogSettings.auto_generate_excerpt ? 'checked' : '' }}
+                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Auto-generate Excerpts</span>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" 
+                                   name="enable_categories" 
+                                   value="1"
+                                   {{ blogSettings.enable_categories ? 'checked' : '' }}
+                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Enable Categories</span>
+                        </label>
+                    </div>
+                    
+                    <div>
+                        <label class="flex items-center">
+                            <input type="checkbox" 
+                                   name="enable_tags" 
+                                   value="1"
+                                   {{ blogSettings.enable_tags ? 'checked' : '' }}
+                                   class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                            <span class="ml-2 text-sm text-gray-700">Enable Tags</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="flex justify-end">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save mr-2"></i>
+                    Save Settings
+                </button>
+            </div>
+        </form>
+    </main>
+</div>
+{% endblock %}

@@ -1,0 +1,30 @@
+# Docker
+Dockerfile
+docker-compose.yml
+docker-compose.override.yml
+.dockerignore
+
+# Development files
+.env.local
+.env.docker
+var/
+node_modules/
+# docker/ - commented out as we need docker configs during build
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Cache
+.cache/

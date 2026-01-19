@@ -1,0 +1,443 @@
+dashboard: Tauler de control
+language: Idioma
+sign_out: Tancar sessió
+admin_login: Inici de sessió d'administrador
+username: Nom d'usuari
+password: Contrasenya
+enter_your_username: Introduïu el vostre nom d'usuari
+enter_your_password: Introduïu la vostra contrasenya
+remember_me: Recorda'm
+sign_in: Iniciar sessió
+sign_in_with_admin_credentials: Inicieu sessió amb les vostres credencials d'administrador
+
+# Homepage
+homepage:
+  title: Inici
+  meta_description: Benvingut a TabulariumCMS - La teva plataforma professional de gestió de continguts i comerç electrònic
+  hero:
+    title: Benvingut a TabulariumCMS
+    subtitle: La teva plataforma professional de gestió de continguts i comerç electrònic
+    browse_products: Explorar productes
+    admin_login: Inici de sessió d'administrador
+  featured_products:
+    title: Productes destacats
+    view_all: Veure tots
+  latest_products:
+    title: Últims productes
+    view_all: Veure tots
+  product:
+    featured: Destacat
+    in_stock: En estoc
+    out_of_stock: Esgotat
+    view_details: Veure detalls
+  cta:
+    title: Preparat per començar?
+    subtitle: Descobreix la nostra gamma completa de productes i serveis
+    explore_products: Explorar productes
+
+# Login page
+login:
+  title: Iniciar sessió
+  welcome_back: Benvingut de nou
+  sign_in_account: Inicia sessió al teu compte
+  username: Nom d'usuari
+  username_placeholder: Introdueix el teu nom d'usuari
+  password: Contrasenya
+  password_placeholder: Introdueix la teva contrasenya
+  remember_me: Recorda'm
+  sign_in: Iniciar sessió
+  no_account: No tens un compte?
+  register_here: Registra't aquí
+  back_to_homepage: Tornar a la pàgina d'inici
+
+# Menu
+menu:
+  home: Inici
+  products: Productes
+  admin: Admin
+  language: Idioma
+
+# Products
+products:
+  title: Productes
+  subtitle: Descobreix la nostra gamma completa de productes de qualitat
+  meta_description: Explora la nostra col·lecció de productes i serveis professionals
+  showing_count: Mostrant %count% productes
+  featured: Destacat
+  in_stock: En estoc
+  out_of_stock: Esgotat
+  view_details: Veure detalls
+  back_to_all: Tornar a tots els productes
+  no_products:
+    title: No hi ha productes disponibles
+    message: Actualment no hi ha productes disponibles. Si us plau, torna més tard.
+  back_to_home: Tornar a l'inici
+
+# Category
+category:
+  no_products:
+    title: No hi ha productes en aquesta categoria
+    message: Aquesta categoria encara no té productes. Torna aviat o explora altres categories.
+
+# Newsletter
+newsletter:
+  title: Mantingues-te Actualitzat
+  subtitle: Subscriu-te al nostre butlletí per rebre els últims productes, ofertes i notícies
+  email_placeholder: Introdueix la teva adreça de correu
+  subscribe: Subscriure's
+  sending: Enviant...
+  error: S'ha produït un error. Si us plau, torna-ho a intentar.
+  privacy_notice: Respectem la teva privacitat. Dona't de baixa en qualsevol moment.
+
+# Two-Factor Authentication
+Two-Factor Authentication: Autenticació de Dos Factors
+Secure your account with an additional layer of protection: Asseguri el seu compte amb una capa addicional de protecció
+2FA is Active: 2FA està Actiu
+Your account is protected with two-factor authentication: El seu compte està protegit amb autenticació de dos factors
+Are you sure you want to disable 2FA?: Esteu segur que voleu desactivar 2FA?
+Disable 2FA: Desactivar 2FA
+Enable Two-Factor Authentication: Activar Autenticació de Dos Factors
+Scan the QR code below with your authenticator app (Google Authenticator, Microsoft Authenticator, or any TOTP app), then enter the 6-digit code to verify.: Escanegeu el codi QR a continuació amb la vostra aplicació d'autenticació (Google Authenticator, Microsoft Authenticator o qualsevol aplicació TOTP), després introduïu el codi de 6 dígits per verificar.
+Setup Instructions: Instruccions de Configuració
+Download an authenticator app (Google Authenticator, Microsoft Authenticator, Authy, etc.): Descarregueu una aplicació d'autenticació (Google Authenticator, Microsoft Authenticator, Authy, etc.)
+Open the app and tap the add button (+): Obriu l'aplicació i toqueu el botó d'afegir (+)
+Scan the QR code shown above: Escanegeu el codi QR mostrat a dalt
+Enter the 6-digit code from the app below: Introduïu el codi de 6 dígits de l'aplicació a continuació
+Verification Code: Codi de Verificació
+Enable 2FA: Activar 2FA
+Back to Profile: Tornar al Perfil
+Enter the 6-digit code from your authenticator app: Introduïu el codi de 6 dígits de la vostra aplicació d'autenticació
+Authentication Code: Codi d'Autenticació
+Open your authenticator app and enter the current code: Obriu la vostra aplicació d'autenticació i introduïu el codi actual
+Trust this device for 30 days: Confiar en aquest dispositiu durant 30 dies
+Verify: Verificar
+Having trouble? Contact support for help.: Teniu problemes? Contacteu amb el suport per obtenir ajuda.
+Cancel and Logout: Cancel·lar i Tancar Sessió
+Two-factor authentication has been enabled successfully!: L'autenticació de dos factors s'ha activat correctament!
+Invalid verification code. Please try again.: Codi de verificació no vàlid. Si us plau, torneu-ho a intentar.
+Two-factor authentication has been disabled.: L'autenticació de dos factors s'ha desactivat.
+Please enter the verification code.: Si us plau, introduïu el codi de verificació.
+
+# Cart
+cart:
+  title: Carret de compra
+  empty: El teu carret està buit
+  empty_message: Encara no has afegit cap article al teu carret.
+  add_to_cart: Afegir al carret
+  adding: Afegint...
+  added_success: ✓ Afegit al carret! Redirigint...
+  add_failed: Error en afegir al carret
+  add_error: ✗ Error en afegir al carret
+
+# Profile translations
+profile:
+  edit_profile: Editar Perfil
+  profile_images: Imatges del Perfil
+  cover_photo: Foto de Portada
+  cover_photo_hint: 1200x400px recomanat, màx. 10MB
+  click_to_upload: Fes clic per pujar
+  change_cover_photo: Canviar Foto de Portada
+  profile_picture: Foto de Perfil
+  profile_picture_hint: 400x400px recomanat, màx. 5MB
+  avatar: Avatar
+  upload_new_photo: Pujar Nova Foto
+  photo_format_hint: La imatge quadrada funciona millor. Accepta JPEG, PNG, GIF, WebP
+  personal_information: Informació Personal
+  first_name: Nom
+  first_name_placeholder: Introdueix el teu nom
+  last_name: Cognoms
+  last_name_placeholder: Introdueix els teus cognoms
+  username: Nom d'usuari
+  username_cannot_change: El nom d'usuari no es pot canviar
+  profile_details: Detalls del Perfil
+  tagline: Eslògan
+  tagline_hint: es mostra sota el teu nom
+  tagline_placeholder: "ex., Desenvolupador Web | Dissenyador | Amant del Cafè"
+  max_characters: "Màx. %count% caràcters"
+  characters_remaining: caràcters restants
+  bio: Biografia
+  bio_hint: explica a la gent sobre tu
+  bio_placeholder: Escriu alguna cosa sobre tu...
+  looking_for: Estic buscant
+  looking_for_placeholder: "Descriu el que estàs buscant, ex., connexions, oportunitats, col·laboracions..."
+  offering: El que ofereixo
+  offering_placeholder: "Descriu el que pots oferir, ex., habilitats, serveis, productes, coneixement..."
+  location: Ubicació
+  location_placeholder: "Ciutat, País"
+  website: Lloc Web
+  website_placeholder: "https://elteusitiweb.com"
+  interests: Interessos
+  interests_placeholder: "ex., Fotografia, Viatges, Programació, Música"
+  comma_separated: separats per comes
+  interests_hint: Separa múltiples interessos amb comes
+  social_media_links: Enllaços de Xarxes Socials
+  social_media_description: Connecta els teus comptes de xarxes socials per mostrar-los al teu perfil
+  custom_links: Enllaços Personalitzats
+  custom_links_description: "Afegeix altres enllaços (portafoli, blog, etc.)"
+  link_label: Etiqueta de l'Enllaç
+  add_custom_link: Afegir Enllaç Personalitzat
+  email_address: Adreça de Correu Electrònic
+  email_change_warning: Canviar el teu correu requereix verificació de contrasenya. El teu estat de verificació de correu es restablirà.
+  new_email_address: Nova Adreça de Correu
+  email_placeholder: el@teu.correu
+  current_password: Contrasenya Actual
+  password_required_hint: Requerit per canviar el correu
+  password_only_for_email: Només requerit si canvies el correu
+  preferences: Preferències
+  language: Idioma
+  preview: Vista Prèvia
+  preview_mode: Mode Vista Prèvia
+  preview_hint: Així és com altres veuran el teu perfil
+  view_public: Veure Públic
+  about: Sobre
+  joined: Es va unir
+  views: visualitzacions
+  friends: Amics
+  media: Multimèdia
+  recent_media: Multimèdia Recent
+  manage_gallery: Gestionar Galeria
+  no_media: Encara no hi ha multimèdia pujada
+  upload_media: Pujar multimèdia
+  no_friends: Encara no hi ha amics
+  # Social media platforms
+  facebook: Facebook
+  instagram: Instagram
+  twitter: Twitter / X
+  linkedin: LinkedIn
+  youtube: YouTube
+  tiktok: TikTok
+  snapchat: Snapchat
+  pinterest: Pinterest
+  # Social media placeholders
+  facebook_placeholder: "https://facebook.com/elteu perfil"
+  instagram_placeholder: "https://instagram.com/elteuperfil"
+  twitter_placeholder: "https://twitter.com/elteuperfil"
+  linkedin_placeholder: "https://linkedin.com/in/elteuperfil"
+  youtube_placeholder: "https://youtube.com/@elteucanal"
+  tiktok_placeholder: "https://tiktok.com/@elteuperfil"
+  snapchat_placeholder: "https://snapchat.com/add/elteunomdusuari"
+  pinterest_placeholder: "https://pinterest.com/elteuperfil"
+  # Profile actions
+  add_friend: Afegir amic
+  friends_status: Amics
+  message: Missatge
+  report: Reportar
+  cancel: Cancel·lar
+  save_changes: Desar canvis
+  # Private profile
+  private_profile: Perfil Privat
+  private_profile_message: Aquest perfil és privat. Afegeix a %name% com a amic per veure més.
+  # View all
+  view_all: Veure tot
+  # Report modal
+  report_profile: Reportar Perfil
+  report_reason: Motiu
+  report_reason_select: Selecciona un motiu...
+  report_spam: Spam
+  report_inappropriate: Contingut inapropiat
+  report_harassment: Assetjament
+  report_impersonation: Suplantació d'identitat
+  report_other: Altre
+  report_details: Detalls addicionals (Opcional)
+  submit_report: Enviar report
+  # Friend request
+  sending: Enviant...
+  request_sent: Sol·licitud enviada
+  friend_request_sent: Sol·licitud d'amistat enviada a %name%
+  friend_request_failed: Error en enviar la sol·licitud d'amistat
+  network_error: Error de xarxa. Si us plau, torna-ho a intentar.
+  # Media gallery
+  media_gallery: Galeria de Mitjans
+  files_uploaded: "%count% fitxers pujats"
+  max_file_size_info: "(màx. %size%MB per fitxer)"
+  upload_media_button: Pujar multimèdia
+  gallery_full: Galeria plena
+  uploading: Pujant...
+  no_media_title: Encara no hi ha multimèdia
+  no_media_description: Puja imatges i vídeos per mostrar al teu perfil
+  upload_first_file: Puja el teu primer fitxer
+  supported_formats: "Formats suportats:"
+  formats_list: "JPEG, PNG, GIF, WebP, MP4, WebM"
+  maximum_file_size: "Mida màxima de fitxer:"
+  storage_limit: "Límit d'emmagatzematge:"
+  files_per_user: "fitxers per usuari"
+  delete_media: Eliminar multimèdia
+  delete_media_confirm: Estàs segur que vols eliminar aquesta multimèdia? Aquesta acció no es pot desfer.
+  delete: Eliminar
+  max_files_reached: Has arribat al nombre màxim de fitxers.
+  file_size_exceeded: "El fitxer supera la mida màxima de %size%MB"
+  upload_failed: Error en pujar. Si us plau, torna-ho a intentar.
+  delete_failed: Error en eliminar. Si us plau, torna-ho a intentar.
+  view_full_size: Veure mida completa
+  public_click_hide: Públic - Clic per amagar
+  hidden_click_show: Amagat - Clic per mostrar
+
+# Common/shared translations
+common:
+  save: Desar
+  cancel: Cancel·lar
+  delete: Eliminar
+  edit: Editar
+  close: Tancar
+  back: Enrere
+  language_english: English
+  language_spanish: Español
+  language_catalan: Català
+  language_german: Deutsch
+  language_french: Français
+
+# Checkout
+checkout:
+  title: Pagament
+  subtitle: Completa la teva comanda en uns simples passos
+  guest_checkout_title: Pagament com a convidat
+  guest_checkout_message: Completa la teva comanda ràpidament sense crear un compte
+  logged_in_title: Benvingut de nou!
+  logged_in_message: La informació del teu compte s'ha emplenat automàticament.
+  steps:
+    customer_info: Informació del client
+    address: Adreça
+    shipping: Enviament
+    payment: Pagament
+  customer_information: Informació del Client
+  billing_and_shipping: Adreça de Facturació i Enviament
+  shipping_method_title: Mètode d'Enviament
+  payment_and_review: Pagament i Revisió
+  payment_method_title: Mètode de Pagament
+  order_notes_optional: Notes de la Comanda (Opcional)
+  order_notes_placeholder: Instruccions especials per a la teva comanda...
+  select_title: Seleccionar títol
+  select_country: Seleccionar país
+  optional: Opcional
+  address_line2_placeholder: Apartament, suite, unitat, edifici, pis, etc.
+  continue_to_address: Continuar a Adreça
+  continue_to_shipping: Continuar a Enviament
+  continue_to_payment: Continuar a Pagament
+  back: Enrere
+  create_account_text: Desa la teva informació per a un pagament més ràpid la propera vegada i segueix les teves comandes
+  password_min_8: Mínim 8 caràcters
+  passwords_no_match: Les contrasenyes no coincideixen
+  subtotal: Subtotal
+  shipping: Enviament
+  payment_fee: Tarifa de Pagament
+  total: Total
+  place_order: Fer Comanda
+  secure_checkout: Pagament segur - Les teves dades estan encriptades
+  order_summary: Resum de la Comanda
+  # Store finder
+  nearby_stores: Botigues Properes
+  store_finder_info: Troba botigues a prop teu on pots recollir la teva comanda.
+  detect_location: Detectar la Meva Ubicació
+  location_permission_hint: Permet l'accés GPS per trobar botigues properes
+  finding_stores: Buscant botigues properes...
+  no_stores_found: No s'han trobat botigues a prop de la teva ubicació. Si us plau contacta'ns.
+  store_load_error: Error en carregar les botigues. Si us plau torna-ho a intentar.
+  selected_pickup_location: Punt de Recollida Seleccionat
+  please_select_store: Si us plau selecciona una botiga de recollida abans de fer la comanda
+
+# Setup Wizard
+setup:
+  title: Assistent de Configuració
+  subtitle: Benvingut a l'assistent d'instal·lació de TabulariumCMS
+
+  steps:
+    welcome: Benvingut
+    database: Base de Dades
+    migrations: Migracions
+    admin: Usuari Admin
+    settings: Configuració
+    complete: Completat
+
+  welcome_title: Benvingut a TabulariumCMS
+  welcome_description: Aquest assistent et guiarà a través de la configuració inicial del teu CMS. Comencem verificant els requisits del sistema.
+  before_you_begin: Abans de començar
+  requirement_database: Assegura't de tenir una base de dades MySQL/MariaDB preparada
+  requirement_credentials: Tingues les teves credencials de base de dades disponibles
+  requirement_email: Prepara una adreça de correu electrònic per al compte d'administrador
+  system_requirements: Requisits del Sistema
+  click_check_requirements: Fes clic a "Verificar Requisits" per verificar la configuració del teu sistema
+  check_requirements: Verificar Requisits
+  checking: Verificant...
+  required: Requerit
+  current: Actual
+  all_requirements_met: Tots els requisits complerts!
+  recheck_requirements: Tornar a Verificar
+  error_checking_requirements: Error en verificar els requisits
+  retry: Reintentar
+
+  database_config_title: Configuració de Base de Dades
+  database_config_description: Introdueix les dades de connexió de la teva base de dades MySQL/MariaDB. Assegura't que la base de dades ja existeixi.
+  db_host: Host de Base de Dades
+  db_port: Port de Base de Dades
+  db_name: Nom de Base de Dades
+  db_user: Usuari de Base de Dades
+  db_password: Contrasenya de Base de Dades
+  test_connection: Provar Connexió
+  testing: Provant connexió...
+  connection_error: Error de connexió
+  database_warning: La configuració de la base de dades es guardarà a .env.local. Assegura't de fer una còpia de seguretat d'aquest fitxer després de la instal·lació.
+  error_saving_config: Error en guardar la configuració
+
+  migrations_title: Migracions de Base de Dades
+  migrations_description: Fes clic al botó de sota per crear totes les taules de base de dades necessàries.
+  migrations_info: Aquest pas executarà totes les migracions de base de dades per crear les taules necessàries.
+  migration_progress: Progrés de Migració
+  run_migrations: Executar Migracions
+  running_migrations: Executant migracions...
+  migrations_complete: Migracions Completades
+  retry_migrations: Reintentar Migracions
+
+  admin_title: Crear Compte d'Administrador
+  admin_description: Crea el compte de super administrador que tindrà accés complet al sistema.
+  admin_firstname: Nom
+  admin_lastname: Cognom
+  admin_email: Correu Electrònic
+  admin_username: Nom d'Usuari
+  admin_password: Contrasenya
+  admin_password_confirm: Confirmar Contrasenya
+  password_placeholder: Introdueix contrasenya (mín. 8 caràcters)
+  password_confirm_placeholder: Confirma la teva contrasenya
+  password_min_chars: Mínim 8 caràcters requerits
+  create_admin: Crear Compte Admin
+  creating_admin: Creant compte d'admin...
+  passwords_dont_match: Les contrasenyes no coincideixen
+  error_creating_admin: Error en crear el compte d'admin
+  admin_security_note: Guarda les teves credencials de forma segura. Aquest compte té accés administratiu complet a tot el sistema.
+
+  settings_title: Configuració del Lloc
+  settings_description: Configura els ajustos bàsics del teu lloc web. Pots canviar-los més tard al panell d'administració.
+  site_name: Nom del Lloc
+  site_name_placeholder: El Meu Lloc Web Increïble
+  default_language: Idioma Predeterminat
+  primary_color: Color Primari
+  secondary_color: Color Secundari
+  color_help: Usat per botons, capçaleres i accents
+  color_preview: Vista Prèvia de Colors
+  primary: Primari
+  secondary: Secundari
+  save_settings: Guardar Configuració
+  saving_settings: Guardant configuració...
+  error_saving_settings: Error en guardar la configuració
+
+  complete_title: Instal·lació Completada!
+  complete_description: La teva instal·lació de TabulariumCMS s'ha configurat correctament i està llesta per usar.
+  complete_checklist: Passos Completats
+  complete_requirements: Requisits del sistema verificats
+  complete_database: Base de dades configurada
+  complete_migrations: Taules de base de dades creades
+  complete_admin: Compte d'administrador creat
+  complete_settings: Configuració del lloc establerta
+  complete_installation: Completar Instal·lació
+  completing: Completant instal·lació...
+  installation_complete: Instal·lació Completada!
+  completion_error: Error en completar la instal·lació
+  error_completing: Error en completar la instal·lació
+  whats_next: Què Segueix?
+  whats_next_description: Ara pots iniciar sessió al panell d'administració per començar a crear contingut i personalitzar el teu lloc.
+  go_to_admin: Anar al Panell d'Admin
+  go_to_frontend: Visitar Lloc Web
+
+  continue: Continuar
+  back: Enrere
+  saving: Guardant...
+

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' http: https: data: blob: 'unsafe-inline' 'unsafe-eval'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com; font-src 'self' data: https://cdnjs.cloudflare.com;">
+    <title>TabulariumCMS - Modern Content Management</title>
+    <link rel="icon" href="/tabulariumcms.png">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .language-active {
+            background: linear-gradient(135deg, #f0e8d0 0%, #d1b05f 50%, #d3c29d 100%) !important;
+            font-weight: bold;
+        }
+    </style>
+
+    <!-- Vue 3 from CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body class="bg-gray-50">
+    <div id="vue-app"></div>
+
+    <script type="module">
+        const { createApp } = Vue;
+
+        {% include 'frontend/vue_components.html.twig' %}
+
+        const app = createApp(App);
+        app.mount('#vue-app');
+    </script>
+</body>
+</html>

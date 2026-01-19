@@ -1,0 +1,68 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ page.metaTitle ?? page.title }} - {{ parent() }}{% endblock %}
+
+{% block meta_description %}{{ page.metaDescription ?? (page.content|striptags|slice(0, 160)) }}{% endblock %}
+{% block meta_keywords %}{{ page.metaKeywords is iterable ? page.metaKeywords|join(', ') : (page.metaKeywords ?? '') }}{% endblock %}
+{% block meta_robots %}{{ page.robots ?? 'index, follow' }}{% endblock %}
+
+{% block og_title %}{{ page.metaTitle ?? page.title }}{% endblock %}
+{% block og_description %}{{ page.metaDescription ?? (page.content|striptags|slice(0, 160)) }}{% endblock %}
+{% block og_type %}article{% endblock %}
+
+{% block twitter_title %}{{ page.metaTitle ?? page.title }}{% endblock %}
+{% block twitter_description %}{{ page.metaDescription ?? (page.content|striptags|slice(0, 160)) }}{% endblock %}
+
+{% block structured_data %}
+    {{ parent() }}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "{{ page.title|e('js') }}",
+        "description": "{{ page.metaDescription|default(page.content|striptags|slice(0, 160))|e('js') }}",
+        "url": "{{ app.request.uri }}",
+        {% if page.author %}
+        "author": {
+            "@type": "Person",
+            "name": "{{ page.author.email|e('js') }}"
+        },
+        {% endif %}
+        "datePublished": "{{ page.createdAt|date('c') }}",
+        "dateModified": "{{ page.updatedAt|date('c') }}",
+        "inLanguage": "{{ (app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en') }}"
+    }
+    </script>
+{% endblock %}
+
+{% block body %}
+<!-- Navigation Header -->
+{% include 'components/navigation.html.twig' %}
+
+<div class="container mx-auto px-4 py-8">
+    <article class="prose lg:prose-xl mx-auto" itemscope itemtype="https://schema.org/WebPage">
+        <header class="mb-8">
+            <h1 itemprop="headline">{{ page.title }}</h1>
+            {% if page.createdAt %}
+                <div class="text-sm text-gray-600 mt-2">
+                    <time datetime="{{ page.createdAt|date('c') }}" itemprop="datePublished">
+                        Published: {{ page.createdAt|date('F j, Y') }}
+                    </time>
+                    {% if page.updatedAt and page.updatedAt != page.createdAt %}
+                        <span class="mx-2">•</span>
+                        <time datetime="{{ page.updatedAt|date('c') }}" itemprop="dateModified">
+                            Updated: {{ page.updatedAt|date('F j, Y') }}
+                        </time>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </header>
+        <div class="content" itemprop="mainContentOfPage">
+            {{ page.content|raw }}
+        </div>
+    </article>
+</div>
+
+<!-- Footer -->
+{% include 'components/footer.html.twig' %}
+{% endblock %}

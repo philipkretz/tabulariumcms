@@ -1,0 +1,288 @@
+{% block grapesjs_editor_widget %}
+<div class="grapesjs-editor-wrapper">
+    <textarea {{ block('widget_attributes') }} style="display: none !important; height: 0 !important; visibility: hidden !important; position: absolute !important;">{{ value }}</textarea>
+    <div id="gjs-{{ id }}" style="height: {{ attr['data-editor-height']|default('650px') }};"></div>
+    <button type="button" class="btn btn-sm btn-info ai-generate-btn" id="ai-btn-{{ id }}" style="margin-top: 10px;">
+        <i class="fas fa-magic"></i> ✨ Generate with AI
+    </button>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/grapesjs/dist/css/grapes.min.css">
+<style>
+    /* Ensure textarea is completely hidden */
+    .grapesjs-editor-wrapper textarea {
+        display: none !important;
+        height: 0 !important;
+        visibility: hidden !important;
+        position: absolute !important;
+        opacity: 0 !important;
+    }
+
+    /* GrapeJS editor container */
+    .grapesjs-editor-wrapper > div[id^="gjs-"] {
+        display: block !important;
+        border: 2px solid #d1b05f;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    /* Hide first duplicate editor panel if multiple exist */
+    .grapesjs-editor-wrapper > div[id^="gjs-"] .gjs-editor-cont:first-child:not(:only-child) {
+        display: none !important;
+    }
+
+    /* Ensure the second editor panel is always visible */
+    .grapesjs-editor-wrapper > div[id^="gjs-"] .gjs-editor-cont:last-child {
+        display: block !important;
+    }
+
+    /* Fix GrapeJS panel sizing */
+    .grapesjs-editor-wrapper .gjs-pn-panels {
+        max-width: 100%;
+    }
+
+    .grapesjs-editor-wrapper .gjs-blocks-cs {
+        width: 100% !important;
+        max-width: none !important;
+    }
+
+    .grapesjs-editor-wrapper .gjs-pn-panel {
+        max-width: 100% !important;
+    }
+</style>
+<script src="https://unpkg.com/grapesjs"></script>
+<script src="https://unpkg.com/grapesjs-blocks-basic"></script>
+<script src="https://unpkg.com/grapesjs-plugin-forms"></script>
+
+<script type="text/javascript">
+(function() {
+    const textarea = document.querySelector('textarea[name="{{ full_name }}"]');
+    const editorId = 'gjs-{{ id }}';
+    const editorContainer = document.getElementById(editorId);
+
+    if (typeof grapesjs === 'undefined') {
+        console.error('GrapeJS not loaded');
+        // Keep textarea hidden even on error
+        textarea.style.display = 'none';
+        return;
+    }
+
+    // Check if already initialized
+    if (editorContainer.dataset.gjsInitialized === 'true') {
+        console.log('GrapeJS already initialized for', editorId);
+        return;
+    }
+
+    // Mark as initialized
+    editorContainer.dataset.gjsInitialized = 'true';
+
+    // Ensure textarea is hidden
+    textarea.style.display = 'none';
+
+    // Remove any existing GrapeJS instances in this container
+    const existingEditors = editorContainer.querySelectorAll('.gjs-editor-cont');
+    existingEditors.forEach(function(el) {
+        el.remove();
+    });
+
+    const editor = grapesjs.init({
+        container: '#' + editorId,
+        height: '{{ attr['data-editor-height']|default('650px') }}',
+        width: 'auto',
+        fromElement: false,
+        storageManager: false,
+        plugins: ['gjs-blocks-basic', 'gjs-plugin-forms'],
+        pluginsOpts: {
+            'gjs-blocks-basic': {},
+            'gjs-plugin-forms': {}
+        },
+        canvas: {
+            styles: [
+                'https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'
+            ]
+        },
+        deviceManager: {
+            devices: [
+                {
+                    name: 'Desktop',
+                    width: '',
+                },
+                {
+                    name: 'Mobile',
+                    width: '320px',
+                    widthMedia: '480px',
+                }
+            ]
+        }
+    });
+
+    // Hide any duplicate editor instances (keep only the last one)
+    setTimeout(function() {
+        const allEditors = editorContainer.querySelectorAll('.gjs-editor-cont');
+        if (allEditors.length > 1) {
+            console.warn('Multiple GrapeJS editors detected, hiding duplicates');
+            for (let i = 0; i < allEditors.length - 1; i++) {
+                allEditors[i].style.display = 'none';
+            }
+        }
+    }, 100);
+
+    // Load initial content
+    if (textarea.value) {
+        try {
+            const data = JSON.parse(textarea.value);
+            if (data.html) editor.setComponents(data.html);
+            if (data.css) editor.setStyle(data.css);
+        } catch (e) {
+            editor.setComponents(textarea.value);
+        }
+    }
+
+    // Save to textarea on update
+    editor.on('update', function() {
+        const html = editor.getHtml();
+        const css = editor.getCss();
+        textarea.value = JSON.stringify({ html, css });
+    });
+
+    // Wire up AI button
+    const aiButton = document.getElementById('ai-btn-{{ id }}');
+    if (aiButton) {
+        aiButton.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Get title from the form
+            const titleField = document.querySelector('input[id*="title"]:not([id*="seo"]):not([id*="meta"])');
+            if (!titleField || !titleField.value.trim()) {
+                alert('Please enter a title first');
+                return;
+            }
+
+            const title = titleField.value.trim();
+
+            // Determine entity type from URL
+            let entityType = 'product';
+            const url = window.location.href;
+            if (url.includes('/page/')) entityType = 'page';
+            else if (url.includes('/post/')) entityType = 'post';
+            else if (url.includes('/category/')) entityType = 'category';
+            else if (url.includes('/article/')) entityType = 'product';
+
+            // Show loading state
+            const originalText = aiButton.innerHTML;
+            aiButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+            aiButton.disabled = true;
+
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('type', entityType);
+
+            // Make AJAX request
+            fetch('/admin/ai/generate-description', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Set content in GrapeJS editor
+                    editor.setComponents(data.content);
+
+                    // Show success message
+                    const flashContainer = document.querySelector('.sonata-ba-content');
+                    if (flashContainer) {
+                        const alert = document.createElement('div');
+                        alert.className = 'alert alert-success alert-dismissible fade show';
+                        alert.innerHTML = 'Content generated successfully!<button type="button" class="close" data-dismiss="alert">&times;</button>';
+                        flashContainer.insertBefore(alert, flashContainer.firstChild);
+                        setTimeout(() => alert.remove(), 5000);
+                    } else {
+                        alert('Content generated successfully!');
+                    }
+                } else {
+                    alert('Error: ' + (data.message || 'Failed to generate content'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            })
+            .finally(() => {
+                // Restore button
+                aiButton.innerHTML = originalText;
+                aiButton.disabled = false;
+            });
+        });
+    }
+
+    // Add custom blocks
+    const blockManager = editor.BlockManager;
+
+    // Hero Section
+    blockManager.add('hero-section', {
+        label: 'Hero Section',
+        category: 'Sections',
+        content: '<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 100px 20px; text-align: center; color: white;"><h1 style="font-size: 48px; margin-bottom: 20px;">Welcome to Our Site</h1><p style="font-size: 20px; margin-bottom: 30px;">Your tagline goes here</p><a href="#" style="background: white; color: #667eea; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold;">Get Started</a></div>'
+    });
+
+    // Feature Grid
+    blockManager.add('feature-grid', {
+        label: 'Feature Grid',
+        category: 'Sections',
+        content: '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; padding: 50px 20px;"><div style="text-align: center; padding: 30px;"><div style="font-size: 48px; margin-bottom: 15px;">🚀</div><h3>Fast</h3><p>Lightning fast performance</p></div><div style="text-align: center; padding: 30px;"><div style="font-size: 48px; margin-bottom: 15px;">🔒</div><h3>Secure</h3><p>Bank-level security</p></div><div style="text-align: center; padding: 30px;"><div style="font-size: 48px; margin-bottom: 15px;">💡</div><h3>Smart</h3><p>Intelligent features</p></div></div>'
+    });
+
+    // Contact Form
+    blockManager.add('contact-form', {
+        label: 'Contact Form',
+        category: 'Forms',
+        content: '<form style="max-width: 600px; margin: 50px auto; padding: 30px; border: 1px solid #ddd; border-radius: 8px;"><h2 style="margin-bottom: 30px;">Contact Us</h2><div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 5px; font-weight: bold;">Name *</label><input type="text" name="name" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></div><div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 5px; font-weight: bold;">Email *</label><input type="email" name="email" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></div><div style="margin-bottom: 20px;"><label style="display: block; margin-bottom: 5px; font-weight: bold;">Message *</label><textarea name="message" rows="5" required style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;"></textarea></div><button type="submit" style="background: #4CAF50; color: white; padding: 12px 30px; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Send Message</button></form>'
+    });
+
+    // Article Grid
+    blockManager.add('article-grid', {
+        label: 'Article Grid',
+        category: 'E-Commerce',
+        content: '<div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 30px; padding: 30px;"><div style="border: 1px solid #ddd; border-radius: 8px; overflow: hidden;"><img src="https://via.placeholder.com/300x200" style="width: 100%; height: 200px; object-fit: cover;"><div style="padding: 20px;"><h3 style="margin: 0 0 10px 0;">Product Name</h3><p style="color: #666; margin-bottom: 15px;">Short description</p><div style="display: flex; justify-content: space-between; align-items: center;"><span style="font-size: 24px; font-weight: bold; color: #4CAF50;">€29.99</span><button style="background: #4CAF50; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Buy Now</button></div></div></div></div>'
+    });
+
+    // Pricing Table
+    blockManager.add('pricing-table', {
+        label: 'Pricing Table',
+        category: 'Sections',
+        content: '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; padding: 50px 20px;"><div style="border: 2px solid #ddd; border-radius: 8px; padding: 30px; text-align: center;"><h3>Basic</h3><div style="font-size: 36px; font-weight: bold; margin: 20px 0;">€9<span style="font-size: 16px;">/mo</span></div><ul style="list-style: none; padding: 0; margin: 20px 0;"><li style="padding: 10px;">Feature 1</li><li style="padding: 10px;">Feature 2</li></ul><button style="background: #2196F3; color: white; border: none; padding: 12px 30px; border-radius: 4px; cursor: pointer; width: 100%;">Choose Plan</button></div></div>'
+    });
+
+    // Testimonial
+    blockManager.add('testimonial', {
+        label: 'Testimonial',
+        category: 'Sections',
+        content: '<div style="max-width: 800px; margin: 50px auto; padding: 40px; background: #f9f9f9; border-radius: 8px; text-align: center;"><div style="font-size: 48px; color: #ddd; margin-bottom: 20px;">"</div><p style="font-size: 20px; font-style: italic; margin-bottom: 20px;">This is an amazing product! It has completely transformed how we work.</p><div style="display: flex; align-items: center; justify-content: center; gap: 15px;"><img src="https://via.placeholder.com/60" style="width: 60px; height: 60px; border-radius: 50%;"><div style="text-align: left;"><div style="font-weight: bold;">John Doe</div><div style="color: #666;">CEO, Company</div></div></div></div>'
+    });
+
+    // FAQ
+    blockManager.add('faq-section', {
+        label: 'FAQ Section',
+        category: 'Sections',
+        content: '<div style="max-width: 800px; margin: 50px auto; padding: 30px;"><h2 style="text-align: center; margin-bottom: 40px;">Frequently Asked Questions</h2><div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; padding: 20px;"><h3 style="margin-top: 0;">Question 1?</h3><p>Answer to the first question goes here.</p></div><div style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px; padding: 20px;"><h3 style="margin-top: 0;">Question 2?</h3><p>Answer to the second question goes here.</p></div></div>'
+    });
+
+    // Article Filters Block
+    blockManager.add('article-filters', {
+        label: 'Article Filters',
+        category: 'E-Commerce',
+        content: `<div class="article-filters-wrapper" data-api-endpoint="/api/articles/public" style="max-width: 28rem; margin: 0 auto; padding: 1.5rem; background: white; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"><h3 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem;">Filter Products</h3><div style="margin-bottom: 1rem;"><label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Search</label><input id="article-search-input" type="text" placeholder="Search products..." style="width: 100%; padding: 0.5rem 1rem; border: 1px solid #D1D5DB; border-radius: 0.5rem;"></div><div style="margin-bottom: 1rem;"><label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Price Range</label><div style="display: flex; gap: 0.5rem;"><input id="price-min-input" type="number" placeholder="Min" min="0" style="width: 50%; padding: 0.5rem 1rem; border: 1px solid #D1D5DB; border-radius: 0.5rem;"><input id="price-max-input" type="number" placeholder="Max" min="0" style="width: 50%; padding: 0.5rem 1rem; border: 1px solid #D1D5DB; border-radius: 0.5rem;"></div></div><div style="margin-bottom: 1rem;"><label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Category</label><select id="category-select" style="width: 100%; padding: 0.5rem 1rem; border: 1px solid #D1D5DB; border-radius: 0.5rem;"><option value="">All Categories</option></select></div><div style="margin-bottom: 1rem;"><label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Product Type</label><select id="type-select" style="width: 100%; padding: 0.5rem 1rem; border: 1px solid #D1D5DB; border-radius: 0.5rem;"><option value="">All Types</option></select></div><div style="margin-bottom: 1.5rem;"><label style="display: flex; align-items: center; cursor: pointer;"><input id="in-stock-checkbox" type="checkbox" style="margin-right: 0.5rem;"><span>In stock only</span></label></div><div style="display: flex; gap: 0.5rem;"><button id="apply-filters-btn" style="flex: 1; background: #2563EB; color: white; padding: 0.5rem 1rem; border: none; border-radius: 0.5rem; font-weight: 500; cursor: pointer;">Apply Filters</button><button id="clear-filters-btn" style="flex: 1; background: #6B7280; color: white; padding: 0.5rem 1rem; border: none; border-radius: 0.5rem; font-weight: 500; cursor: pointer;">Clear</button></div></div><script>(function(){const wrapper=document.querySelector(".article-filters-wrapper");if(!wrapper||wrapper.dataset.initialized)return;wrapper.dataset.initialized="true";const endpoint=wrapper.dataset.apiEndpoint;const categorySelect=document.getElementById("category-select");const typeSelect=document.getElementById("type-select");const applyBtn=document.getElementById("apply-filters-btn");const clearBtn=document.getElementById("clear-filters-btn");const searchInput=document.getElementById("article-search-input");const priceMinInput=document.getElementById("price-min-input");const priceMaxInput=document.getElementById("price-max-input");const inStockCheckbox=document.getElementById("in-stock-checkbox");fetch(endpoint+"/categories").then(r=>r.json()).then(cats=>{cats.forEach(cat=>{const opt=document.createElement("option");opt.value=cat.id;opt.textContent=cat.name;categorySelect.appendChild(opt)})}).catch(e=>console.error("Failed to load categories:",e));fetch(endpoint+"/types").then(r=>r.json()).then(types=>{types.forEach(type=>{const opt=document.createElement("option");opt.value=type.value;opt.textContent=type.label;typeSelect.appendChild(opt)})}).catch(e=>console.error("Failed to load types:",e));function collectFilters(){return{search:searchInput.value.trim(),category:categorySelect.value,type:typeSelect.value,price_min:priceMinInput.value,price_max:priceMaxInput.value,in_stock:inStockCheckbox.checked?"1":""}}applyBtn.addEventListener("click",()=>{const filters=collectFilters();document.dispatchEvent(new CustomEvent("article-filters-changed",{detail:filters}))});clearBtn.addEventListener("click",()=>{searchInput.value="";priceMinInput.value="";priceMaxInput.value="";categorySelect.value="";typeSelect.value="";inStockCheckbox.checked=false;document.dispatchEvent(new CustomEvent("article-filters-changed",{detail:{}}))})})();<\/script>`
+    });
+
+    // Article Listing Grid Block
+    blockManager.add('article-listing-grid', {
+        label: 'Article Listing Grid',
+        category: 'E-Commerce',
+        content: `<div id="article-listing-grid" data-api-endpoint="/api/articles/public" style="padding: 2rem;"><div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;"><div><span id="results-count" style="font-size: 1.125rem; font-weight: 600;">Loading products...</span></div><div style="display: flex; align-items: center; gap: 0.5rem;"><label style="font-weight: 500;">Sort by:</label><select id="sort-select" style="padding: 0.5rem 1rem; border: 1px solid #D1D5DB; border-radius: 0.5rem;"><option value="newest">Newest First</option><option value="price_asc">Price: Low to High</option><option value="price_desc">Price: High to Low</option><option value="name_asc">Name: A-Z</option><option value="featured">Featured First</option></select></div></div><div id="articles-grid-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;"></div><div id="loading-skeleton" style="display: none;"><div style="animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;"><div style="background: #E5E7EB; height: 12rem; border-radius: 0.5rem;"></div><div style="padding: 1rem;"><div style="height: 1rem; background: #E5E7EB; border-radius: 0.25rem; width: 75%; margin-bottom: 0.75rem;"></div><div style="height: 0.75rem; background: #E5E7EB; border-radius: 0.25rem;"></div></div></div></div><div id="empty-state" style="display: none; text-align: center; padding: 4rem 1rem;"><p style="font-size: 1.25rem; color: #6B7280;">No products found</p><p style="color: #9CA3AF; margin-top: 0.5rem;">Try adjusting your filters</p></div><div id="scroll-loader" style="display: none; text-align: center; padding: 2rem;"><div style="border: 4px solid #E5E7EB; border-top-color: #2563EB; border-radius: 50%; width: 3rem; height: 3rem; animation: spin 1s linear infinite; margin: 0 auto;"></div><p style="margin-top: 1rem; color: #6B7280;">Loading more products...</p></div></div><script>(function(){const container=document.getElementById("article-listing-grid");if(!container||container.dataset.initialized)return;container.dataset.initialized="true";const endpoint=container.dataset.apiEndpoint;const grid=document.getElementById("articles-grid-container");const sortSelect=document.getElementById("sort-select");const resultsCount=document.getElementById("results-count");const emptyState=document.getElementById("empty-state");const scrollLoader=document.getElementById("scroll-loader");let currentPage=1;let currentFilters={};let currentSort="newest";let isLoading=false;let hasMorePages=true;async function loadArticles(append=false){if(isLoading)return;isLoading=true;if(!append){grid.innerHTML="";currentPage=1;hasMorePages=true}scrollLoader.style.display="block";try{const params=new URLSearchParams({...currentFilters,sort:currentSort,page:currentPage,limit:12});const response=await fetch(endpoint+"?"+params);const data=await response.json();if(!append){grid.innerHTML=""}if(data.data&&data.data.length>0){data.data.forEach(article=>{grid.appendChild(createArticleCard(article))});emptyState.style.display="none"}else if(!append){emptyState.style.display="block"}if(data.pagination){resultsCount.textContent=data.pagination.total+" products";hasMorePages=currentPage<data.pagination.pages}}catch(error){console.error("Error loading articles:",error);resultsCount.textContent="Error loading products"}finally{isLoading=false;scrollLoader.style.display="none"}}function createArticleCard(article){const card=document.createElement("article");card.className="article-card";card.style.cssText="background: white; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1); overflow: hidden; transition: box-shadow 0.3s;";card.onmouseenter=()=>card.style.boxShadow="0 10px 15px -3px rgba(0, 0, 0, 0.1)";card.onmouseleave=()=>card.style.boxShadow="0 1px 3px 0 rgba(0, 0, 0, 0.1)";const imageUrl=article.mainImage?article.mainImage.url:"https://via.placeholder.com/400x300?text="+encodeURIComponent(article.name);const imageDiv=document.createElement("div");imageDiv.style.cssText="position: relative;";const img=document.createElement("img");img.src=imageUrl;img.alt=article.mainImage?article.mainImage.alt:article.name;img.style.cssText="width: 100%; height: 12rem; object-fit: cover;";imageDiv.appendChild(img);if(article.isFeatured){const badge=document.createElement("span");badge.textContent="Featured";badge.style.cssText="position: absolute; top: 0.5rem; right: 0.5rem; background: #F59E0B; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;";imageDiv.appendChild(badge)}if(article.stock===0&&!article.ignoreStock){const outOfStockBadge=document.createElement("span");outOfStockBadge.textContent="Out of Stock";outOfStockBadge.style.cssText="position: absolute; top: 0.5rem; left: 0.5rem; background: #EF4444; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600;";imageDiv.appendChild(outOfStockBadge)}card.appendChild(imageDiv);const contentDiv=document.createElement("div");contentDiv.style.cssText="padding: 1rem;";if(article.category){const categoryBadge=document.createElement("span");categoryBadge.textContent=article.category.name;categoryBadge.style.cssText="display: inline-block; background: #DBEAFE; color: #1E40AF; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 500; margin-bottom: 0.5rem;";contentDiv.appendChild(categoryBadge)}const title=document.createElement("h3");title.textContent=article.name;title.style.cssText="font-size: 1.125rem; font-weight: 600; margin-bottom: 0.5rem; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;";contentDiv.appendChild(title);if(article.shortDescription){const desc=document.createElement("p");desc.textContent=article.shortDescription;desc.style.cssText="font-size: 0.875rem; color: #6B7280; margin-bottom: 1rem; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;";contentDiv.appendChild(desc)}const footer=document.createElement("div");footer.style.cssText="display: flex; justify-content: space-between; align-items: center;";const price=document.createElement("span");price.textContent="€"+article.grossPrice;price.style.cssText="font-size: 1.5rem; font-weight: 700; color: #16A34A;";footer.appendChild(price);if(article.isRequestOnly){const requestBtn=document.createElement("a");requestBtn.href="mailto:"+article.requestEmail+"?subject=Product Inquiry: "+encodeURIComponent(article.name)+"&body=I am interested in: "+encodeURIComponent(article.name)+" ("+encodeURIComponent(window.location.origin+"/products/"+article.slug)+")";requestBtn.textContent="Request Product";requestBtn.style.cssText="background: #7C3AED; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none; font-size: 0.875rem; font-weight: 500;";requestBtn.onmouseenter=()=>requestBtn.style.background="#6D28D9";requestBtn.onmouseleave=()=>requestBtn.style.background="#7C3AED";footer.appendChild(requestBtn)}else{const link=document.createElement("a");link.href="/products/"+article.slug;link.textContent="View Details";link.style.cssText="background: #2563EB; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; text-decoration: none; font-size: 0.875rem; font-weight: 500;";link.onmouseenter=()=>link.style.background="#1D4ED8";link.onmouseleave=()=>link.style.background="#2563EB";footer.appendChild(link)}contentDiv.appendChild(footer);card.appendChild(contentDiv);return card}sortSelect.addEventListener("change",()=>{currentSort=sortSelect.value;loadArticles()});document.addEventListener("article-filters-changed",e=>{currentFilters=e.detail;loadArticles()});let scrollTimeout;window.addEventListener("scroll",()=>{clearTimeout(scrollTimeout);scrollTimeout=setTimeout(()=>{const scrollPosition=window.innerHeight+window.scrollY;const threshold=document.body.offsetHeight-500;if(scrollPosition>=threshold&&!isLoading&&hasMorePages){currentPage++;loadArticles(true)}},150)});loadArticles()})();<\/script><style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}@keyframes spin{to{transform:rotate(360deg)}}<\/style>`
+    });
+
+    console.log('GrapeJS editor initialized for: ' + editorId);
+})();
+</script>
+{% endblock %}

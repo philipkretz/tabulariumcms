@@ -1,0 +1,88 @@
+{% extends '@SonataAdmin/standard_layout.html.twig' %}
+
+{% block title %}Import Theme{% endblock %}
+
+{% block content %}
+    <div class="box box-primary">
+        <div class="box-header with-border">
+            <h3 class="box-title">
+                <i class="fas fa-upload"></i> Import Theme
+            </h3>
+        </div>
+
+        <div class="box-body">
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>Import Instructions:</strong>
+                <ul class="mb-0 mt-2">
+                    <li>Select a theme JSON file exported from TabulariumCMS</li>
+                    <li>The theme will be imported with all settings, colors, and customizations</li>
+                    <li>If a theme with the same name exists, a unique name will be generated</li>
+                    <li>Imported themes are inactive by default - activate them after reviewing</li>
+                </ul>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" class="form-horizontal">
+                <div class="form-group">
+                    <label for="theme_file" class="col-sm-3 control-label">
+                        Theme File <span class="text-danger">*</span>
+                    </label>
+                    <div class="col-sm-9">
+                        <input type="file"
+                               id="theme_file"
+                               name="theme_file"
+                               accept=".json"
+                               required
+                               class="form-control">
+                        <p class="help-block">
+                            <i class="fas fa-file-code"></i> Select a .json theme export file
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-upload"></i> Import Theme
+                        </button>
+                        <a href="{{ path('admin_app_theme_list') }}" class="btn btn-default">
+                            <i class="fas fa-times"></i> Cancel
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="box box-default">
+        <div class="box-header with-border">
+            <h3 class="box-title">
+                <i class="fas fa-question-circle"></i> What gets imported?
+            </h3>
+        </div>
+        <div class="box-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h4><i class="fas fa-check text-success"></i> Included in Import</h4>
+                    <ul>
+                        <li>Theme name and display name</li>
+                        <li>Description, author, and version</li>
+                        <li>All color customizations (primary, secondary, etc.)</li>
+                        <li>Typography settings (fonts, sizes)</li>
+                        <li>Layout settings (sidebar, header, container)</li>
+                        <li>Custom CSS code</li>
+                        <li>Theme configuration and files</li>
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <h4><i class="fas fa-times text-danger"></i> Not Included</h4>
+                    <ul>
+                        <li>Active/Default status (always set to inactive)</li>
+                        <li>Creation/update timestamps (new ones created)</li>
+                        <li>Theme ID (new ID assigned)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

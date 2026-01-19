@@ -1,0 +1,207 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Seller Dashboard - {{ parent() }}{% endblock %}
+
+{% block meta_tags %}
+<meta name="description" content="Manage your products, orders, and business settings in your seller dashboard.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="canonical" href="{{ url('seller_dashboard') }}">
+{% endblock %}
+
+{% block body %}
+<section class="seller-dashboard py-12 bg-gray-50 min-h-screen">
+    <div class="container mx-auto px-4">
+        <header class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">
+                <i class="fa fa-tachometer-alt text-blue-600"></i> Seller Dashboard
+            </h1>
+            <p class="text-gray-600">Welcome back, {{ seller.companyName }}</p>
+        </header>
+
+        {% if not seller.isApproved %}
+            <div class="bg-yellow-50 border-l-4 border-yellow-400 text-yellow-800 p-6 mb-8 rounded-lg" role="alert">
+                <div class="flex items-start">
+                    <i class="fa fa-exclamation-triangle text-2xl mr-4 mt-1"></i>
+                    <div>
+                        <h3 class="font-semibold text-lg mb-2">Pending Approval</h3>
+                        <p class="text-sm">
+                            Your seller account is currently under review. You'll be able to list products
+                            once our team approves your account. This typically takes 1-2 business days.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if not seller.isActive %}
+            <div class="bg-red-50 border-l-4 border-red-400 text-red-800 p-6 mb-8 rounded-lg" role="alert">
+                <div class="flex items-start">
+                    <i class="fa fa-ban text-2xl mr-4 mt-1"></i>
+                    <div>
+                        <h3 class="font-semibold text-lg mb-2">Account Inactive</h3>
+                        <p class="text-sm">
+                            Your seller account is currently inactive. Please contact support for assistance.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <article class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Products</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">0</h3>
+                    </div>
+                    <div class="bg-blue-100 rounded-full p-4">
+                        <i class="fa fa-box text-blue-600 text-2xl"></i>
+                    </div>
+                </div>
+            </article>
+
+            <article class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Orders</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">0</h3>
+                    </div>
+                    <div class="bg-green-100 rounded-full p-4">
+                        <i class="fa fa-shopping-cart text-green-600 text-2xl"></i>
+                    </div>
+                </div>
+            </article>
+
+            <article class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Total Revenue</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">$0</h3>
+                    </div>
+                    <div class="bg-purple-100 rounded-full p-4">
+                        <i class="fa fa-dollar-sign text-purple-600 text-2xl"></i>
+                    </div>
+                </div>
+            </article>
+
+            <article class="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Commission Rate</p>
+                        <h3 class="text-3xl font-bold text-gray-800 mt-2">{{ seller.commissionRate }}%</h3>
+                    </div>
+                    <div class="bg-yellow-100 rounded-full p-4">
+                        <i class="fa fa-percentage text-yellow-600 text-2xl"></i>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <div class="grid lg:grid-cols-3 gap-6">
+            <article class="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
+                <header class="border-b border-gray-200 pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        <i class="fa fa-list-alt text-blue-600"></i> Quick Actions
+                    </h2>
+                </header>
+
+                <div class="grid md:grid-cols-2 gap-4">
+                    <a href="#" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-blue-500 hover:shadow-md transition duration-200">
+                        <div class="bg-blue-100 rounded-full p-3 mr-4">
+                            <i class="fa fa-plus text-blue-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">Add Product</h3>
+                            <p class="text-sm text-gray-500">List a new product</p>
+                        </div>
+                    </a>
+
+                    <a href="#" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-green-500 hover:shadow-md transition duration-200">
+                        <div class="bg-green-100 rounded-full p-3 mr-4">
+                            <i class="fa fa-shopping-cart text-green-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">View Orders</h3>
+                            <p class="text-sm text-gray-500">Manage your orders</p>
+                        </div>
+                    </a>
+
+                    <a href="#" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-purple-500 hover:shadow-md transition duration-200">
+                        <div class="bg-purple-100 rounded-full p-3 mr-4">
+                            <i class="fa fa-chart-line text-purple-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">Analytics</h3>
+                            <p class="text-sm text-gray-500">View sales reports</p>
+                        </div>
+                    </a>
+
+                    <a href="#" class="flex items-center p-4 border border-gray-200 rounded-lg hover:border-yellow-500 hover:shadow-md transition duration-200">
+                        <div class="bg-yellow-100 rounded-full p-3 mr-4">
+                            <i class="fa fa-cog text-yellow-600 text-xl"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">Settings</h3>
+                            <p class="text-sm text-gray-500">Update your profile</p>
+                        </div>
+                    </a>
+                </div>
+            </article>
+
+            <article class="bg-white rounded-xl shadow-md p-6">
+                <header class="border-b border-gray-200 pb-4 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">
+                        <i class="fa fa-info-circle text-blue-600"></i> Account Info
+                    </h2>
+                </header>
+
+                <dl class="space-y-4 text-sm">
+                    <div>
+                        <dt class="text-gray-500 font-medium mb-1">Company Name</dt>
+                        <dd class="text-gray-800">{{ seller.companyName }}</dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500 font-medium mb-1">Contact Person</dt>
+                        <dd class="text-gray-800">{{ seller.contactPerson }}</dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500 font-medium mb-1">Email</dt>
+                        <dd class="text-gray-800">{{ seller.email }}</dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500 font-medium mb-1">Phone</dt>
+                        <dd class="text-gray-800">{{ seller.phone }}</dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500 font-medium mb-1">Status</dt>
+                        <dd>
+                            {% if seller.isApproved and seller.isActive %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fa fa-check mr-1"></i> Active
+                                </span>
+                            {% elseif not seller.isApproved %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    <i class="fa fa-clock mr-1"></i> Pending
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <i class="fa fa-ban mr-1"></i> Inactive
+                                </span>
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <div>
+                        <dt class="text-gray-500 font-medium mb-1">Registered</dt>
+                        <dd class="text-gray-800">{{ seller.registeredAt|date('F j, Y') }}</dd>
+                    </div>
+                </dl>
+            </article>
+        </div>
+    </div>
+</section>
+{% endblock %}

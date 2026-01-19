@@ -1,0 +1,448 @@
+{% extends 'setup/base.html.twig' %}
+
+{% block title %}{{ 'setup.title'|trans }} - TabulariumCMS{% endblock %}
+
+{% block body %}
+<div class="min-h-screen py-8 px-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <img src="{{ asset('tabulariumcms.png') }}" alt="TabulariumCMS" class="w-20 h-20 mx-auto mb-4">
+            <h1 class="text-4xl font-bold bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 text-transparent bg-clip-text">
+                {{ 'setup.title'|trans }}
+            </h1>
+            <p class="text-gray-600 mt-2">{{ 'setup.subtitle'|trans }}</p>
+        </div>
+
+        <!-- Progress Indicator -->
+        <div class="flex items-center justify-between mb-8 px-4">
+            <div class="step-indicator" data-step="1">
+                <div class="step-line"></div>
+                <div class="step-circle active">1</div>
+                <span class="mt-2 text-xs font-medium text-gray-600 hidden md:block">{{ 'setup.steps.welcome'|trans }}</span>
+            </div>
+            <div class="step-indicator" data-step="2">
+                <div class="step-line"></div>
+                <div class="step-circle">2</div>
+                <span class="mt-2 text-xs font-medium text-gray-600 hidden md:block">{{ 'setup.steps.database'|trans }}</span>
+            </div>
+            <div class="step-indicator" data-step="3">
+                <div class="step-line"></div>
+                <div class="step-circle">3</div>
+                <span class="mt-2 text-xs font-medium text-gray-600 hidden md:block">{{ 'setup.steps.migrations'|trans }}</span>
+            </div>
+            <div class="step-indicator" data-step="4">
+                <div class="step-line"></div>
+                <div class="step-circle">4</div>
+                <span class="mt-2 text-xs font-medium text-gray-600 hidden md:block">{{ 'setup.steps.admin'|trans }}</span>
+            </div>
+            <div class="step-indicator" data-step="5">
+                <div class="step-line"></div>
+                <div class="step-circle">5</div>
+                <span class="mt-2 text-xs font-medium text-gray-600 hidden md:block">{{ 'setup.steps.settings'|trans }}</span>
+            </div>
+            <div class="step-indicator" data-step="6">
+                <div class="step-circle">6</div>
+                <span class="mt-2 text-xs font-medium text-gray-600 hidden md:block">{{ 'setup.steps.complete'|trans }}</span>
+            </div>
+        </div>
+
+        <!-- Steps Container -->
+        <div id="steps-container">
+            {% include 'setup/steps/_welcome.html.twig' %}
+            {% include 'setup/steps/_database.html.twig' %}
+            {% include 'setup/steps/_migrations.html.twig' %}
+            {% include 'setup/steps/_admin.html.twig' %}
+            {% include 'setup/steps/_site_settings.html.twig' %}
+            {% include 'setup/steps/_complete.html.twig' %}
+        </div>
+    </div>
+</div>
+
+<script>
+// Setup Wizard JavaScript
+let currentStep = 1;
+const totalSteps = 6;
+
+// Open a specific step
+function openStep(step) {
+    // Hide all sections
+    document.querySelectorAll('.accordion-section').forEach(section => {
+        section.classList.remove('active');
+        section.querySelector('.accordion-body').style.display = 'none';
+    });
+
+    // Show target section
+    const targetSection = document.querySelector(`.accordion-section[data-step="${step}"]`);
+    if (targetSection) {
+        targetSection.classList.add('active');
+        targetSection.querySelector('.accordion-body').style.display = 'block';
+    }
+
+    // Update progress indicators
+    document.querySelectorAll('.step-indicator').forEach(indicator => {
+        const indicatorStep = parseInt(indicator.dataset.step);
+        const circle = indicator.querySelector('.step-circle');
+        const line = indicator.querySelector('.step-line');
+
+        if (indicatorStep < step) {
+            circle.classList.add('completed');
+            circle.classList.remove('active');
+            circle.innerHTML = '<i class="fas fa-check"></i>';
+            if (line) line.classList.add('completed');
+        } else if (indicatorStep === step) {
+            circle.classList.add('active');
+            circle.classList.remove('completed');
+            circle.textContent = indicatorStep;
+            if (line) line.classList.remove('completed');
+        } else {
+            circle.classList.remove('active', 'completed');
+            circle.textContent = indicatorStep;
+            if (line) line.classList.remove('completed');
+        }
+    });
+
+    currentStep = step;
+
+    // Scroll to section
+    targetSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+// Mark step as completed
+function markStepCompleted(step) {
+    const section = document.querySelector(`.accordion-section[data-step="${step}"]`);
+    if (section) {
+        section.classList.add('completed');
+    }
+}
+
+// Step 1: Check Requirements
+async function checkRequirements() {
+    const container = document.getElementById('requirements-container');
+    const checkBtn = document.getElementById('check-requirements-btn');
+    const nextBtn = document.getElementById('step1-next-btn');
+
+    checkBtn.disabled = true;
+    checkBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> {{ 'setup.checking'|trans|e('js') }}';
+    container.innerHTML = '<div class="text-center py-4"><div class="spinner mx-auto"></div></div>';
+
+    try {
+        const response = await fetch('{{ path('setup_check_requirements') }}');
+        const data = await response.json();
+
+        let html = '<div class="space-y-3">';
+        for (const [key, req] of Object.entries(data.requirements)) {
+            const icon = req.passed
+                ? '<i class="fas fa-check-circle text-green-500"></i>'
+                : '<i class="fas fa-times-circle text-red-500"></i>';
+            const bgClass = req.passed ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200';
+
+            html += `
+                <div class="flex items-center justify-between p-3 ${bgClass} border rounded-lg">
+                    <div class="flex items-center">
+                        ${icon}
+                        <span class="ml-3 font-medium">${req.name}</span>
+                    </div>
+                    <div class="text-sm">
+                        <span class="text-gray-600">{{ 'setup.required'|trans|e('js') }}: ${req.required}</span>
+                        <span class="mx-2">|</span>
+                        <span class="${req.passed ? 'text-green-600' : 'text-red-600'}">{{ 'setup.current'|trans|e('js') }}: ${req.current}</span>
+                    </div>
+                </div>
+            `;
+        }
+        html += '</div>';
+        container.innerHTML = html;
+
+        if (data.allPassed) {
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+            checkBtn.innerHTML = '<i class="fas fa-check mr-2"></i> {{ 'setup.all_requirements_met'|trans|e('js') }}';
+            checkBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+            checkBtn.classList.add('bg-green-600');
+        } else {
+            checkBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> {{ 'setup.recheck_requirements'|trans|e('js') }}';
+            checkBtn.disabled = false;
+        }
+    } catch (error) {
+        container.innerHTML = `<div class="bg-red-100 text-red-700 p-4 rounded-lg">{{ 'setup.error_checking_requirements'|trans|e('js') }}: ${error.message}</div>`;
+        checkBtn.innerHTML = '<i class="fas fa-redo mr-2"></i> {{ 'setup.retry'|trans|e('js') }}';
+        checkBtn.disabled = false;
+    }
+}
+
+// Step 2: Test Database Connection
+async function testDatabase() {
+    const btn = document.getElementById('test-database-btn');
+    const result = document.getElementById('database-test-result');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> {{ 'setup.testing'|trans|e('js') }}';
+    result.innerHTML = '';
+
+    const data = {
+        host: document.getElementById('db-host').value,
+        port: parseInt(document.getElementById('db-port').value),
+        database: document.getElementById('db-name').value,
+        username: document.getElementById('db-user').value,
+        password: document.getElementById('db-password').value
+    };
+
+    try {
+        const response = await fetch('{{ path('setup_test_database') }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const responseData = await response.json();
+
+        if (responseData.success) {
+            result.innerHTML = `<div class="bg-green-100 text-green-700 p-3 rounded-lg flex items-center"><i class="fas fa-check-circle mr-2"></i>${responseData.message}</div>`;
+            document.getElementById('step2-next-btn').disabled = false;
+            document.getElementById('step2-next-btn').classList.remove('opacity-50', 'cursor-not-allowed');
+        } else {
+            result.innerHTML = `<div class="bg-red-100 text-red-700 p-3 rounded-lg flex items-center"><i class="fas fa-exclamation-circle mr-2"></i>${responseData.message}</div>`;
+        }
+    } catch (error) {
+        result.innerHTML = `<div class="bg-red-100 text-red-700 p-3 rounded-lg">{{ 'setup.connection_error'|trans|e('js') }}: ${error.message}</div>`;
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-plug mr-2"></i> {{ 'setup.test_connection'|trans|e('js') }}';
+}
+
+// Step 2: Save Database Configuration
+async function saveDatabase() {
+    const btn = document.getElementById('step2-next-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> {{ 'setup.saving'|trans|e('js') }}';
+
+    const data = {
+        host: document.getElementById('db-host').value,
+        port: parseInt(document.getElementById('db-port').value),
+        database: document.getElementById('db-name').value,
+        username: document.getElementById('db-user').value,
+        password: document.getElementById('db-password').value
+    };
+
+    try {
+        const response = await fetch('{{ path('setup_save_database') }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const responseData = await response.json();
+
+        if (responseData.success) {
+            markStepCompleted(2);
+            openStep(3);
+        } else {
+            alert(responseData.message);
+            btn.disabled = false;
+            btn.innerHTML = '{{ 'setup.continue'|trans|e('js') }} <i class="fas fa-arrow-right ml-2"></i>';
+        }
+    } catch (error) {
+        alert('{{ 'setup.error_saving_config'|trans|e('js') }}: ' + error.message);
+        btn.disabled = false;
+        btn.innerHTML = '{{ 'setup.continue'|trans|e('js') }} <i class="fas fa-arrow-right ml-2"></i>';
+    }
+}
+
+// Step 3: Run Migrations
+async function runMigrations() {
+    const btn = document.getElementById('run-migrations-btn');
+    const log = document.getElementById('migration-log');
+    const progressBar = document.getElementById('migration-progress');
+    const progressText = document.getElementById('migration-progress-text');
+    const nextBtn = document.getElementById('step3-next-btn');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> {{ 'setup.running_migrations'|trans|e('js') }}';
+    log.innerHTML = '';
+    log.style.display = 'block';
+
+    try {
+        const response = await fetch('{{ path('setup_run_migrations') }}', {
+            method: 'POST'
+        });
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const text = decoder.decode(value);
+            const lines = text.split('\n');
+
+            for (const line of lines) {
+                if (line.startsWith('data: ')) {
+                    try {
+                        const data = JSON.parse(line.substring(6));
+
+                        if (data.progress !== undefined) {
+                            progressBar.style.width = data.progress + '%';
+                            progressText.textContent = data.progress + '%';
+                        }
+
+                        if (data.message) {
+                            const msgClass = data.type || 'info';
+                            log.innerHTML += `<div class="${msgClass}">[${data.type.toUpperCase()}] ${data.message}</div>`;
+                            log.scrollTop = log.scrollHeight;
+                        }
+
+                        if (data.type === 'complete') {
+                            if (data.progress === 100) {
+                                nextBtn.disabled = false;
+                                nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                                btn.innerHTML = '<i class="fas fa-check mr-2"></i> {{ 'setup.migrations_complete'|trans|e('js') }}';
+                                btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                                btn.classList.add('bg-green-600');
+                            } else {
+                                btn.innerHTML = '<i class="fas fa-redo mr-2"></i> {{ 'setup.retry_migrations'|trans|e('js') }}';
+                                btn.disabled = false;
+                            }
+                        }
+                    } catch (e) {
+                        // Skip invalid JSON
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        log.innerHTML += `<div class="error">[ERROR] ${error.message}</div>`;
+        btn.innerHTML = '<i class="fas fa-redo mr-2"></i> {{ 'setup.retry_migrations'|trans|e('js') }}';
+        btn.disabled = false;
+    }
+}
+
+// Step 4: Create Admin
+async function createAdmin() {
+    const btn = document.getElementById('step4-next-btn');
+    const result = document.getElementById('admin-create-result');
+
+    const password = document.getElementById('admin-password').value;
+    const confirmPassword = document.getElementById('admin-password-confirm').value;
+
+    if (password !== confirmPassword) {
+        result.innerHTML = '<div class="bg-red-100 text-red-700 p-3 rounded-lg">{{ 'setup.passwords_dont_match'|trans|e('js') }}</div>';
+        return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> {{ 'setup.creating_admin'|trans|e('js') }}';
+    result.innerHTML = '';
+
+    const data = {
+        email: document.getElementById('admin-email').value,
+        username: document.getElementById('admin-username').value,
+        password: password,
+        firstName: document.getElementById('admin-firstname').value,
+        lastName: document.getElementById('admin-lastname').value
+    };
+
+    try {
+        const response = await fetch('{{ path('setup_create_admin') }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const responseData = await response.json();
+
+        if (responseData.success) {
+            result.innerHTML = `<div class="bg-green-100 text-green-700 p-3 rounded-lg flex items-center"><i class="fas fa-check-circle mr-2"></i>${responseData.message}</div>`;
+            markStepCompleted(4);
+            setTimeout(() => openStep(5), 1000);
+        } else {
+            result.innerHTML = `<div class="bg-red-100 text-red-700 p-3 rounded-lg flex items-center"><i class="fas fa-exclamation-circle mr-2"></i>${responseData.message}</div>`;
+            btn.disabled = false;
+            btn.innerHTML = '{{ 'setup.create_admin'|trans|e('js') }} <i class="fas fa-arrow-right ml-2"></i>';
+        }
+    } catch (error) {
+        result.innerHTML = `<div class="bg-red-100 text-red-700 p-3 rounded-lg">{{ 'setup.error_creating_admin'|trans|e('js') }}: ${error.message}</div>`;
+        btn.disabled = false;
+        btn.innerHTML = '{{ 'setup.create_admin'|trans|e('js') }} <i class="fas fa-arrow-right ml-2"></i>';
+    }
+}
+
+// Step 5: Save Settings
+async function saveSettings() {
+    const btn = document.getElementById('step5-next-btn');
+    const result = document.getElementById('settings-save-result');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> {{ 'setup.saving_settings'|trans|e('js') }}';
+    result.innerHTML = '';
+
+    const data = {
+        siteName: document.getElementById('site-name').value,
+        defaultLanguage: document.getElementById('default-language').value,
+        primaryColor: document.getElementById('primary-color').value,
+        secondaryColor: document.getElementById('secondary-color').value
+    };
+
+    try {
+        const response = await fetch('{{ path('setup_save_settings') }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        const responseData = await response.json();
+
+        if (responseData.success) {
+            result.innerHTML = `<div class="bg-green-100 text-green-700 p-3 rounded-lg flex items-center"><i class="fas fa-check-circle mr-2"></i>${responseData.message}</div>`;
+            markStepCompleted(5);
+            setTimeout(() => openStep(6), 1000);
+        } else {
+            result.innerHTML = `<div class="bg-red-100 text-red-700 p-3 rounded-lg flex items-center"><i class="fas fa-exclamation-circle mr-2"></i>${responseData.message}</div>`;
+            btn.disabled = false;
+            btn.innerHTML = '{{ 'setup.save_settings'|trans|e('js') }} <i class="fas fa-arrow-right ml-2"></i>';
+        }
+    } catch (error) {
+        result.innerHTML = `<div class="bg-red-100 text-red-700 p-3 rounded-lg">{{ 'setup.error_saving_settings'|trans|e('js') }}: ${error.message}</div>`;
+        btn.disabled = false;
+        btn.innerHTML = '{{ 'setup.save_settings'|trans|e('js') }} <i class="fas fa-arrow-right ml-2"></i>';
+    }
+}
+
+// Step 6: Complete Installation
+async function completeSetup() {
+    const btn = document.getElementById('complete-setup-btn');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> {{ 'setup.completing'|trans|e('js') }}';
+
+    try {
+        const response = await fetch('{{ path('setup_complete') }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+        });
+        const responseData = await response.json();
+
+        if (responseData.success) {
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i> {{ 'setup.installation_complete'|trans|e('js') }}';
+            btn.classList.remove('bg-green-600', 'hover:bg-green-700');
+            btn.classList.add('bg-green-700');
+
+            // Show success and redirect buttons
+            document.getElementById('setup-complete-actions').style.display = 'block';
+            document.getElementById('admin-url').href = responseData.redirectUrl || '{{ path('admin_login') }}';
+        } else {
+            alert(responseData.message || '{{ 'setup.completion_error'|trans|e('js') }}');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i> {{ 'setup.complete_installation'|trans|e('js') }}';
+        }
+    } catch (error) {
+        alert('{{ 'setup.error_completing'|trans|e('js') }}: ' + error.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check mr-2"></i> {{ 'setup.complete_installation'|trans|e('js') }}';
+    }
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    openStep(1);
+});
+</script>
+{% endblock %}

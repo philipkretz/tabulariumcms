@@ -1,0 +1,38 @@
+{% extends '@SonataAdmin/CRUD/list_string.html.twig' %}
+
+{% block field %}
+    {% set badges = {
+        'admin_login': 'badge-info',
+        'admin_logout': 'badge-secondary',
+        'user_register': 'badge-success',
+        'user_login': 'badge-info',
+        'user_logout': 'badge-secondary',
+        'seller_register': 'badge-warning',
+        'seller_approved': 'badge-success',
+        'seller_rejected': 'badge-danger',
+        'order_created': 'badge-primary',
+        'order_updated': 'badge-info',
+        'order_paid': 'badge-success',
+        'order_shipped': 'badge-success',
+        'order_completed': 'badge-success',
+        'order_cancelled': 'badge-danger',
+        'payment_success': 'badge-success',
+        'payment_failed': 'badge-danger',
+        'product_created': 'badge-primary',
+        'product_updated': 'badge-info',
+        'product_deleted': 'badge-danger',
+        'page_created': 'badge-primary',
+        'page_updated': 'badge-info',
+        'page_deleted': 'badge-danger',
+        'post_created': 'badge-primary',
+        'post_updated': 'badge-info',
+        'post_deleted': 'badge-danger',
+        'settings_updated': 'badge-warning'
+    } %}
+
+    {% set badgeClass = badges[value] ?? 'badge-secondary' %}
+
+    <span class="badge {{ badgeClass }}">
+        {{ value|replace({'_': ' '})|title }}
+    </span>
+{% endblock %}

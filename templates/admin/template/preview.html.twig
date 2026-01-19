@@ -1,0 +1,95 @@
+{% extends '@SonataAdmin/standard_layout.html.twig' %}
+
+{% block title %}Preview Template: {{ template.name }}{% endblock %}
+
+{% block sonata_page_content %}
+    <div class="mb-3">
+        <a href="{{ path('admin_app_template_list') }}" class="btn btn-secondary">
+            <i class="fa fa-arrow-left"></i> Back to Templates
+        </a>
+        <a href="{{ path('admin_app_template_edit', {'id': template.id}) }}" class="btn btn-primary">
+            <i class="fa fa-edit"></i> Edit Template
+        </a>
+    </div>
+
+    <h1 class="mb-4">Preview: {{ template.name }}</h1>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3>Template Information</h3>
+                </div>
+                <div class="card-body">
+                    <dl class="row">
+                        <dt class="col-sm-4">Name:</dt>
+                        <dd class="col-sm-8">{{ template.name }}</dd>
+
+                        <dt class="col-sm-4">Identifier:</dt>
+                        <dd class="col-sm-8"><code>{{ template.identifier }}</code></dd>
+
+                        <dt class="col-sm-4">Position:</dt>
+                        <dd class="col-sm-8"><span class="badge bg-info">{{ template.position }}</span></dd>
+
+                        <dt class="col-sm-4">Status:</dt>
+                        <dd class="col-sm-8">
+                            {% if template.isActive %}
+                                <span class="badge bg-success">Active</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </dd>
+
+                        {% if template.description %}
+                            <dt class="col-sm-4">Description:</dt>
+                            <dd class="col-sm-8">{{ template.description }}</dd>
+                        {% endif %}
+                    </dl>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3>Raw Template Content</h3>
+                </div>
+                <div class="card-body">
+                    <pre class="bg-light p-3 rounded" style="max-height: 400px; overflow-y: auto;"><code>{{ template.content }}</code></pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3>Rendered Preview</h3>
+                    <small class="text-muted">Bracket functions processed</small>
+                </div>
+                <div class="card-body">
+                    <div class="template-preview border rounded p-3" style="max-height: 600px; overflow-y: auto; background: #fff;">
+                        {{ processedContent|raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .template-preview {
+            font-family: inherit;
+            line-height: 1.6;
+        }
+
+        .template-preview img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        pre code {
+            font-size: 12px;
+            line-height: 1.4;
+        }
+    </style>
+{% endblock %}

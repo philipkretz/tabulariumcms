@@ -1,0 +1,12 @@
+{% set badges = {
+    'draft': 'badge-secondary',
+    'sending': 'badge-warning',
+    'completed': 'badge-success',
+    'failed': 'badge-danger'
+} %}
+
+{% set badgeClass = badges[value] ?? 'badge-secondary' %}
+
+<span class="badge {{ badgeClass }}">
+    {{ value|replace({'_': ' '})|title }}
+</span>

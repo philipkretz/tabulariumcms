@@ -1,0 +1,271 @@
+{% extends base_template %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #3498db;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #7f8c8d;
+            text-transform: uppercase;
+        }
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .chart-container-small {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            max-height: 300px;
+        }
+        .charts-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        @media (max-width: 768px) {
+            .charts-row {
+                grid-template-columns: 1fr;
+            }
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #2c3e50;
+        }
+        .recent-activity {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .activity-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="content">
+        <h1 class="page-header">Dashboard</h1>
+        
+        {# Statistics Cards #}
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-label">Total Revenue</div>
+                <div class="stat-value">{{ stats.currency }}{{ stats.totalRevenue|number_format(2, ".", ",") }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Orders</div>
+                <div class="stat-value">{{ stats.totalOrders }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Products</div>
+                <div class="stat-value">{{ stats.totalProducts }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Users</div>
+                <div class="stat-value">{{ stats.totalUsers }}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Sellers</div>
+                <div class="stat-value">{{ stats.totalSellers }}</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-8">
+                {# Revenue Chart #}
+                <div class="chart-container">
+                    <div class="chart-title">Revenue by Month (Last 12 Months)</div>
+                    <canvas id="revenueChart" height="80"></canvas>
+                </div>
+
+                {# Orders by Status and Top Products side by side #}
+                <div class="charts-row">
+                    <div class="chart-container-small">
+                        <div class="chart-title">Orders by Status</div>
+                        <canvas id="ordersChart"></canvas>
+                    </div>
+                    <div class="chart-container-small">
+                        <div class="chart-title">Top 5 Products</div>
+                        <canvas id="productsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                {# Recent Activity #}
+                <div class="recent-activity">
+                    <div class="chart-title">Recent Activity</div>
+                    {% if stats.recentActivity|length > 0 %}
+                        {% for activity in stats.recentActivity %}
+                            <div class="activity-item">
+                                <strong>{{ activity.actionType }}</strong><br>
+                                <small>{{ activity.description }}</small><br>
+                                <small class="text-muted">{{ activity.createdAt|date("Y-m-d H:i") }}</small>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No recent activity</p>
+                    {% endif %}
+                </div>
+
+                {# Recent Orders #}
+                <div class="recent-activity" style="margin-top: 20px;">
+                    <div class="chart-title">Recent Orders</div>
+                    {% if stats.recentOrders|length > 0 %}
+                        {% for order in stats.recentOrders %}
+                            <div class="activity-item">
+                                <strong>Order #{{ order.orderNumber }}</strong><br>
+                                <small>{{ stats.currency }}{{ order.total|number_format(2) }} - {{ order.status }}</small><br>
+                                <small class="text-muted">{{ order.createdAt|date("Y-m-d H:i") }}</small>
+                            </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted">No recent orders</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            // Revenue Chart
+            const revenueData = {{ stats.revenueByMonth|json_encode|raw }};
+            const revenueLabels = revenueData.map(item => item.month);
+            const revenueValues = revenueData.map(item => parseFloat(item.revenue || 0));
+
+            new Chart(document.getElementById("revenueChart"), {
+                type: "line",
+                data: {
+                    labels: revenueLabels,
+                    datasets: [{
+                        label: "Revenue ({{ stats.currency }})",
+                        data: revenueValues,
+                        borderColor: "#3498db",
+                        backgroundColor: "rgba(52, 152, 219, 0.1)",
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: "top"
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+
+            // Orders by Status Chart
+            const ordersData = {{ stats.ordersByStatus|json_encode|raw }};
+            const orderLabels = ordersData.map(item => item.status);
+            const orderCounts = ordersData.map(item => parseInt(item.count));
+
+            new Chart(document.getElementById("ordersChart"), {
+                type: "doughnut",
+                data: {
+                    labels: orderLabels,
+                    datasets: [{
+                        data: orderCounts,
+                        backgroundColor: [
+                            "#3498db",
+                            "#2ecc71",
+                            "#f39c12",
+                            "#e74c3c",
+                            "#9b59b6"
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: "bottom"
+                        }
+                    }
+                }
+            });
+
+            // Top Products Chart
+            const productsData = {{ stats.topProducts|json_encode|raw }};
+            const productLabels = productsData.map(item => item.name || "Unknown");
+            const productCounts = productsData.map(item => parseInt(item.orderCount));
+
+            new Chart(document.getElementById("productsChart"), {
+                type: "bar",
+                data: {
+                    labels: productLabels,
+                    datasets: [{
+                        label: "Orders",
+                        data: productCounts,
+                        backgroundColor: "#2ecc71"
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

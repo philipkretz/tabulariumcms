@@ -1,0 +1,360 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Import Content{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-100">
+    <!-- Admin Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-semibold text-gray-900">
+                    <a href="{{ path('app_admin') }}" class="text-gray-500 hover:text-gray-900 mr-2">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    Import Content
+                </h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Upload Area -->
+        <div class="card">
+            <h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                <i class="fas fa-upload text-green-600 mr-3"></i>
+                Upload Export File
+            </h2>
+            
+            <form action="{{ path('admin_import_execute') }}" 
+                  method="post" 
+                  enctype="multipart/form-data"
+                  class="space-y-6">
+                
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <i class="fas fa-cloud-upload-alt text-6xl text-gray-400 mb-4"></i>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label for="import_file" class="btn btn-secondary cursor-pointer inline-block">
+                                <i class="fas fa-folder-open mr-2"></i>
+                                Choose File
+                            </label>
+                            <input type="file" 
+                                   id="import_file" 
+                                   name="import_file" 
+                                   accept=".json"
+                                   class="hidden"
+                                   onchange="handleFileSelect(this)">
+                        </div>
+                        
+                        <div id="file-info" class="hidden">
+                            <div class="flex items-center justify-center text-green-600">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                <span id="file-name"></span>
+                                <span class="text-gray-500 ml-2">(<span id="file-size"></span> MB)</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-gray-500 mt-4">
+                        Select a TabulariumCMS export file (.json) to import content from another instance.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Import Options -->
+            <div class="border rounded-lg p-6 bg-blue-50">
+                <h3 class="text-md font-medium text-gray-900 mb-4 flex items-center">
+                    <i class="fas fa-cogs text-blue-600 mr-3"></i>
+                    Import Options
+                </h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-3">Content Selection</h4>
+                        
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="import_content_types[]" 
+                                       value="posts"
+                                       checked
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Blog Posts</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="import_content_types[]" 
+                                       value="pages"
+                                       checked
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Pages</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="import_content_types[]" 
+                                       value="settings"
+                                       checked
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Settings</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="import_content_types[]" 
+                                       value="seo_urls"
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">SEO URLs</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <h4 class="font-medium text-gray-900 mb-3">Behavior</h4>
+                        
+                        <div class="space-y-3">
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="overwrite" 
+                                       value="1"
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Overwrite Existing Content</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="skip_duplicates" 
+                                       value="1"
+                                       checked
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Skip Duplicate Content</span>
+                            </label>
+                            
+                            <label class="flex items-center">
+                                <input type="checkbox" 
+                                       name="validate_data" 
+                                       value="1"
+                                       checked
+                                       class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                                <span class="ml-2 text-sm text-gray-700">Validate Import Data</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Import Actions -->
+            <div class="flex justify-between items-center mt-8">
+                <div class="text-sm text-gray-500">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Import will be processed and you'll see a summary of imported, skipped, and error items.
+                </div>
+                
+                <div class="flex space-x-4">
+                    <button type="button" 
+                            onclick="resetForm()" 
+                            class="btn btn-secondary">
+                        <i class="fas fa-undo mr-2"></i>
+                        Reset
+                    </button>
+                    
+                    <button type="submit" 
+                            id="import-button"
+                            disabled
+                            class="btn btn-primary disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i class="fas fa-upload mr-2"></i>
+                        Import Content
+                    </button>
+                </div>
+            </div>
+            </form>
+        </div>
+
+        <!-- Import Results (Hidden initially) -->
+        <div id="import-results" class="hidden mt-8">
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6 flex items-center">
+                    <i class="fas fa-chart-bar text-indigo-600 mr-3"></i>
+                    Import Results
+                </h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-green-600" id="imported-count">0</div>
+                        <div class="text-sm text-gray-600">Imported</div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-yellow-600" id="skipped-count">0</div>
+                        <div class="text-sm text-gray-600">Skipped</div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <div class="text-3xl font-bold text-red-600" id="error-count">0</div>
+                        <div class="text-sm text-gray-600">Errors</div>
+                    </div>
+                </div>
+                
+                <div id="error-details" class="mt-6 hidden">
+                    <h3 class="font-medium text-red-600 mb-3">Error Details:</h3>
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4 max-h-64 overflow-y-auto">
+                        <ul class="text-sm text-red-700 space-y-1" id="error-list"></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+let selectedFile = null;
+
+function handleFileSelect(input) {
+    const file = input.files[0];
+    if (file) {
+        selectedFile = file;
+        
+        // Show file info
+        document.getElementById('file-info').classList.remove('hidden');
+        document.getElementById('file-name').textContent = file.name;
+        document.getElementById('file-size').textContent = (file.size / 1024 / 1024).toFixed(2);
+        
+        // Enable import button
+        document.getElementById('import-button').disabled = false;
+        
+        // Validate file
+        if (file.name.endsWith('.json')) {
+            // Quick validation of JSON structure
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (data.metadata && data.content) {
+                        console.log('Valid export file detected');
+                        updateImportOptions(data);
+                    } else {
+                        showError('Invalid export file format.');
+                    }
+                } catch (error) {
+                    showError('Invalid JSON file.');
+                }
+            };
+            reader.readAsText(file);
+        } else {
+            showError('Please select a valid JSON export file.');
+        }
+    }
+}
+
+function updateImportOptions(data) {
+    // Enable/disable options based on available content
+    const contentTypes = Object.keys(data.content);
+    
+    document.querySelectorAll('input[name="import_content_types[]"]').forEach(checkbox => {
+        const value = checkbox.value;
+        checkbox.checked = contentTypes.includes(value);
+        checkbox.disabled = !contentTypes.includes(value);
+        
+        if (checkbox.disabled) {
+            checkbox.parentElement.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            checkbox.parentElement.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    });
+}
+
+function showError(message) {
+    alert(message);
+    resetForm();
+}
+
+function resetForm() {
+    document.getElementById('import_file').value = '';
+    document.getElementById('file-info').classList.add('hidden');
+    document.getElementById('import-results').classList.add('hidden');
+    document.getElementById('import-button').disabled = true;
+    
+    // Reset checkboxes
+    document.querySelectorAll('input[name="import_content_types[]"]').forEach(checkbox => {
+        checkbox.checked = false;
+        checkbox.disabled = false;
+        checkbox.parentElement.classList.remove('opacity-50', 'cursor-not-allowed');
+    });
+}
+
+// Handle form submission
+document.querySelector('form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const button = document.getElementById('import-button');
+    
+    button.disabled = true;
+    button.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Importing...';
+    
+    fetch('{{ path('admin_import_execute') }}', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Show results
+        document.getElementById('import-results').classList.remove('hidden');
+        document.getElementById('imported-count').textContent = 
+            Object.values(data.imported).reduce((sum, count) => sum + count, 0);
+        document.getElementById('skipped-count').textContent = 
+            Object.values(data.skipped).reduce((sum, count) => sum + count, 0);
+        
+        const totalErrors = data.errors.length;
+        document.getElementById('error-count').textContent = totalErrors;
+        
+        if (totalErrors > 0) {
+            document.getElementById('error-details').classList.remove('hidden');
+            const errorList = document.getElementById('error-list');
+            errorList.innerHTML = data.errors.map(error => `<li>${error}</li>`).join('');
+        } else {
+            document.getElementById('error-details').classList.add('hidden');
+        }
+        
+        // Reset button
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-upload mr-2"></i>Import Content';
+    })
+    .catch(error => {
+        console.error('Import error:', error);
+        alert('Import failed: ' + error.message);
+        
+        button.disabled = false;
+        button.innerHTML = '<i class="fas fa-upload mr-2"></i>Import Content';
+    });
+});
+
+// Drag and drop support
+const dropZone = document.querySelector('.border-dashed');
+
+dropZone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.classList.add('border-blue-500', 'bg-blue-50');
+});
+
+dropZone.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    this.classList.remove('border-blue-500', 'bg-blue-50');
+});
+
+dropZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.classList.remove('border-blue-500', 'bg-blue-50');
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        document.getElementById('import_file').files = files;
+        handleFileSelect(document.getElementById('import_file'));
+    }
+});
+</script>
+{% endblock %}

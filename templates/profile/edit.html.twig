@@ -1,0 +1,594 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'profile.edit_profile'|trans }} - {{ parent() }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/trix@2.1.0/dist/trix.min.css">
+    <style>
+        .social-link-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            background: #f9fafb;
+        }
+        trix-editor {
+            min-height: 250px;
+            border: 1px solid #d1d5db;
+            border-radius: 0 0 0.5rem 0.5rem;
+            padding: 1rem;
+            background: white;
+        }
+        trix-toolbar {
+            border: 1px solid #d1d5db;
+            border-bottom: none;
+            border-radius: 0.5rem 0.5rem 0 0;
+            background: #f9fafb;
+            padding: 0.5rem;
+        }
+        trix-toolbar .trix-button-group {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            margin-right: 0.5rem;
+        }
+        trix-toolbar .trix-button {
+            border: none;
+            background: transparent;
+        }
+        trix-toolbar .trix-button:hover {
+            background: #e5e7eb;
+        }
+        trix-toolbar .trix-button.trix-active {
+            background: #d97706;
+            color: white;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+<!-- Include Navigation -->
+{% include 'components/navigation.html.twig' %}
+
+<!-- Cookie Banner -->
+{% include 'components/cookie_banner.html.twig' %}
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% include 'profile/_navigation.html.twig' %}
+
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="mb-6 rounded-lg p-4 {{ type == 'success' ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-red-50 border border-red-200 text-red-800' }}">
+                    <div class="flex items-center">
+                        <i class="fas {{ type == 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' }} mr-2"></i>
+                        {{ message }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2">
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6">{{ 'profile.edit_profile'|trans }}</h2>
+
+                    <form method="post" action="{{ path('app_profile_edit') }}">
+                        <!-- Profile Images Section -->
+                        <div class="mb-8 pb-8 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-camera mr-2 text-yellow-600"></i>
+                                {{ 'profile.profile_images'|trans }}
+                            </h3>
+
+                            <!-- Cover Photo Upload -->
+                            <div data-controller="profile-upload" data-profile-upload-endpoint-value="/profile/upload-cover-photo" class="mb-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ 'profile.cover_photo'|trans }}
+                                    <span class="text-gray-500 font-normal">({{ 'profile.cover_photo_hint'|trans }})</span>
+                                </label>
+
+                                <div class="relative group cursor-pointer" onclick="this.querySelector('input[type=file]').click()">
+                                    <img src="{{ (app.user.profile and app.user.profile.coverPhoto) ? asset('uploads/profiles/' ~ app.user.id ~ '/' ~ app.user.profile.coverPhoto) : 'https://via.placeholder.com/1200x400/e5e7eb/9ca3af?text=' ~ ('profile.click_to_upload'|trans|url_encode) }}"
+                                         class="w-full h-48 object-cover rounded-lg"
+                                         data-profile-upload-target="preview"
+                                         alt="{{ 'profile.cover_photo'|trans }}">
+
+                                    <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <span class="text-white text-lg font-semibold">
+                                            <i class="fas fa-camera mr-2"></i>{{ 'profile.change_cover_photo'|trans }}
+                                        </span>
+                                    </div>
+
+                                    <input type="file"
+                                           accept="image/jpeg,image/png,image/gif,image/webp"
+                                           class="hidden"
+                                           data-profile-upload-target="input"
+                                           data-action="change->profile-upload#handleUpload">
+                                </div>
+
+                                <div class="mt-2 text-sm text-red-600 hidden" data-profile-upload-target="error"></div>
+                                <div class="mt-2 text-sm text-blue-600 hidden" data-profile-upload-target="loading">
+                                    <span class="hidden">
+                                        <i class="fas fa-spinner fa-spin mr-2"></i>{{ 'common.uploading'|trans }}...
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Avatar Upload -->
+                            <div data-controller="profile-upload" data-profile-upload-endpoint-value="/profile/upload-avatar">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ 'profile.profile_picture'|trans }}
+                                    <span class="text-gray-500 font-normal">({{ 'profile.profile_picture_hint'|trans }})</span>
+                                </label>
+
+                                <div class="flex items-center space-x-6">
+                                    <div class="relative group cursor-pointer" onclick="this.querySelector('input[type=file]').click()">
+                                        <img src="{{ app.user.avatar ? asset('uploads/profiles/' ~ app.user.id ~ '/' ~ app.user.avatar) : 'https://via.placeholder.com/200/e5e7eb/9ca3af?text=No+Avatar' }}"
+                                             class="w-32 h-32 rounded-full object-cover border-4 border-gray-200"
+                                             data-profile-upload-target="preview"
+                                             alt="{{ 'profile.avatar'|trans }}">
+
+                                        <div class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <span class="text-white text-sm font-semibold">
+                                                <i class="fas fa-camera"></i>
+                                            </span>
+                                        </div>
+
+                                        <input type="file"
+                                               accept="image/jpeg,image/png,image/gif,image/webp"
+                                               class="hidden"
+                                               data-profile-upload-target="input"
+                                               data-action="change->profile-upload#handleUpload">
+                                    </div>
+
+                                    <div class="flex-1">
+                                        <button type="button"
+                                                onclick="this.parentElement.parentElement.querySelector('input[type=file]').click()"
+                                                class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white text-sm font-medium rounded-lg transition">
+                                            <i class="fas fa-upload mr-2"></i>{{ 'profile.upload_new_photo'|trans }}
+                                        </button>
+                                        <p class="mt-2 text-xs text-gray-500">
+                                            {{ 'profile.photo_format_hint'|trans }}
+                                        </p>
+                                        <div class="mt-2 text-sm text-red-600 hidden" data-profile-upload-target="error"></div>
+                                        <div class="mt-2 text-sm text-blue-600 hidden" data-profile-upload-target="loading">
+                                            <span class="hidden">
+                                                <i class="fas fa-spinner fa-spin mr-2"></i>{{ 'common.uploading'|trans }}...
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Personal Information Section -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-user mr-2 text-yellow-600"></i>
+                                {{ 'profile.personal_information'|trans }}
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ 'profile.first_name'|trans }}
+                                    </label>
+                                    <input type="text"
+                                           name="firstName"
+                                           value="{{ app.user.firstName ?? '' }}"
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.first_name_placeholder'|trans }}">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ 'profile.last_name'|trans }}
+                                    </label>
+                                    <input type="text"
+                                           name="lastName"
+                                           value="{{ app.user.lastName ?? '' }}"
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.last_name_placeholder'|trans }}">
+                                </div>
+                            </div>
+
+                            <div class="mt-6">
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    {{ 'profile.username'|trans }}
+                                </label>
+                                <input type="text"
+                                       value="{{ app.user.username }}"
+                                       disabled
+                                       class="w-full px-4 py-3 border border-gray-200 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed">
+                                <p class="mt-1 text-xs text-gray-500">{{ 'profile.username_cannot_change'|trans }}</p>
+                            </div>
+                        </div>
+
+                        <!-- Profile Details Section -->
+                        <div class="mb-8 pb-8 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-id-card mr-2 text-yellow-600"></i>
+                                {{ 'profile.profile_details'|trans }}
+                            </h3>
+
+                            <div class="space-y-6">
+                                <!-- Tagline -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ 'profile.tagline'|trans }}
+                                        <span class="text-gray-500 font-normal">({{ 'profile.tagline_hint'|trans }})</span>
+                                    </label>
+                                    <input type="text"
+                                           name="tagline"
+                                           value="{{ app.user.profile ? app.user.profile.tagline : '' }}"
+                                           maxlength="100"
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.tagline_placeholder'|trans }}">
+                                    <p class="mt-1 text-xs text-gray-500">{{ 'profile.max_characters'|trans({'%count%': 100}) }}</p>
+                                </div>
+
+                                <!-- Bio Editor with Trix -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ 'profile.bio'|trans }}
+                                        <span class="text-gray-500 font-normal">({{ 'profile.bio_hint'|trans }})</span>
+                                    </label>
+                                    <input id="bio-input" type="hidden" name="bio" value="{{ app.user.profile ? app.user.profile.bio : '' }}">
+                                    <trix-editor input="bio-input" placeholder="{{ 'profile.bio_placeholder'|trans }}"></trix-editor>
+                                </div>
+
+                                <!-- Looking For -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-search text-gray-400 mr-1"></i>
+                                        {{ 'profile.looking_for'|trans }}
+                                    </label>
+                                    <input id="looking-for-input" type="hidden" name="lookingFor" value="{{ app.user.profile ? app.user.profile.lookingFor : '' }}">
+                                    <trix-editor input="looking-for-input" placeholder="{{ 'profile.looking_for_placeholder'|trans }}"></trix-editor>
+                                </div>
+
+                                <!-- What I Offer -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-gift text-gray-400 mr-1"></i>
+                                        {{ 'profile.offering'|trans }}
+                                    </label>
+                                    <input id="offering-input" type="hidden" name="offering" value="{{ app.user.profile ? app.user.profile.offering : '' }}">
+                                    <trix-editor input="offering-input" placeholder="{{ 'profile.offering_placeholder'|trans }}"></trix-editor>
+                                </div>
+
+                                <!-- Location and Website -->
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>
+                                            {{ 'profile.location'|trans }}
+                                        </label>
+                                        <input type="text"
+                                               name="location"
+                                               value="{{ app.user.profile ? app.user.profile.location : '' }}"
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition"
+                                               placeholder="{{ 'profile.location_placeholder'|trans }}">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-sm font-medium text-gray-700 mb-2">
+                                            <i class="fas fa-globe text-gray-400 mr-1"></i>
+                                            {{ 'profile.website'|trans }}
+                                        </label>
+                                        <input type="url"
+                                               name="website"
+                                               value="{{ app.user.profile ? app.user.profile.website : '' }}"
+                                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition"
+                                               placeholder="{{ 'profile.website_placeholder'|trans }}">
+                                    </div>
+                                </div>
+
+                                <!-- Interests -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fas fa-star text-gray-400 mr-1"></i>
+                                        {{ 'profile.interests'|trans }}
+                                        <span class="text-gray-500 font-normal">({{ 'profile.comma_separated'|trans }})</span>
+                                    </label>
+                                    <input type="text"
+                                           name="interests"
+                                           value="{{ app.user.profile and app.user.profile.interests ? app.user.profile.interests|join(', ') : '' }}"
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.interests_placeholder'|trans }}">
+                                    <p class="mt-1 text-xs text-gray-500">{{ 'profile.interests_hint'|trans }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Social Media Links Section -->
+                        <div class="mb-8 pb-8 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-share-alt mr-2 text-yellow-600"></i>
+                                {{ 'profile.social_media_links'|trans }}
+                            </h3>
+
+                            <p class="text-sm text-gray-600 mb-6">
+                                {{ 'profile.social_media_description'|trans }}
+                            </p>
+
+                            {% set socialLinks = app.user.profile and app.user.profile.socialLinks ? app.user.profile.socialLinks : {} %}
+
+                            <div class="space-y-4">
+                                <!-- Facebook -->
+                                <div class="social-link-item">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fab fa-facebook text-blue-600 mr-2"></i>
+                                        {{ 'profile.facebook'|trans }}
+                                    </label>
+                                    <input type="url"
+                                           name="social[facebook]"
+                                           value="{{ socialLinks.facebook ?? '' }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.facebook_placeholder'|trans }}">
+                                </div>
+
+                                <!-- Instagram -->
+                                <div class="social-link-item">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fab fa-instagram text-pink-600 mr-2"></i>
+                                        {{ 'profile.instagram'|trans }}
+                                    </label>
+                                    <input type="url"
+                                           name="social[instagram]"
+                                           value="{{ socialLinks.instagram ?? '' }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.instagram_placeholder'|trans }}">
+                                </div>
+
+                                <!-- Twitter/X -->
+                                <div class="social-link-item">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fab fa-twitter text-sky-500 mr-2"></i>
+                                        {{ 'profile.twitter'|trans }}
+                                    </label>
+                                    <input type="url"
+                                           name="social[twitter]"
+                                           value="{{ socialLinks.twitter ?? '' }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.twitter_placeholder'|trans }}">
+                                </div>
+
+                                <!-- LinkedIn -->
+                                <div class="social-link-item">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fab fa-linkedin text-blue-700 mr-2"></i>
+                                        {{ 'profile.linkedin'|trans }}
+                                    </label>
+                                    <input type="url"
+                                           name="social[linkedin]"
+                                           value="{{ socialLinks.linkedin ?? '' }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-700 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.linkedin_placeholder'|trans }}">
+                                </div>
+
+                                <!-- YouTube -->
+                                <div class="social-link-item">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fab fa-youtube text-red-600 mr-2"></i>
+                                        {{ 'profile.youtube'|trans }}
+                                    </label>
+                                    <input type="url"
+                                           name="social[youtube]"
+                                           value="{{ socialLinks.youtube ?? '' }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-600 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.youtube_placeholder'|trans }}">
+                                </div>
+
+                                <!-- TikTok -->
+                                <div class="social-link-item">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fab fa-tiktok text-gray-900 mr-2"></i>
+                                        {{ 'profile.tiktok'|trans }}
+                                    </label>
+                                    <input type="url"
+                                           name="social[tiktok]"
+                                           value="{{ socialLinks.tiktok ?? '' }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-gray-900 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.tiktok_placeholder'|trans }}">
+                                </div>
+
+                                <!-- Snapchat -->
+                                <div class="social-link-item">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fab fa-snapchat text-yellow-400 mr-2"></i>
+                                        {{ 'profile.snapchat'|trans }}
+                                    </label>
+                                    <input type="url"
+                                           name="social[snapchat]"
+                                           value="{{ socialLinks.snapchat ?? '' }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-400 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.snapchat_placeholder'|trans }}">
+                                </div>
+
+                                <!-- Pinterest -->
+                                <div class="social-link-item">
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fab fa-pinterest text-red-700 mr-2"></i>
+                                        {{ 'profile.pinterest'|trans }}
+                                    </label>
+                                    <input type="url"
+                                           name="social[pinterest]"
+                                           value="{{ socialLinks.pinterest ?? '' }}"
+                                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-700 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.pinterest_placeholder'|trans }}">
+                                </div>
+
+                                <!-- Custom Links -->
+                                <div class="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                                    <h4 class="font-medium text-gray-900 mb-2">
+                                        <i class="fas fa-link text-blue-600 mr-2"></i>
+                                        {{ 'profile.custom_links'|trans }}
+                                    </h4>
+                                    <p class="text-sm text-gray-600 mb-4">
+                                        {{ 'profile.custom_links_description'|trans }}
+                                    </p>
+
+                                    <div id="custom-links-container" class="space-y-3">
+                                        {% if socialLinks.custom is defined and socialLinks.custom is iterable %}
+                                            {% for custom in socialLinks.custom %}
+                                                <div class="custom-link-item flex gap-2">
+                                                    <input type="text"
+                                                           name="social[custom_label][]"
+                                                           value="{{ custom.label ?? '' }}"
+                                                           placeholder="{{ 'profile.link_label'|trans }}"
+                                                           class="w-1/3 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500">
+                                                    <input type="url"
+                                                           name="social[custom_url][]"
+                                                           value="{{ custom.url ?? '' }}"
+                                                           placeholder="https://..."
+                                                           class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500">
+                                                    <button type="button" onclick="this.parentElement.remove()" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            {% endfor %}
+                                        {% endif %}
+                                    </div>
+
+                                    <button type="button" onclick="addCustomLink()" class="mt-3 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-lg transition">
+                                        <i class="fas fa-plus mr-2"></i>{{ 'profile.add_custom_link'|trans }}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Email Section -->
+                        <div class="mb-8 pb-8 border-b border-gray-200">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-envelope mr-2 text-yellow-600"></i>
+                                {{ 'profile.email_address'|trans }}
+                            </h3>
+
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                                <div class="flex">
+                                    <i class="fas fa-info-circle text-yellow-600 mt-0.5 mr-2"></i>
+                                    <div class="text-sm text-yellow-800">
+                                        <strong>{{ 'common.important'|trans }}:</strong> {{ 'profile.email_change_warning'|trans }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ 'profile.new_email_address'|trans }}
+                                    </label>
+                                    <input type="email"
+                                           name="email"
+                                           value="{{ app.user.email }}"
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.email_placeholder'|trans }}">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ 'profile.current_password'|trans }} <span class="text-red-500">*</span>
+                                    </label>
+                                    <input type="password"
+                                           name="current_password"
+                                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition"
+                                           placeholder="{{ 'profile.password_required_hint'|trans }}">
+                                    <p class="mt-1 text-xs text-gray-500">{{ 'profile.password_only_for_email'|trans }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Preferences Section -->
+                        <div class="mb-8">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center">
+                                <i class="fas fa-cog mr-2 text-yellow-600"></i>
+                                {{ 'profile.preferences'|trans }}
+                            </h3>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        {{ 'profile.language'|trans }}
+                                    </label>
+                                    <select name="locale"
+                                            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition">
+                                        <option value="en" {{ app.user.locale == 'en' ? 'selected' : '' }}>{{ 'common.language_english'|trans }}</option>
+                                        <option value="es" {{ app.user.locale == 'es' ? 'selected' : '' }}>{{ 'common.language_spanish'|trans }}</option>
+                                        <option value="ca" {{ app.user.locale == 'ca' ? 'selected' : '' }}>{{ 'common.language_catalan'|trans }}</option>
+                                        <option value="de" {{ app.user.locale == 'de' ? 'selected' : '' }}>{{ 'common.language_german'|trans }}</option>
+                                        <option value="fr" {{ app.user.locale == 'fr' ? 'selected' : '' }}>{{ 'common.language_french'|trans }}</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('profile_edit') }}">
+
+                        <div class="flex items-center justify-between pt-6 border-t border-gray-200">
+                            <a href="{{ path('app_profile') }}"
+                               class="px-6 py-3 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition">
+                                <i class="fas fa-times mr-2"></i>{{ 'common.cancel'|trans }}
+                            </a>
+
+                            <button type="submit"
+                                    class="px-8 py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-700 hover:to-yellow-600 text-white font-semibold rounded-lg transition shadow-lg">
+                                <i class="fas fa-save mr-2"></i>{{ 'profile.save_changes'|trans }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                {% include 'profile/_sidebar.html.twig' %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/trix@2.1.0/dist/trix.umd.min.js"></script>
+    <script>
+        // Add custom link function
+        function addCustomLink() {
+            const container = document.getElementById('custom-links-container');
+            const linkItem = document.createElement('div');
+            linkItem.className = 'custom-link-item flex gap-2';
+            linkItem.innerHTML = `
+                <input type="text"
+                       name="social[custom_label][]"
+                       placeholder="{{ 'profile.link_label'|trans }}"
+                       class="w-1/3 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500">
+                <input type="url"
+                       name="social[custom_url][]"
+                       placeholder="https://..."
+                       class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500">
+                <button type="button" onclick="this.parentElement.remove()" class="px-3 py-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            container.appendChild(linkItem);
+        }
+
+        // Character counter for tagline
+        const taglineInput = document.querySelector('[name="tagline"]');
+        if (taglineInput) {
+            taglineInput.addEventListener('input', function() {
+                const remaining = 100 - this.value.length;
+                const helpText = this.nextElementSibling;
+                if (helpText) {
+                    helpText.textContent = remaining + ' {{ 'profile.characters_remaining'|trans }}';
+                    if (remaining < 20) {
+                        helpText.classList.add('text-yellow-600');
+                    } else {
+                        helpText.classList.remove('text-yellow-600');
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock %}

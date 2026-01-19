@@ -1,0 +1,142 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order Confirmation - {{ parent() }}{% endblock %}
+
+{% block body %}
+<!-- Include Navigation -->
+{% include 'components/navigation.html.twig' %}
+
+<!-- Cookie Banner -->
+{% include 'components/cookie_banner.html.twig' %}
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
+    <div class="max-w-3xl mx-auto px-4">
+        <!-- Success Icon -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center w-24 h-24 bg-green-100 rounded-full mb-4">
+                <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Order Confirmed!</h1>
+            <p class="text-xl text-gray-600">Thank you for your purchase</p>
+        </div>
+
+        <!-- Order Details Card -->
+        <div class="bg-white rounded-2xl shadow-xl p-8 mb-6">
+            <div class="border-b pb-4 mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Order Details</h2>
+                <p class="text-gray-600 mt-1">Order Number: <span class="font-mono font-semibold text-yellow-600">{{ order.orderNumber }}</span></p>
+                <p class="text-sm text-gray-500">{{ order.createdAt|date('F d, Y - H:i') }}</p>
+            </div>
+
+            <!-- Order Items -->
+            <div class="mb-6">
+                <h3 class="font-semibold text-lg mb-3">Items Ordered</h3>
+                <div class="space-y-3">
+                    {% for item in order.items %}
+                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                            <div>
+                                <div class="font-medium">{{ item.articleName }}</div>
+                                <div class="text-sm text-gray-600">SKU: {{ item.articleSku }}</div>
+                                <div class="text-sm text-gray-600">Quantity: {{ item.quantity }}</div>
+                            </div>
+                            <div class="font-semibold">{{ item.subtotal|price(app.request.locale) }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Totals -->
+            <div class="border-t pt-4 space-y-2">
+                <div class="flex justify-between text-sm">
+                    <span>Subtotal</span>
+                    <span class="font-semibold">{{ order.subtotal|price(app.request.locale) }}</span>
+                </div>
+                <div class="flex justify-between text-sm">
+                    <span>Shipping ({{ order.shippingMethod.name }})</span>
+                    <span class="font-semibold">{{ order.shippingCost|price(app.request.locale) }}</span>
+                </div>
+                {% if order.paymentMethod.fee > 0 %}
+                    <div class="flex justify-between text-sm">
+                        <span>Payment Fee ({{ order.paymentMethod.name }})</span>
+                        <span class="font-semibold">{{ order.paymentMethod.fee|price(app.request.locale) }}</span>
+                    </div>
+                {% endif %}
+                <div class="border-t pt-2 flex justify-between text-xl font-bold">
+                    <span>Total</span>
+                    <span class="text-green-600">{{ order.total|price(app.request.locale) }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping & Payment Info -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="font-bold text-lg mb-3">Shipping Address</h3>
+                <div class="text-gray-700 space-y-1">
+                    <p class="font-semibold">{{ order.customerName }}</p>
+                    <p>{{ order.shippingAddress }}</p>
+                    {% if order.shippingAddressLine2 %}
+                        <p>{{ order.shippingAddressLine2 }}</p>
+                    {% endif %}
+                    <p>{{ order.shippingPostcode }} {{ order.shippingCity }}</p>
+                    <p>{{ order.shippingCountry }}</p>
+                    {% if order.phone %}
+                        <p class="mt-2 text-sm">Phone: {{ order.phone }}</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="font-bold text-lg mb-3">Payment & Delivery</h3>
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-sm text-gray-600">Payment Method</p>
+                        <p class="font-semibold">{{ order.paymentMethod.name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Shipping Method</p>
+                        <p class="font-semibold">{{ order.shippingMethod.name }}</p>
+                        <p class="text-sm text-gray-500">{{ order.shippingMethod.deliveryTime }}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Order Status</p>
+                        <span class="inline-block mt-1 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">
+                            {{ order.status|upper }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confirmation Email Notice -->
+        <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
+            <div class="flex items-start">
+                <svg class="w-6 h-6 text-blue-600 mr-3 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                </svg>
+                <div>
+                    <h4 class="font-semibold text-blue-900 mb-1">Confirmation Email Sent</h4>
+                    <p class="text-sm text-blue-800">
+                        We've sent an order confirmation email to <strong>{{ order.email }}</strong>. 
+                        Please check your inbox for order details and tracking information.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="{{ path('app_products') }}" 
+               class="px-8 py-3 bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 hover:from-yellow-700 hover:via-yellow-600 hover:to-yellow-700 text-white font-semibold rounded-lg transition duration-300 shadow-lg text-center">
+                Continue Shopping
+            </a>
+            <a href="/" 
+               class="px-8 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold rounded-lg transition duration-300 text-center">
+                Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

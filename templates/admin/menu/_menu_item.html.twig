@@ -1,0 +1,26 @@
+<div class="menu-item" data-item-id="{{ item.id }}" draggable="true">
+    <div class="item-content">
+        <i class="fas fa-arrows-alt handle"></i>
+        <span class="title">{{ item.title }}</span>
+        {% if item.effectiveUrl %}
+            <span class="url text-muted ml-2">({{ item.effectiveUrl }})</span>
+        {% endif %}
+        <span class="status">
+            {% if item.isActive %}
+                <span class="badge badge-success">Active</span>
+            {% else %}
+                <span class="badge badge-secondary">Inactive</span>
+            {% endif %}
+            {% if item.children|length > 0 %}
+                <span class="badge badge-info">{{ item.children|length }} children</span>
+            {% endif %}
+        </span>
+    </div>
+    {% if item.children|length > 0 %}
+        <div class="children ml-3 mt-2">
+            {% for child in item.children %}
+                {{ include('admin/menu/_menu_item.html.twig', { 'item': child }) }}
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>

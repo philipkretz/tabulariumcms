@@ -1,0 +1,46 @@
+# Production Docker Compose Override
+version: '3.8'
+
+services:
+  php:
+    environment:
+      - APP_ENV=prod
+      - APP_DEBUG=false
+    volumes:
+      - ./:/var/www/html:ro  # Read-only in production
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  nginx:
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+
+  mariadb:
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf:ro
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 512M
+
+  redis:
+    deploy:
+      resources:
+        limits:
+          memory: 256M

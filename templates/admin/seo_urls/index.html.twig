@@ -1,0 +1,202 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}SEO URL Manager{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-100">
+    <!-- Admin Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-semibold text-gray-900">SEO URL Manager</h1>
+                <div class="flex items-center space-x-4">
+                    <select id="locale-filter" class="form-input w-32">
+                        <option value="">All Locales</option>
+                        <option value="en">English</option>
+                        <option value="es">Spanish</option>
+                        <option value="ca">Catalan</option>
+                        <option value="de">German</option>
+                    </select>
+                    <button onclick="window.location.href='{{ path('admin_seo_url_new') }}'" class="btn btn-primary">
+                        <i class="fas fa-plus mr-2"></i>New SEO URL
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <!-- Statistics -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="card">
+                <div class="flex items-center">
+                    <div class="p-3 bg-blue-100 rounded-lg">
+                        <i class="fas fa-link text-blue-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">Total URLs</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ seoUrls|length }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="flex items-center">
+                    <div class="p-3 bg-green-100 rounded-lg">
+                        <i class="fas fa-check text-green-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">Active URLs</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ seoUrls|filter(url => url.isActive)|length }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="flex items-center">
+                    <div class="p-3 bg-yellow-100 rounded-lg">
+                        <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">Redirects</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ seoUrls|filter(url => url.route != 'app_homepage')|length }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="flex items-center">
+                    <div class="p-3 bg-red-100 rounded-lg">
+                        <i class="fas fa-flag text-red-600"></i>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm text-gray-500">High Priority</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ seoUrls|filter(url => url.priority > 0)|length }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- URL Table -->
+        <div class="card">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-lg font-semibold text-gray-900">SEO URLs</h2>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="search-input" placeholder="Search URLs..." class="form-input w-64">
+                    <button onclick="checkForDuplicates()" class="btn btn-secondary">
+                        <i class="fas fa-search mr-2"></i>Check Duplicates
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">URL</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Route</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Locale</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Priority</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status Code</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        {% for seoUrl in seoUrls %}
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <i class="fas fa-{{ seoUrl.route == 'app_homepage' ? 'home' : 'link' }} text-gray-400 mr-2"></i>
+                                    <a href="/{{ seoUrl.url }}" target="_blank" class="text-blue-600 hover:text-blue-900">
+                                        /{{ seoUrl.url }}
+                                    </a>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                <code class="bg-gray-100 px-2 py-1 rounded text-xs">{{ seoUrl.route }}</code>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">
+                                    {{ seoUrl.locale|upper }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if seoUrl.priority > 0 %}
+                                <span class="text-yellow-600 font-medium">High ({{ seoUrl.priority }})</span>
+                                {% else %}
+                                <span class="text-gray-400">Normal</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                {% if seoUrl.isActive %}
+                                <span class="px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">Active</span>
+                                {% else %}
+                                <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">{{ seoUrl.statusCode }}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <a href="{{ path('admin_seo_url_edit', {'id': seoUrl.id}) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
+                                <button onclick="deleteSeoUrl({{ seoUrl.id }})" class="text-red-600 hover:text-red-900">Delete</button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+function checkForDuplicates() {
+    fetch('/admin/seo-urls/check-duplicates')
+        .then(response => response.json())
+        .then(data => {
+            if (data.duplicates.length > 0) {
+                alert('Found duplicate URLs: ' + data.duplicates.map(d => d.url).join(', '));
+            } else {
+                alert('No duplicate URLs found.');
+            }
+        });
+}
+
+function deleteSeoUrl(id) {
+    if (confirm('Are you sure you want to delete this SEO URL?')) {
+        window.location.href = '/admin/seo-urls/' + id + '/delete';
+    }
+}
+
+// Search functionality
+document.getElementById('search-input').addEventListener('input', function(e) {
+    const searchTerm = e.target.value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+// Locale filter
+document.getElementById('locale-filter').addEventListener('change', function(e) {
+    const locale = e.target.value;
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const localeCell = row.querySelector('td:nth-child(3)');
+        const rowLocale = localeCell.textContent.trim();
+        
+        if (locale === '' || rowLocale === locale.toUpperCase()) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+</script>
+{% endblock %}

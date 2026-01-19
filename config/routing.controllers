@@ -1,0 +1,4 @@
+# Load routes from controller PHP attributes
+App\Controller\:
+    resource: ../src/Controller/
+    type: attribute

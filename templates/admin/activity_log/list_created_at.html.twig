@@ -1,0 +1,7 @@
+{% extends '@SonataAdmin/CRUD/list_datetime.html.twig' %}
+
+{% block field %}
+    <span class="text-nowrap" title="{{ value|date('Y-m-d H:i:s') }}">
+        {{ value|date('Y-m-d H:i:s') }}
+    </span>
+{% endblock %}

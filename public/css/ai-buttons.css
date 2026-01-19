@@ -1,0 +1,41 @@
+/* AI Content Generator Button Styles */
+.ai-generate-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    padding: 6px 12px;
+    font-size: 13px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.ai-generate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.ai-generate-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.ai-generate-btn i {
+    margin-right: 5px;
+}
+
+/* Ensure buttons don't break layout */
+.sonata-ba-field .ai-generate-btn {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+/* Position AI button below GrapeJS editor */
+.grapesjs-editor-wrapper .ai-generate-btn {
+    display: block;
+    margin-top: 10px;
+    margin-left: 0;
+}

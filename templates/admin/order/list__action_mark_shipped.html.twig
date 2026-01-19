@@ -1,0 +1,5 @@
+{% if object.status in ["payment_received", "processing"] %}
+    <a href="{{ admin.generateObjectUrl('mark_shipped', object) }}" class="btn btn-sm btn-primary" title="Mark as shipped">
+        <i class="fa fa-truck"></i> Mark Shipped
+    </a>
+{% endif %}

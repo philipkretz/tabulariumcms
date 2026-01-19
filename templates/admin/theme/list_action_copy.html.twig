@@ -1,0 +1,12 @@
+<a class="btn btn-sm btn-default"
+   href="#"
+   onclick="event.preventDefault(); if(confirm('Copy theme \'{{ object.displayName }}\'?')) { document.getElementById('copy-form-{{ object.id }}').submit(); }"
+   title="Copy Theme">
+    <i class="fas fa-copy"></i> Copy
+</a>
+
+<form id="copy-form-{{ object.id }}"
+      action="{{ path('admin_theme_copy', {id: object.id}) }}"
+      method="post"
+      style="display: none;">
+</form>

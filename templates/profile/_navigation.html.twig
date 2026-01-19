@@ -1,0 +1,50 @@
+{# Profile navigation tabs #}
+{% set currentRoute = app.request.attributes.get('_route') %}
+
+<div class="bg-white shadow-md rounded-lg mb-6">
+    <nav class="flex flex-wrap border-b border-gray-200">
+        <a href="{{ path('app_profile') }}"
+           class="px-6 py-4 text-sm font-medium {{ currentRoute == 'app_profile' ? 'text-yellow-600 border-b-2 border-yellow-600' : 'text-gray-600 hover:text-gray-900' }} transition">
+            <i class="fas fa-home mr-2"></i>
+            <span class="hidden sm:inline">Dashboard</span>
+        </a>
+
+        <a href="{{ path('app_profile_edit') }}"
+           class="px-6 py-4 text-sm font-medium {{ currentRoute == 'app_profile_edit' ? 'text-yellow-600 border-b-2 border-yellow-600' : 'text-gray-600 hover:text-gray-900' }} transition">
+            <i class="fas fa-user-edit mr-2"></i>
+            <span class="hidden sm:inline">Edit Profile</span>
+        </a>
+
+        <a href="{{ path('app_profile_media_gallery') }}"
+           class="px-6 py-4 text-sm font-medium {{ currentRoute == 'app_profile_media_gallery' ? 'text-yellow-600 border-b-2 border-yellow-600' : 'text-gray-600 hover:text-gray-900' }} transition">
+            <i class="fas fa-images mr-2"></i>
+            <span class="hidden sm:inline">Media Gallery</span>
+        </a>
+
+        <a href="{{ path('app_profile_addresses') }}"
+           class="px-6 py-4 text-sm font-medium {{ currentRoute starts with 'app_profile_address' ? 'text-yellow-600 border-b-2 border-yellow-600' : 'text-gray-600 hover:text-gray-900' }} transition">
+            <i class="fas fa-map-marker-alt mr-2"></i>
+            <span class="hidden sm:inline">Addresses</span>
+        </a>
+
+        <a href="{{ path('app_profile_orders') }}"
+           class="px-6 py-4 text-sm font-medium {{ currentRoute starts with 'app_profile_order' ? 'text-yellow-600 border-b-2 border-yellow-600' : 'text-gray-600 hover:text-gray-900' }} transition">
+            <i class="fas fa-shopping-bag mr-2"></i>
+            <span class="hidden sm:inline">Orders</span>
+        </a>
+
+        <a href="{{ path('app_profile_settings') }}"
+           class="px-6 py-4 text-sm font-medium {{ currentRoute == 'app_profile_settings' ? 'text-yellow-600 border-b-2 border-yellow-600' : 'text-gray-600 hover:text-gray-900' }} transition">
+            <i class="fas fa-cog mr-2"></i>
+            <span class="hidden sm:inline">Settings</span>
+        </a>
+
+        {% if is_granted('ROLE_SELLER') %}
+            <a href="{{ path('app_seller_dashboard') }}"
+               class="px-6 py-4 text-sm font-medium text-gray-600 hover:text-gray-900 transition ml-auto">
+                <i class="fas fa-store mr-2"></i>
+                <span class="hidden sm:inline">Seller Dashboard</span>
+            </a>
+        {% endif %}
+    </nav>
+</div>

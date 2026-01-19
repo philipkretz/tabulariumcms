@@ -1,0 +1,122 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Messages - {{ parent() }}{% endblock %}
+
+{% block body %}
+<!-- Include Navigation -->
+{% include 'components/navigation.html.twig' %}
+
+<!-- Cookie Banner -->
+{% include 'components/cookie_banner.html.twig' %}
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        <i class="fas fa-envelope text-yellow-600 mr-2"></i>
+                        Messages
+                    </h1>
+                    <p class="mt-1 text-sm text-gray-600">
+                        {% if unreadCount > 0 %}
+                            You have <span class="font-semibold text-yellow-600">{{ unreadCount }}</span> unread {{ unreadCount == 1 ? 'message' : 'messages' }}
+                        {% else %}
+                            All caught up! No unread messages
+                        {% endif %}
+                    </p>
+                </div>
+                <a href="{{ path('app_profile') }}" class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Profile
+                </a>
+            </div>
+        </div>
+
+        <!-- Conversations List -->
+        <div class="bg-white rounded-lg shadow-lg">
+            {% if conversations is empty %}
+                <!-- Empty State -->
+                <div class="text-center py-16 px-4">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
+                        <i class="fas fa-inbox text-gray-400 text-4xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">No messages yet</h3>
+                    <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                        Start connecting with other users by sending them a message from their profile page.
+                    </p>
+                    <a href="{{ path('app_profile_directory') }}" class="inline-flex items-center px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg transition">
+                        <i class="fas fa-users mr-2"></i>
+                        Browse Profiles
+                    </a>
+                </div>
+            {% else %}
+                <!-- Conversations List -->
+                <div class="divide-y divide-gray-200">
+                    {% for conversation in conversations %}
+                        {% set partner = conversation.partner %}
+                        {% set lastMessage = conversation.lastMessage %}
+                        {% set unread = conversation.unreadCount %}
+
+                        <a href="{{ path('app_messages_conversation', {userId: partner.id}) }}"
+                           class="block hover:bg-gray-50 transition-colors">
+                            <div class="p-4 sm:p-6">
+                                <div class="flex items-start space-x-4">
+                                    <!-- Avatar -->
+                                    <div class="flex-shrink-0">
+                                        {% if partner.profile and partner.profile.avatar %}
+                                            <img src="{{ asset(partner.profile.avatar) }}"
+                                                 alt="{{ partner.username }}"
+                                                 class="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover">
+                                        {% else %}
+                                            <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+                                                <span class="text-white font-bold text-xl">
+                                                    {{ partner.username|slice(0, 1)|upper }}
+                                                </span>
+                                            </div>
+                                        {% endif %}
+                                    </div>
+
+                                    <!-- Message Info -->
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center justify-between mb-1">
+                                            <h3 class="text-base sm:text-lg font-semibold text-gray-900 truncate">
+                                                {{ partner.username }}
+                                                {% if partner.profile and partner.profile.firstName %}
+                                                    <span class="text-sm text-gray-500 font-normal">
+                                                        ({{ partner.profile.firstName }} {{ partner.profile.lastName }})
+                                                    </span>
+                                                {% endif %}
+                                            </h3>
+                                            <span class="text-xs sm:text-sm text-gray-500 whitespace-nowrap ml-2">
+                                                {{ lastMessage.sentAt|date('M d, H:i') }}
+                                            </span>
+                                        </div>
+
+                                        <p class="text-sm text-gray-600 truncate {{ unread > 0 ? 'font-semibold' : '' }}">
+                                            {% if lastMessage.sender.id == app.user.id %}
+                                                <span class="text-gray-500">You:</span>
+                                            {% endif %}
+                                            {{ lastMessage.content|length > 80 ? lastMessage.content|slice(0, 80) ~ '...' : lastMessage.content }}
+                                        </p>
+                                    </div>
+
+                                    <!-- Unread Badge -->
+                                    {% if unread > 0 %}
+                                        <div class="flex-shrink-0">
+                                            <span class="inline-flex items-center justify-center w-6 h-6 bg-yellow-600 text-white text-xs font-bold rounded-full">
+                                                {{ unread > 9 ? '9+' : unread }}
+                                            </span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

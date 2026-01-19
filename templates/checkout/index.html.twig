@@ -1,0 +1,1194 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Checkout - {{ parent() }}{% endblock %}
+
+{% block head_scripts %}
+<!-- Google Places Autocomplete API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_API_KEY&libraries=places&callback=initAutocomplete" async defer></script>
+
+<!-- Google reCAPTCHA v3 -->
+{% if app.request.server.get('RECAPTCHA_ENABLED') == 'true' %}
+<script src="https://www.google.com/recaptcha/api.js?render={{ app.request.server.get('RECAPTCHA_SITE_KEY') }}"></script>
+{% endif %}
+{% endblock %}
+
+{% block body %}
+<!-- Include Navigation -->
+{% include 'components/navigation.html.twig' %}
+
+<!-- Cookie Banner -->
+{% include 'components/cookie_banner.html.twig' %}
+
+<div class="max-w-6xl mx-auto px-4 py-8">
+    <h1 class="text-4xl font-bold mb-2 bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 text-transparent bg-clip-text">
+        {{ 'checkout.title'|trans }}
+    </h1>
+    <p class="text-gray-600 mb-8">{{ 'checkout.subtitle'|trans }}</p>
+
+    {% for message in app.flashes('error') %}
+        <div class="mb-4 bg-red-50 border border-red-500 text-red-900 px-4 py-3 rounded-lg">
+            <i class="fas fa-exclamation-circle mr-2"></i>{{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('warning') %}
+        <div class="mb-4 bg-yellow-50 border border-yellow-500 text-yellow-900 px-4 py-3 rounded-lg">
+            <i class="fas fa-exclamation-triangle mr-2"></i>{{ message }}
+        </div>
+    {% endfor %}
+
+    {% for message in app.flashes('success') %}
+        <div class="mb-4 bg-green-50 border border-green-500 text-green-900 px-4 py-3 rounded-lg">
+            <i class="fas fa-check-circle mr-2"></i>{{ message }}
+        </div>
+    {% endfor %}
+
+    <form method="POST" action="{{ path('app_checkout_process') }}" class="grid grid-cols-1 lg:grid-cols-3 gap-8" id="checkout-form">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token('checkout') }}">
+
+        <!-- Honeypot field for spam protection (hidden from users) -->
+        <input type="text" name="website" value="" style="display:none !important" tabindex="-1" autocomplete="off">
+
+        <!-- Left Column - Accordion Steps -->
+        <div class="lg:col-span-2">
+
+            {% if app.user %}
+            <!-- Logged In User Notice -->
+            <div class="bg-green-50 border border-green-200 rounded-xl p-4 mb-8">
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle text-green-600 mr-3"></i>
+                    <p class="text-green-800">
+                        <strong>{{ 'checkout.logged_in_title'|trans }}</strong> - {{ 'checkout.logged_in_message'|trans }}
+                    </p>
+                </div>
+            </div>
+            {% else %}
+            <!-- Guest Checkout Notice -->
+            <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-8">
+                <div class="flex items-center">
+                    <i class="fas fa-info-circle text-blue-600 mr-3"></i>
+                    <p class="text-blue-800">
+                        <strong>{{ 'checkout.guest_checkout_title'|trans }}</strong> - {{ 'checkout.guest_checkout_message'|trans }}
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Progress Indicator -->
+            <div class="flex items-center justify-between mb-8">
+                <div class="flex items-center step-indicator" data-step="1">
+                    <div class="step-circle active">1</div>
+                    <span class="hidden md:inline ml-2 text-sm font-medium">{{ 'checkout.steps.customer_info'|trans }}</span>
+                </div>
+                <div class="flex-1 h-1 bg-gray-200 mx-2"></div>
+                <div class="flex items-center step-indicator" data-step="2">
+                    <div class="step-circle">2</div>
+                    <span class="hidden md:inline ml-2 text-sm font-medium">{{ 'checkout.steps.address'|trans }}</span>
+                </div>
+                <div class="flex-1 h-1 bg-gray-200 mx-2"></div>
+                <div class="flex items-center step-indicator" data-step="3">
+                    <div class="step-circle">3</div>
+                    <span class="hidden md:inline ml-2 text-sm font-medium">{{ 'checkout.steps.shipping'|trans }}</span>
+                </div>
+                <div class="flex-1 h-1 bg-gray-200 mx-2"></div>
+                <div class="flex items-center step-indicator" data-step="4">
+                    <div class="step-circle">4</div>
+                    <span class="hidden md:inline ml-2 text-sm font-medium">{{ 'checkout.steps.payment'|trans }}</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Customer Information -->
+            <div class="accordion-section active" style="margin-bottom: 2rem; border: 2px solid #f59e0b; border-radius: 1rem; overflow: hidden;" data-step="1">
+                <div class="accordion-header bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 text-white p-4 rounded-t-2xl cursor-pointer flex justify-between items-center">
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">👤</span>
+                        <h2 class="text-xl font-bold">{{ 'checkout.customer_information'|trans }}</h2>
+                    </div>
+                    <i class="fas fa-chevron-down transition-transform"></i>
+                </div>
+                <div class="accordion-body bg-white rounded-b-2xl shadow-lg p-6 mb-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'checkout.fields.title'|trans }}</label>
+                            <select name="title" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                <option value="">{{ 'checkout.select_title'|trans }}</option>
+                                <option value="Mr" {{ billingAddress and billingAddress.title == 'Mr' ? 'selected' : '' }}>Mr</option>
+                                <option value="Mrs" {{ billingAddress and billingAddress.title == 'Mrs' ? 'selected' : '' }}>Mrs</option>
+                                <option value="Ms" {{ billingAddress and billingAddress.title == 'Ms' ? 'selected' : '' }}>Ms</option>
+                                <option value="Miss" {{ billingAddress and billingAddress.title == 'Miss' ? 'selected' : '' }}>Miss</option>
+                                <option value="Dr" {{ billingAddress and billingAddress.title == 'Dr' ? 'selected' : '' }}>Dr</option>
+                                <option value="Prof" {{ billingAddress and billingAddress.title == 'Prof' ? 'selected' : '' }}>Prof</option>
+                                <option value="Other" {{ billingAddress and billingAddress.title == 'Other' ? 'selected' : '' }}>Other</option>
+                            </select>
+                        </div>
+                        <div></div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'checkout.fields.first_name'|trans }} *</label>
+                            <input type="text" name="first_name" required
+                                   value="{{ app.user ? app.user.firstName : '' }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'checkout.fields.last_name'|trans }} *</label>
+                            <input type="text" name="last_name" required
+                                   value="{{ app.user ? app.user.lastName : '' }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'checkout.fields.email'|trans }} *</label>
+                            <input type="email" name="email" id="email-field" required
+                                   value="{{ app.user ? app.user.email : '' }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'checkout.fields.phone'|trans }}</label>
+                            <input type="tel" name="phone"
+                                   value="{{ app.user ? app.user.phone : '' }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                        </div>
+                    </div>
+
+                    <!-- Create Account Option (only shown for guests) -->
+                    {% if not app.user %}
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <label class="flex items-start cursor-pointer">
+                            <input type="checkbox" id="create-account" name="create_account" value="1"
+                                   class="w-5 h-5 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500 mt-1">
+                            <div class="ml-3">
+                                <span class="text-lg font-semibold text-gray-900">{{ 'checkout.create_account'|trans }}</span>
+                                <p class="text-sm text-gray-600 mt-1">{{ 'checkout.create_account_text'|trans }}</p>
+                            </div>
+                        </label>
+
+                        <!-- Password Fields (shown when create account is checked) -->
+                        <div id="password-fields" class="mt-4 space-y-4" style="display: none;">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'auth.field.password'|trans }} *</label>
+                                <input type="password" name="password" id="password-field"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       minlength="8">
+                                <p class="text-xs text-gray-500 mt-1">{{ 'checkout.password_min_8'|trans }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'auth.field.password_confirm'|trans }} *</label>
+                                <input type="password" name="password_confirm" id="password-confirm-field"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                       minlength="8">
+                            </div>
+                            <div id="password-match-error" class="text-red-600 text-sm" style="display: none;">
+                                {{ 'checkout.passwords_no_match'|trans }}
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <button type="button" class="next-step mt-6 bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-white font-bold py-3 px-6 rounded-lg transition">
+                        {{ 'checkout.continue_to_address'|trans }} <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Step 2: Addresses -->
+            <div class="accordion-section" style="margin-bottom: 2rem; border: 2px solid #e5e7eb; border-radius: 1rem; overflow: hidden;" data-step="2">
+                <div class="accordion-header bg-gray-200 text-gray-700 p-4 rounded-t-2xl cursor-pointer flex justify-between items-center">
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">📍</span>
+                        <h2 class="text-xl font-bold">{{ 'checkout.billing_and_shipping'|trans }}</h2>
+                    </div>
+                    <i class="fas fa-chevron-down transition-transform"></i>
+                </div>
+                <div class="accordion-body bg-white rounded-b-2xl shadow-lg p-6 mb-6" style="display: none;">
+
+                    <!-- Billing Address -->
+                    <h3 class="text-lg font-bold mb-4">{{ 'checkout.billing_address'|trans }}</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'checkout.fields.address'|trans }} *</label>
+                            <input type="text" name="billing_address" id="billing-address" required
+                                   value="{{ billingAddress ? billingAddress.addressLine1 : '' }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                   placeholder="Start typing your address...">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'checkout.fields.address_line2'|trans }} <span class="text-gray-500">({{ 'checkout.optional'|trans }})</span></label>
+                            <input type="text" name="billing_address_line2"
+                                   value="{{ billingAddress ? billingAddress.addressLine2 : '' }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                   placeholder="{{ 'checkout.address_line2_placeholder'|trans }}">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'checkout.fields.postal_code'|trans }} *</label>
+                                <input type="text" name="billing_postal_code" id="billing-postal-code" required
+                                       value="{{ billingAddress ? billingAddress.postalCode : '' }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'checkout.fields.city'|trans }} *</label>
+                                <input type="text" name="billing_city" id="billing-city" required
+                                       value="{{ billingAddress ? billingAddress.city : '' }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">{{ 'checkout.fields.country'|trans }} *</label>
+                            {% set selectedCountry = billingAddress ? billingAddress.country : 'DE' %}
+                            <select name="billing_country" id="billing-country" required
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                <option value="">{{ 'checkout.select_country'|trans }}</option>
+                                <optgroup label="European Union">
+                                    <option value="AT" {{ selectedCountry == 'AT' ? 'selected' : '' }}>Austria</option>
+                                    <option value="BE" {{ selectedCountry == 'BE' ? 'selected' : '' }}>Belgium</option>
+                                    <option value="BG" {{ selectedCountry == 'BG' ? 'selected' : '' }}>Bulgaria</option>
+                                    <option value="HR" {{ selectedCountry == 'HR' ? 'selected' : '' }}>Croatia</option>
+                                    <option value="CY" {{ selectedCountry == 'CY' ? 'selected' : '' }}>Cyprus</option>
+                                    <option value="CZ" {{ selectedCountry == 'CZ' ? 'selected' : '' }}>Czech Republic</option>
+                                    <option value="DK" {{ selectedCountry == 'DK' ? 'selected' : '' }}>Denmark</option>
+                                    <option value="EE" {{ selectedCountry == 'EE' ? 'selected' : '' }}>Estonia</option>
+                                    <option value="FI" {{ selectedCountry == 'FI' ? 'selected' : '' }}>Finland</option>
+                                    <option value="FR" {{ selectedCountry == 'FR' ? 'selected' : '' }}>France</option>
+                                    <option value="DE" {{ selectedCountry == 'DE' ? 'selected' : '' }}>Germany</option>
+                                    <option value="GR" {{ selectedCountry == 'GR' ? 'selected' : '' }}>Greece</option>
+                                    <option value="HU" {{ selectedCountry == 'HU' ? 'selected' : '' }}>Hungary</option>
+                                    <option value="IE" {{ selectedCountry == 'IE' ? 'selected' : '' }}>Ireland</option>
+                                    <option value="IT" {{ selectedCountry == 'IT' ? 'selected' : '' }}>Italy</option>
+                                    <option value="LV" {{ selectedCountry == 'LV' ? 'selected' : '' }}>Latvia</option>
+                                    <option value="LT" {{ selectedCountry == 'LT' ? 'selected' : '' }}>Lithuania</option>
+                                    <option value="LU" {{ selectedCountry == 'LU' ? 'selected' : '' }}>Luxembourg</option>
+                                    <option value="MT" {{ selectedCountry == 'MT' ? 'selected' : '' }}>Malta</option>
+                                    <option value="NL" {{ selectedCountry == 'NL' ? 'selected' : '' }}>Netherlands</option>
+                                    <option value="PL" {{ selectedCountry == 'PL' ? 'selected' : '' }}>Poland</option>
+                                    <option value="PT" {{ selectedCountry == 'PT' ? 'selected' : '' }}>Portugal</option>
+                                    <option value="RO" {{ selectedCountry == 'RO' ? 'selected' : '' }}>Romania</option>
+                                    <option value="SK" {{ selectedCountry == 'SK' ? 'selected' : '' }}>Slovakia</option>
+                                    <option value="SI" {{ selectedCountry == 'SI' ? 'selected' : '' }}>Slovenia</option>
+                                    <option value="ES" {{ selectedCountry == 'ES' ? 'selected' : '' }}>Spain</option>
+                                    <option value="SE" {{ selectedCountry == 'SE' ? 'selected' : '' }}>Sweden</option>
+                                </optgroup>
+                                <optgroup label="Other European Countries">
+                                    <option value="CH" {{ selectedCountry == 'CH' ? 'selected' : '' }}>Switzerland</option>
+                                    <option value="NO" {{ selectedCountry == 'NO' ? 'selected' : '' }}>Norway</option>
+                                    <option value="GB" {{ selectedCountry == 'GB' ? 'selected' : '' }}>United Kingdom</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Ship to Different Address -->
+                    <div class="mt-6 pt-6 border-t border-gray-200">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" id="different-shipping" name="different_shipping" value="1"
+                                   class="w-5 h-5 text-yellow-600 border-gray-300 rounded focus:ring-yellow-500">
+                            <span class="ml-3 text-lg font-semibold text-gray-900">{{ 'checkout.different_shipping'|trans }}</span>
+                        </label>
+                    </div>
+
+                    <!-- Shipping Address (Hidden by default) -->
+                    <div id="shipping-address-section" class="mt-6 space-y-4" style="display: none;">
+                        <h3 class="text-lg font-bold mb-4">{{ 'checkout.shipping_address'|trans }}</h3>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Street Address</label>
+                            <input type="text" name="shipping_address" id="shipping-address"
+                                   value="{{ shippingAddress ? shippingAddress.addressLine1 : '' }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                   placeholder="Start typing your address...">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Address Line 2 <span class="text-gray-500">(Optional)</span></label>
+                            <input type="text" name="shipping_address_line2"
+                                   value="{{ shippingAddress ? shippingAddress.addressLine2 : '' }}"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                                   placeholder="Apartment, suite, unit, building, floor, etc.">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Postal Code</label>
+                                <input type="text" name="shipping_postal_code" id="shipping-postal-code"
+                                       value="{{ shippingAddress ? shippingAddress.postalCode : '' }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                                <input type="text" name="shipping_city" id="shipping-city"
+                                       value="{{ shippingAddress ? shippingAddress.city : '' }}"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                            {% set selectedShippingCountry = shippingAddress ? shippingAddress.country : 'DE' %}
+                            <select name="shipping_country" id="shipping-country"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent">
+                                <option value="">Select country</option>
+                                <optgroup label="European Union">
+                                    <option value="AT" {{ selectedShippingCountry == 'AT' ? 'selected' : '' }}>Austria</option>
+                                    <option value="BE" {{ selectedShippingCountry == 'BE' ? 'selected' : '' }}>Belgium</option>
+                                    <option value="BG" {{ selectedShippingCountry == 'BG' ? 'selected' : '' }}>Bulgaria</option>
+                                    <option value="HR" {{ selectedShippingCountry == 'HR' ? 'selected' : '' }}>Croatia</option>
+                                    <option value="CY" {{ selectedShippingCountry == 'CY' ? 'selected' : '' }}>Cyprus</option>
+                                    <option value="CZ" {{ selectedShippingCountry == 'CZ' ? 'selected' : '' }}>Czech Republic</option>
+                                    <option value="DK" {{ selectedShippingCountry == 'DK' ? 'selected' : '' }}>Denmark</option>
+                                    <option value="EE" {{ selectedShippingCountry == 'EE' ? 'selected' : '' }}>Estonia</option>
+                                    <option value="FI" {{ selectedShippingCountry == 'FI' ? 'selected' : '' }}>Finland</option>
+                                    <option value="FR" {{ selectedShippingCountry == 'FR' ? 'selected' : '' }}>France</option>
+                                    <option value="DE" {{ selectedShippingCountry == 'DE' ? 'selected' : '' }}>Germany</option>
+                                    <option value="GR" {{ selectedShippingCountry == 'GR' ? 'selected' : '' }}>Greece</option>
+                                    <option value="HU" {{ selectedShippingCountry == 'HU' ? 'selected' : '' }}>Hungary</option>
+                                    <option value="IE" {{ selectedShippingCountry == 'IE' ? 'selected' : '' }}>Ireland</option>
+                                    <option value="IT" {{ selectedShippingCountry == 'IT' ? 'selected' : '' }}>Italy</option>
+                                    <option value="LV" {{ selectedShippingCountry == 'LV' ? 'selected' : '' }}>Latvia</option>
+                                    <option value="LT" {{ selectedShippingCountry == 'LT' ? 'selected' : '' }}>Lithuania</option>
+                                    <option value="LU" {{ selectedShippingCountry == 'LU' ? 'selected' : '' }}>Luxembourg</option>
+                                    <option value="MT" {{ selectedShippingCountry == 'MT' ? 'selected' : '' }}>Malta</option>
+                                    <option value="NL" {{ selectedShippingCountry == 'NL' ? 'selected' : '' }}>Netherlands</option>
+                                    <option value="PL" {{ selectedShippingCountry == 'PL' ? 'selected' : '' }}>Poland</option>
+                                    <option value="PT" {{ selectedShippingCountry == 'PT' ? 'selected' : '' }}>Portugal</option>
+                                    <option value="RO" {{ selectedShippingCountry == 'RO' ? 'selected' : '' }}>Romania</option>
+                                    <option value="SK" {{ selectedShippingCountry == 'SK' ? 'selected' : '' }}>Slovakia</option>
+                                    <option value="SI" {{ selectedShippingCountry == 'SI' ? 'selected' : '' }}>Slovenia</option>
+                                    <option value="ES" {{ selectedShippingCountry == 'ES' ? 'selected' : '' }}>Spain</option>
+                                    <option value="SE" {{ selectedShippingCountry == 'SE' ? 'selected' : '' }}>Sweden</option>
+                                </optgroup>
+                                <optgroup label="Other European Countries">
+                                    <option value="CH" {{ selectedShippingCountry == 'CH' ? 'selected' : '' }}>Switzerland</option>
+                                    <option value="NO" {{ selectedShippingCountry == 'NO' ? 'selected' : '' }}>Norway</option>
+                                    <option value="GB" {{ selectedShippingCountry == 'GB' ? 'selected' : '' }}>United Kingdom</option>
+                                </optgroup>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 mt-6">
+                        <button type="button" class="prev-step bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg transition">
+                            <i class="fas fa-arrow-left mr-2"></i> {{ 'checkout.back'|trans }}
+                        </button>
+                        <button type="button" class="next-step bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-white font-bold py-3 px-6 rounded-lg transition flex-1">
+                            {{ 'checkout.continue_to_shipping'|trans }} <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Shipping Method -->
+            <div class="accordion-section" style="margin-bottom: 2rem; border: 2px solid #e5e7eb; border-radius: 1rem; overflow: hidden;" data-step="3">
+                <div class="accordion-header bg-gray-200 text-gray-700 p-4 rounded-t-2xl cursor-pointer flex justify-between items-center">
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">🚚</span>
+                        <h2 class="text-xl font-bold">{{ 'checkout.shipping_method_title'|trans }}</h2>
+                    </div>
+                    <i class="fas fa-chevron-down transition-transform"></i>
+                </div>
+                <div class="accordion-body bg-white rounded-b-2xl shadow-lg p-6 mb-6" style="display: none;">
+                    <div class="space-y-3">
+                        {% for shipping in shippingMethods %}
+                            <label class="flex items-start p-4 border-2 border-gray-200 rounded-lg hover:border-yellow-500 cursor-pointer transition shipping-method-option" data-method-id="{{ shipping.id }}" data-requires-store="{{ shipping.isRequiresStoreSelection() ? '1' : '0' }}">
+                                <input type="radio" name="shipping_method_id" value="{{ shipping.id }}"
+                                       {% if loop.first %}checked{% endif %}
+                                       class="mt-1 mr-3">
+                                <div class="flex-1">
+                                    <div class="font-semibold">{{ shipping.name }}</div>
+                                    <div class="text-sm text-gray-600">{{ shipping.description }}</div>
+                                    <div class="text-sm text-gray-500 mt-1">Delivery: {{ shipping.deliveryTime }}</div>
+                                </div>
+                                <div class="font-bold text-yellow-600">{{ shipping.price|price((app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en')) }}</div>
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Store Finder - Always visible with 3 nearest stores -->
+                    <div id="store-finder-section" class="mt-6 p-6 bg-gray-50 rounded-xl border-2 border-gray-300">
+                        <h3 class="text-lg font-bold mb-4 flex items-center">
+                            <i class="fas fa-store mr-2 text-yellow-600"></i>
+                            {{ 'checkout.nearby_stores'|trans|default('Nearby Stores') }}
+                        </h3>
+
+                        <div class="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-3">
+                            <p class="text-blue-800 text-sm">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                {{ 'checkout.store_finder_info'|trans|default('Find stores near you where you can pick up your order.') }}
+                            </p>
+                        </div>
+
+                        <input type="hidden" name="pickup_store_id" id="pickup-store-id">
+
+                        <!-- Location Detection -->
+                        <div id="location-status" class="mb-4">
+                            <button type="button" id="detect-location-btn" class="w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-700 hover:to-blue-900 text-white font-semibold py-3 px-4 rounded-lg transition flex items-center justify-center">
+                                <i class="fas fa-location-arrow mr-2"></i>
+                                {{ 'checkout.detect_location'|trans|default('Detect My Location') }}
+                            </button>
+                            <p class="text-sm text-gray-600 mt-2 text-center">{{ 'checkout.location_permission_hint'|trans|default('Allow GPS access to find nearby stores') }}</p>
+                        </div>
+
+                        <!-- Store List -->
+                        <div id="store-list" class="space-y-3" style="display: none;"></div>
+
+                        <!-- Loading Indicator -->
+                        <div id="store-loading" class="text-center py-8" style="display: none;">
+                            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-yellow-600"></div>
+                            <p class="mt-4 text-gray-600">{{ 'checkout.finding_stores'|trans|default('Finding nearby stores...') }}</p>
+                        </div>
+
+                        <!-- Error Message -->
+                        <div id="store-error" class="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-lg" style="display: none;"></div>
+
+                        <!-- Selected Store Display (only shown when pickup shipping is selected) -->
+                        <div id="selected-store-display" class="mt-4 p-4 bg-green-50 border-2 border-green-500 rounded-lg" style="display: none;">
+                            <div class="flex items-start">
+                                <i class="fas fa-check-circle text-green-600 text-2xl mr-3 mt-1"></i>
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-green-900 mb-1">{{ 'checkout.selected_pickup_location'|trans|default('Selected Pickup Location') }}</h4>
+                                    <div id="selected-store-info"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-4 mt-6">
+                        <button type="button" class="prev-step bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg transition">
+                            <i class="fas fa-arrow-left mr-2"></i> {{ 'checkout.back'|trans }}
+                        </button>
+                        <button type="button" class="next-step bg-gradient-to-r from-green-600 to-green-800 hover:from-green-700 hover:to-green-900 text-white font-bold py-3 px-6 rounded-lg transition flex-1">
+                            {{ 'checkout.continue_to_payment'|trans }} <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Payment & Notes -->
+            <div class="accordion-section" style="margin-bottom: 2rem; border: 2px solid #e5e7eb; border-radius: 1rem; overflow: hidden;" data-step="4">
+                <div class="accordion-header bg-gray-200 text-gray-700 p-4 rounded-t-2xl cursor-pointer flex justify-between items-center">
+                    <div class="flex items-center">
+                        <span class="text-2xl mr-3">💳</span>
+                        <h2 class="text-xl font-bold">{{ 'checkout.payment_and_review'|trans }}</h2>
+                    </div>
+                    <i class="fas fa-chevron-down transition-transform"></i>
+                </div>
+                <div class="accordion-body bg-white rounded-b-2xl shadow-lg p-6 mb-6" style="display: none;">
+
+                    <h3 class="text-lg font-bold mb-4">{{ 'checkout.payment_method_title'|trans }}</h3>
+                    <div class="space-y-3 mb-8" id="payment-methods-container">
+                        {% for payment in paymentMethods %}
+                            <label class="payment-method-option flex items-start p-4 border-2 border-gray-200 rounded-lg hover:border-yellow-500 cursor-pointer transition"
+                                   data-payment-type="{{ payment.type }}"
+                                   data-payment-id="{{ payment.id }}">
+                                <input type="radio" name="payment_method_id" value="{{ payment.id }}"
+                                       {% if loop.first %}checked{% endif %}
+                                       class="mt-1 mr-3">
+                                <div class="flex-1">
+                                    <div class="font-semibold">{{ payment.name }}</div>
+                                    <div class="text-sm text-gray-600">{{ payment.description }}</div>
+                                </div>
+                                {% if payment.fee > 0 %}
+                                    <div class="font-bold text-yellow-600">+{{ payment.fee|price((app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en')) }}</div>
+                                {% endif %}
+                            </label>
+                        {% endfor %}
+                    </div>
+
+                    <h3 class="text-lg font-bold mb-4">{{ 'checkout.order_notes_optional'|trans }}</h3>
+                    <textarea name="notes" rows="3"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
+                              placeholder="{{ 'checkout.order_notes_placeholder'|trans }}"></textarea>
+
+                    <div class="flex gap-4 mt-6">
+                        <button type="button" class="prev-step bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-3 px-6 rounded-lg transition">
+                            <i class="fas fa-arrow-left mr-2"></i> {{ 'checkout.back'|trans }}
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Order Summary (Sticky) -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-2xl shadow-lg p-6 sticky top-4">
+                <h2 class="text-2xl font-bold mb-4">{{ 'checkout.order_summary'|trans }}</h2>
+
+                <div class="space-y-3 mb-4 max-h-64 overflow-y-auto">
+                    {% for item in cart.items %}
+                        <div class="flex justify-between text-sm pb-3 border-b border-gray-100">
+                            <div class="flex-1">
+                                <div class="font-medium">{{ item.article.name }}</div>
+                                <div class="text-gray-600">Qty: {{ item.quantity }}</div>
+                            </div>
+                            <div class="font-semibold">{{ item.subtotal|price((app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en')) }}</div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <div class="border-t border-gray-200 pt-4 space-y-2">
+                    <div class="flex justify-between text-sm">
+                        <span>{{ 'checkout.subtotal'|trans }}</span>
+                        <span class="font-semibold">{{ cart.total|price((app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en')) }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm" id="shipping-cost">
+                        <span>{{ 'checkout.shipping'|trans }}</span>
+                        <span class="font-semibold">{{ shippingMethods[0].price|price((app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en')) }}</span>
+                    </div>
+                    <div class="flex justify-between text-sm" id="payment-fee">
+                        <span>{{ 'checkout.payment_fee'|trans }}</span>
+                        <span class="font-semibold">{{ paymentMethods[0].fee > 0 ? paymentMethods[0].fee|price((app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en')) : 'FREE' }}</span>
+                    </div>
+                    <div class="border-t border-gray-200 pt-2 flex justify-between text-lg font-bold">
+                        <span>{{ 'checkout.total'|trans }}</span>
+                        <span class="text-green-600" id="total-amount">
+                            {{ (cart.total + shippingMethods[0].price + paymentMethods[0].fee)|price((app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en')) }}
+                        </span>
+                    </div>
+                </div>
+
+                <button type="submit" id="place-order-btn"
+                        class="w-full mt-6 bg-gradient-to-r from-green-600 via-green-500 to-green-600 hover:from-green-700 hover:via-green-600 hover:to-green-700 text-white font-bold py-4 rounded-lg transition duration-300 shadow-lg">
+                    <i class="fas fa-lock mr-2"></i> {{ 'checkout.place_order'|trans }}
+                </button>
+
+                <p class="text-xs text-gray-500 text-center mt-4">
+                    <i class="fas fa-shield-alt mr-1"></i> {{ 'checkout.secure_checkout'|trans }}
+                </p>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>
+/* Progress Steps */
+.step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #6b7280;
+    transition: all 0.3s;
+}
+
+.step-circle.active {
+    background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+    color: white;
+}
+
+.step-circle.completed {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+/* Accordion */
+.accordion-section.active .accordion-header {
+    background: linear-gradient(135deg, #eab308 0%, #ca8a04 100%);
+    color: white;
+}
+
+.accordion-section.active .accordion-header i {
+    transform: rotate(180deg);
+}
+
+.accordion-section.completed .accordion-header {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+}
+
+.accordion-header {
+    transition: all 0.3s;
+}
+
+.accordion-body {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Store Cards */
+.store-card.selected {
+    border-color: #eab308 !important;
+    background-color: #fef3c7 !important;
+}
+
+@media (max-width: 768px) {
+    .step-indicator span {
+        display: none;
+    }
+}
+</style>
+
+<script>
+// Address autocomplete initialization
+let billingAutocomplete, shippingAutocomplete;
+
+function initAutocomplete() {
+    const billingInput = document.getElementById('billing-address');
+    if (billingInput && typeof google !== 'undefined') {
+        billingAutocomplete = new google.maps.places.Autocomplete(billingInput, {
+            types: ['address'],
+            fields: ['address_components', 'formatted_address']
+        });
+        billingAutocomplete.addListener('place_changed', function() {
+            fillInAddress('billing', billingAutocomplete.getPlace());
+        });
+    }
+
+    const shippingInput = document.getElementById('shipping-address');
+    if (shippingInput && typeof google !== 'undefined') {
+        shippingAutocomplete = new google.maps.places.Autocomplete(shippingInput, {
+            types: ['address'],
+            fields: ['address_components', 'formatted_address']
+        });
+        shippingAutocomplete.addListener('place_changed', function() {
+            fillInAddress('shipping', shippingAutocomplete.getPlace());
+        });
+    }
+}
+
+function fillInAddress(prefix, place) {
+    const components = place.address_components;
+    let streetAddress = '';
+    let city = '';
+    let postalCode = '';
+    let country = '';
+
+    components.forEach(component => {
+        const type = component.types[0];
+        if (type === 'street_number') {
+            streetAddress = component.short_name;
+        } else if (type === 'route') {
+            streetAddress += ' ' + component.long_name;
+        } else if (type === 'locality') {
+            city = component.long_name;
+        } else if (type === 'postal_code') {
+            postalCode = component.short_name;
+        } else if (type === 'country') {
+            country = component.short_name;
+        }
+    });
+
+    document.getElementById(prefix + '-address').value = streetAddress.trim();
+    document.getElementById(prefix + '-city').value = city;
+    document.getElementById(prefix + '-postal-code').value = postalCode;
+    const countrySelect = document.getElementById(prefix + '-country');
+    if (countrySelect && country) {
+        countrySelect.value = country;
+    }
+}
+
+// Multi-step Accordion Logic
+let currentStep = 1;
+const totalSteps = 4;
+
+// Accordion Header Click
+document.querySelectorAll('.accordion-header').forEach(header => {
+    header.addEventListener('click', function() {
+        const section = this.closest('.accordion-section');
+        const step = parseInt(section.dataset.step);
+
+        // Only allow clicking on completed steps or current step
+        if (step <= currentStep) {
+            openStep(step);
+        }
+    });
+});
+
+// Next Step Buttons
+document.querySelectorAll('.next-step').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const section = this.closest('.accordion-section');
+        const step = parseInt(section.dataset.step);
+
+        if (validateStep(step)) {
+            if (step < totalSteps) {
+                markStepCompleted(step);
+                openStep(step + 1);
+            }
+        }
+    });
+});
+
+// Previous Step Buttons
+document.querySelectorAll('.prev-step').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const section = this.closest('.accordion-section');
+        const step = parseInt(section.dataset.step);
+
+        if (step > 1) {
+            openStep(step - 1);
+        }
+    });
+});
+
+function openStep(step) {
+    // Close all sections
+    document.querySelectorAll('.accordion-section').forEach(section => {
+        section.classList.remove('active');
+        section.querySelector('.accordion-body').style.display = 'none';
+    });
+
+    // Open target section
+    const targetSection = document.querySelector(`.accordion-section[data-step="${step}"]`);
+    targetSection.classList.add('active');
+    targetSection.querySelector('.accordion-body').style.display = 'block';
+
+    // Update progress indicators
+    document.querySelectorAll('.step-indicator').forEach(indicator => {
+        const indicatorStep = parseInt(indicator.dataset.step);
+        const circle = indicator.querySelector('.step-circle');
+
+        if (indicatorStep < step) {
+            circle.classList.add('completed');
+            circle.classList.remove('active');
+        } else if (indicatorStep === step) {
+            circle.classList.add('active');
+            circle.classList.remove('completed');
+        } else {
+            circle.classList.remove('active', 'completed');
+        }
+    });
+
+    currentStep = step;
+
+    // Scroll to section (use 'nearest' to avoid over-scrolling)
+    targetSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function markStepCompleted(step) {
+    const section = document.querySelector(`.accordion-section[data-step="${step}"]`);
+    section.classList.add('completed');
+}
+
+function validateStep(step) {
+    const section = document.querySelector(`.accordion-section[data-step="${step}"]`);
+    const requiredFields = section.querySelectorAll('[required]');
+    let isValid = true;
+
+    requiredFields.forEach(field => {
+        if (!field.value || (field.type === 'checkbox' && !field.checked && field.hasAttribute('required'))) {
+            isValid = false;
+            field.classList.add('border-red-500');
+        } else {
+            field.classList.remove('border-red-500');
+        }
+    });
+
+    // Special validation for password match (only for guests creating an account)
+    const createAccountCheckbox = document.getElementById('create-account');
+    if (step === 1 && createAccountCheckbox && createAccountCheckbox.checked) {
+        const password = document.getElementById('password-field').value;
+        const confirmPassword = document.getElementById('password-confirm-field').value;
+
+        if (password !== confirmPassword) {
+            document.getElementById('password-match-error').style.display = 'block';
+            isValid = false;
+        } else {
+            document.getElementById('password-match-error').style.display = 'none';
+        }
+    }
+
+    return isValid;
+}
+
+// Create Account Toggle (only for guests)
+const createAccountCheckbox = document.getElementById('create-account');
+if (createAccountCheckbox) {
+    createAccountCheckbox.addEventListener('change', function() {
+        const passwordFields = document.getElementById('password-fields');
+        const passwordField = document.getElementById('password-field');
+        const confirmField = document.getElementById('password-confirm-field');
+
+        if (this.checked) {
+            passwordFields.style.display = 'block';
+            passwordField.setAttribute('required', 'required');
+            confirmField.setAttribute('required', 'required');
+        } else {
+            passwordFields.style.display = 'none';
+            passwordField.removeAttribute('required');
+            confirmField.removeAttribute('required');
+            passwordField.value = '';
+            confirmField.value = '';
+        }
+    });
+}
+
+// Different Shipping Address Toggle
+document.getElementById('different-shipping').addEventListener('change', function() {
+    const shippingSection = document.getElementById('shipping-address-section');
+    const isChecked = this.checked;
+
+    shippingSection.style.display = isChecked ? 'block' : 'none';
+
+    const shippingFields = shippingSection.querySelectorAll('input[name^="shipping_"], select[name^="shipping_"]');
+    shippingFields.forEach(field => {
+        if (isChecked && !field.name.includes('line2')) {
+            field.setAttribute('required', 'required');
+        } else {
+            field.removeAttribute('required');
+        }
+    });
+});
+
+// Store Finder & Payment Method Filtering
+let userLatitude = null;
+let userLongitude = null;
+let selectedStoreId = null;
+
+const shippingMethodsRequiringStore = {
+    {% for shipping in shippingMethods %}
+    '{{ shipping.id }}': {{ shipping.isRequiresStoreSelection() ? 'true' : 'false' }},
+    {% endfor %}
+};
+
+// Filter payment methods based on shipping selection
+function updatePaymentMethodsVisibility() {
+    const selectedShipping = document.querySelector('input[name="shipping_method_id"]:checked');
+    const requiresStore = selectedShipping ? shippingMethodsRequiringStore[selectedShipping.value] : false;
+    const storeFinderSection = document.getElementById('store-finder-section');
+    const selectedStoreDisplay = document.getElementById('selected-store-display');
+
+    // Show/hide "pay at store" option based on shipping method
+    document.querySelectorAll('.payment-method-option').forEach(option => {
+        const paymentType = option.dataset.paymentType;
+        const radio = option.querySelector('input[type="radio"]');
+
+        if (paymentType === 'at_store') {
+            if (requiresStore) {
+                // Show "pay at store" only when pickup/fetch at store shipping is selected
+                option.style.display = 'flex';
+            } else {
+                // Hide "pay at store" for other shipping methods
+                option.style.display = 'none';
+                // If this was selected, select the first visible payment method
+                if (radio.checked) {
+                    const firstVisible = document.querySelector('.payment-method-option:not([style*="display: none"]) input[type="radio"]');
+                    if (firstVisible) {
+                        firstVisible.checked = true;
+                    }
+                }
+            }
+        }
+    });
+
+    // Update store selection requirement
+    if (requiresStore) {
+        storeFinderSection.classList.add('border-yellow-500');
+        storeFinderSection.classList.remove('border-gray-300');
+        document.getElementById('pickup-store-id').setAttribute('required', 'required');
+        if (selectedStoreId) {
+            selectedStoreDisplay.style.display = 'block';
+        }
+    } else {
+        storeFinderSection.classList.remove('border-yellow-500');
+        storeFinderSection.classList.add('border-gray-300');
+        document.getElementById('pickup-store-id').removeAttribute('required');
+        selectedStoreDisplay.style.display = 'none';
+    }
+
+    updateTotals();
+}
+
+document.querySelectorAll('input[name="shipping_method_id"]').forEach(radio => {
+    radio.addEventListener('change', updatePaymentMethodsVisibility);
+});
+
+// Initialize payment methods visibility on page load
+document.addEventListener('DOMContentLoaded', function() {
+    updatePaymentMethodsVisibility();
+
+    // Auto-detect location on page load
+    if (navigator.geolocation) {
+        // Start loading immediately
+        document.getElementById('store-loading').style.display = 'block';
+        document.getElementById('location-status').style.display = 'none';
+
+        navigator.geolocation.getCurrentPosition(
+            position => {
+                userLatitude = position.coords.latitude;
+                userLongitude = position.coords.longitude;
+                loadNearbyStores();
+            },
+            error => {
+                // Geolocation failed - show manual detect button
+                document.getElementById('store-loading').style.display = 'none';
+                document.getElementById('location-status').style.display = 'block';
+            },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+    }
+});
+
+document.getElementById('detect-location-btn').addEventListener('click', function() {
+    if (!navigator.geolocation) {
+        showStoreError('Geolocation is not supported by your browser');
+        return;
+    }
+
+    document.getElementById('store-loading').style.display = 'block';
+    document.getElementById('location-status').style.display = 'none';
+    document.getElementById('store-error').style.display = 'none';
+
+    navigator.geolocation.getCurrentPosition(
+        position => {
+            userLatitude = position.coords.latitude;
+            userLongitude = position.coords.longitude;
+            loadNearbyStores();
+        },
+        error => {
+            document.getElementById('store-loading').style.display = 'none';
+            document.getElementById('location-status').style.display = 'block';
+
+            let errorMessage = 'Unable to get your location. ';
+            switch(error.code) {
+                case error.PERMISSION_DENIED:
+                    errorMessage += 'Please allow location access to find nearby stores.';
+                    break;
+                case error.POSITION_UNAVAILABLE:
+                    errorMessage += 'Location information unavailable.';
+                    break;
+                case error.TIMEOUT:
+                    errorMessage += 'Location request timed out.';
+                    break;
+            }
+            showStoreError(errorMessage);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+});
+
+async function loadNearbyStores() {
+    try {
+        // Fetch only 3 nearest stores
+        const response = await fetch(`/api/stores/nearby?lat=${userLatitude}&lon=${userLongitude}&limit=3`);
+        const data = await response.json();
+
+        document.getElementById('store-loading').style.display = 'none';
+
+        if (!data.success || data.stores.length === 0) {
+            showStoreError('{{ 'checkout.no_stores_found'|trans|default('No stores found near your location. Please contact us.')|e('js') }}');
+            return;
+        }
+
+        displayStores(data.stores);
+    } catch (error) {
+        document.getElementById('store-loading').style.display = 'none';
+        showStoreError('{{ 'checkout.store_load_error'|trans|default('Error loading stores. Please try again.')|e('js') }}');
+    }
+}
+
+function displayStores(stores) {
+    const storeList = document.getElementById('store-list');
+    storeList.innerHTML = '';
+    storeList.style.display = 'block';
+
+    stores.forEach((store, index) => {
+        const storeCard = document.createElement('div');
+        storeCard.className = 'store-card border-2 border-gray-200 rounded-lg p-4 cursor-pointer hover:border-yellow-500 transition';
+        storeCard.dataset.storeId = store.id;
+
+        storeCard.innerHTML = `
+            <div class="flex items-start">
+                <input type="radio" name="store_selection" value="${store.id}" class="mt-1 mr-3" ${index === 0 ? 'checked' : ''}>
+                <div class="flex-1">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-bold text-gray-900">${store.name}</h4>
+                        <span class="ml-4 px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold whitespace-nowrap">
+                            ${store.distanceText}
+                        </span>
+                    </div>
+                    <p class="text-sm text-gray-600">${store.fullAddress}</p>
+                    ${store.phone ? `<p class="text-sm text-gray-600 mt-1"><i class="fas fa-phone mr-1"></i>${store.phone}</p>` : ''}
+                    ${store.openingHours ? `
+                        <details class="mt-2">
+                            <summary class="text-sm text-blue-600 cursor-pointer"><i class="fas fa-clock mr-1"></i>Hours</summary>
+                            <p class="text-sm text-gray-600 mt-1 ml-5 whitespace-pre-line">${store.openingHours}</p>
+                        </details>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+
+        storeCard.addEventListener('click', function(e) {
+            if (e.target.tagName !== 'SUMMARY') {
+                this.querySelector('input[type="radio"]').checked = true;
+                selectStore(store);
+            }
+        });
+
+        const radio = storeCard.querySelector('input[type="radio"]');
+        radio.addEventListener('change', function() {
+            if (this.checked) selectStore(store);
+        });
+
+        storeList.appendChild(storeCard);
+    });
+
+    if (stores.length > 0) selectStore(stores[0]);
+}
+
+function selectStore(store) {
+    selectedStoreId = store.id;
+    document.getElementById('pickup-store-id').value = store.id;
+
+    document.querySelectorAll('.store-card').forEach(card => {
+        if (card.dataset.storeId == store.id) {
+            card.classList.add('selected', 'border-yellow-500', 'bg-yellow-50');
+            card.classList.remove('border-gray-200');
+        } else {
+            card.classList.remove('selected', 'border-yellow-500', 'bg-yellow-50');
+            card.classList.add('border-gray-200');
+        }
+    });
+
+    const selectedDisplay = document.getElementById('selected-store-display');
+    document.getElementById('selected-store-info').innerHTML = `
+        <p class="font-semibold text-gray-900">${store.name}</p>
+        <p class="text-sm text-gray-700">${store.fullAddress}</p>
+        <p class="text-sm text-gray-600 mt-1"><i class="fas fa-location-arrow mr-1 text-yellow-600"></i>${store.distanceText} away</p>
+    `;
+    selectedDisplay.style.display = 'block';
+}
+
+function showStoreError(message) {
+    const errorDiv = document.getElementById('store-error');
+    errorDiv.textContent = message;
+    errorDiv.style.display = 'block';
+}
+
+// Dynamic Total Calculation
+const cartSubtotal = {{ cart.total }};
+const shippingPrices = { {% for s in shippingMethods %}'{{ s.id }}': {{ s.price }},{% endfor %} };
+const paymentFees = { {% for p in paymentMethods %}'{{ p.id }}': {{ p.fee }},{% endfor %} };
+
+function updateTotals() {
+    const selectedShipping = document.querySelector('input[name="shipping_method_id"]:checked');
+    const selectedPayment = document.querySelector('input[name="payment_method_id"]:checked');
+
+    const shippingCost = shippingPrices[selectedShipping.value] || 0;
+    const paymentFee = paymentFees[selectedPayment.value] || 0;
+    const total = cartSubtotal + shippingCost + paymentFee;
+
+    document.getElementById('total-amount').textContent = formatPrice(total);
+    document.querySelector('#shipping-cost .font-semibold').textContent = formatPrice(shippingCost);
+    document.querySelector('#payment-fee .font-semibold').textContent = paymentFee > 0 ? formatPrice(paymentFee) : 'FREE';
+}
+
+function formatPrice(amount) {
+    return new Intl.NumberFormat('{{ (app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en') }}', {
+        style: 'currency',
+        currency: 'EUR'
+    }).format(amount);
+}
+
+document.querySelectorAll('input[name="shipping_method_id"]').forEach(radio => {
+    radio.addEventListener('change', updateTotals);
+});
+
+document.querySelectorAll('input[name="payment_method_id"]').forEach(radio => {
+    radio.addEventListener('change', updateTotals);
+});
+
+// Form Submission Validation
+let formSubmitting = false;
+
+document.getElementById('checkout-form').addEventListener('submit', function(e) {
+    // Prevent duplicate submissions
+    if (formSubmitting) {
+        e.preventDefault();
+        return false;
+    }
+
+    // Validate all steps
+    for (let step = 1; step <= totalSteps; step++) {
+        if (!validateStep(step)) {
+            e.preventDefault();
+            openStep(step);
+            return false;
+        }
+    }
+
+    // Validate store selection if required
+    const selectedShipping = document.querySelector('input[name="shipping_method_id"]:checked');
+    if (selectedShipping && shippingMethodsRequiringStore[selectedShipping.value]) {
+        if (!selectedStoreId) {
+            e.preventDefault();
+            openStep(3);
+            showStoreError('{{ 'checkout.please_select_store'|trans|default('Please select a pickup store before placing your order')|e('js') }}');
+            return false;
+        }
+    }
+
+    // Show loading state
+    const submitBtn = document.getElementById('place-order-btn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Processing Order...';
+
+    formSubmitting = true;
+});
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+    openStep(1);
+});
+
+// reCAPTCHA integration
+{% if app.request.server.get('RECAPTCHA_ENABLED') == 'true' %}
+let recaptchaAttempted = false;
+
+document.getElementById('checkout-form').addEventListener('submit', function(e) {
+    // If we've already tried to process reCAPTCHA, let the form submit
+    if (recaptchaAttempted) {
+        return true;
+    }
+
+    // First attempt - prevent submission and process reCAPTCHA
+    e.preventDefault();
+    recaptchaAttempted = true;
+
+    const form = this;
+
+    // Check if grecaptcha is loaded
+    if (typeof grecaptcha === 'undefined') {
+        HTMLFormElement.prototype.submit.call(form);
+        return;
+    }
+
+    grecaptcha.ready(function() {
+        grecaptcha.execute('{{ app.request.server.get('RECAPTCHA_SITE_KEY') }}', {action: 'checkout'})
+            .then(function(token) {
+                // Add token to form
+                let existingToken = form.querySelector('input[name="recaptcha_token"]');
+                if (!existingToken) {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'recaptcha_token';
+                    input.value = token;
+                    form.appendChild(input);
+                } else {
+                    existingToken.value = token;
+                }
+
+                // Submit form using native method to bypass event listeners
+                HTMLFormElement.prototype.submit.call(form);
+            })
+            .catch(function(error) {
+                // Submit anyway on error
+                HTMLFormElement.prototype.submit.call(form);
+            });
+    });
+}, true); // Use capture phase
+{% endif %}
+
+// XSS Protection: Sanitize any user-displayed content
+function escapeHtml(text) {
+    const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+}
+
+// Prevent form resubmission on page refresh
+if (window.history.replaceState) {
+    window.history.replaceState(null, null, window.location.href);
+}
+</script>
+{% endblock %}

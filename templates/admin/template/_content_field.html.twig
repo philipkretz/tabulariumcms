@@ -1,0 +1,31 @@
+{%- block field %}
+    {%- if easyadmin.field.value is null -%}
+        <span class="empty-field">—</span>
+    {%- else -%}
+        <div class="template-editor">
+            <div class="template-content" style="display: none;">
+                {{ easyadmin.field.value|raw }}
+            </div>
+            <div class="template-preview">
+                <h6>Preview:</h6>
+                <div class="border rounded p-3 bg-light" style="max-height: 200px; overflow-y: auto;">
+                    {{ easyadmin.field.value|raw }}
+                </div>
+            </div>
+            <div class="template-help mt-2">
+                <small class="text-muted">
+                    <strong>Available bracket functions:</strong><br>
+                    • [menu id="1"] or [menu name="main"]<br>
+                    • [page id="1"] or [page slug="about" length="100"]<br>
+                    • [post id="1"] or [post slug="latest" link="true"]<br>
+                    • [posts count="5" length="200"]<br>
+                    • [comments post_id="1" count="3"]<br>
+                    • [menu_items menu_id="1"]<br>
+                    • [pages count="10"]<br>
+                    • [site_title] or [site_description]<br>
+                    • [current_year]
+                </small>
+            </div>
+        </div>
+    {%- endif -%}
+{%- endblock %}

@@ -1,0 +1,230 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}SEO URL - {{ seoUrl.id ? 'Edit' : 'New' }}{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-100">
+    <!-- Admin Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-semibold text-gray-900">
+                    <a href="{{ path('admin_seo_urls') }}" class="text-gray-500 hover:text-gray-900 mr-2">
+                        <i class="fas fa-arrow-left"></i>
+                    </a>
+                    {{ seoUrl.id ? 'Edit SEO URL' : 'New SEO URL' }}
+                </h1>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-6 py-8">
+        <form method="post" class="space-y-8">
+            <!-- Basic Information -->
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6">Basic Information</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">URL Path</label>
+                        <div class="flex items-center">
+                            <span class="text-gray-500 mr-2">/</span>
+                            <input type="text" 
+                                   name="url" 
+                                   value="{{ seoUrl.url }}" 
+                                   class="form-input flex-1"
+                                   placeholder="example-page"
+                                   required>
+                        </div>
+                        <p class="mt-1 text-sm text-gray-500">The URL path without leading slash. This will be accessible at: /your-value</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Target Route</label>
+                        <select name="route" class="form-input" required>
+                            <option value="">Select a route</option>
+                            <option value="app_homepage" {{ seoUrl.route == 'app_homepage' ? 'selected' : '' }}>Homepage</option>
+                            <option value="app_blog" {{ seoUrl.route == 'app_blog' ? 'selected' : '' }}>Blog Listing</option>
+                            <option value="app_contact" {{ seoUrl.route == 'app_contact' ? 'selected' : '' }}>Contact Page</option>
+                            <option value="app_post_show" {{ seoUrl.route == 'app_post_show' ? 'selected' : '' }}>Post Detail</option>
+                            <option value="app_page_show" {{ seoUrl.route == 'app_page_show' ? 'selected' : '' }}>Page Detail</option>
+                            <option value="app_booking" {{ seoUrl.route == 'app_booking' ? 'selected' : '' }}>Booking Page</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Locale</label>
+                        <select name="locale" class="form-input" required>
+                            <option value="en" {{ seoUrl.locale == 'en' ? 'selected' : '' }}>English</option>
+                            <option value="es" {{ seoUrl.locale == 'es' ? 'selected' : '' }}>Spanish</option>
+                            <option value="ca" {{ seoUrl.locale == 'ca' ? 'selected' : '' }}>Catalan</option>
+                            <option value="de" {{ seoUrl.locale == 'de' ? 'selected' : '' }}>German</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Priority</label>
+                        <input type="number" 
+                               name="priority" 
+                               value="{{ seoUrl.priority }}" 
+                               class="form-input"
+                               min="0"
+                               max="100">
+                        <p class="mt-1 text-sm text-gray-500">Higher values have higher priority. 0 = normal priority.</p>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status Code</label>
+                        <select name="status_code" class="form-input" required>
+                            <option value="301" {{ seoUrl.statusCode == '301' ? 'selected' : '' }}>301 - Permanent Redirect</option>
+                            <option value="302" {{ seoUrl.statusCode == '302' ? 'selected' : '' }}>302 - Temporary Redirect</option>
+                            <option value="200" {{ seoUrl.statusCode == '200' ? 'selected' : '' }}>200 - Direct Serve</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-6">
+                    <label class="flex items-center">
+                        <input type="checkbox" 
+                               name="is_active" 
+                               value="1" 
+                               {{ seoUrl.isActive ? 'checked' : '' }}
+                               class="rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+                        <span class="ml-2 text-sm text-gray-700">Active</span>
+                    </label>
+                    <p class="mt-1 text-sm text-gray-500">Only active URLs will be processed by the routing system.</p>
+                </div>
+            </div>
+
+            <!-- Route Parameters -->
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6">Route Parameters</h2>
+                
+                <div id="parameters-container">
+                    {% for key, value in seoUrl.parameters %}
+                    <div class="parameter-row grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <input type="text" 
+                               placeholder="Parameter name" 
+                               value="{{ key }}" 
+                               class="param-key form-input"
+                               placeholder="e.g., id, slug">
+                        <input type="text" 
+                               placeholder="Parameter value" 
+                               value="{{ value }}" 
+                               class="param-value form-input"
+                               placeholder="e.g., 123, my-post-slug">
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <button type="button" onclick="addParameterRow()" class="btn btn-secondary">
+                    <i class="fas fa-plus mr-2"></i>Add Parameter
+                </button>
+                
+                <input type="hidden" name="parameters" id="parameters-json" value='{{ seoUrl.parameters|json_encode }}'>
+                <p class="mt-2 text-sm text-gray-500">Parameters to pass to the target route (for dynamic routes like post detail pages).</p>
+            </div>
+
+            <!-- SEO Settings -->
+            <div class="card">
+                <h2 class="text-lg font-semibold text-gray-900 mb-6">SEO Settings</h2>
+                
+                <div class="space-y-6">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Meta Title</label>
+                        <input type="text" 
+                               name="title" 
+                               value="{{ seoUrl.title }}" 
+                               class="form-input"
+                               maxlength="255"
+                               placeholder="Override page title for this URL">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
+                        <textarea name="description" 
+                                  class="form-input"
+                                  rows="3"
+                                  placeholder="Override meta description for this URL">{{ seoUrl.description }}</textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Canonical URL</label>
+                        <input type="text" 
+                               name="canonical_url" 
+                               value="{{ seoUrl.canonicalUrl }}" 
+                               class="form-input"
+                               placeholder="https://example.com/canonical-url">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Additional Meta Tags (JSON)</label>
+                        <textarea name="meta_tags" 
+                                  class="form-input"
+                                  rows="4"
+                                  placeholder='{"og:image": "https://example.com/image.jpg", "twitter:card": "summary"}'>{{ seoUrl.metaTags|json_encode }}</textarea>
+                        <p class="mt-1 text-sm text-gray-500">Additional meta tags in JSON format for social media, etc.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex justify-end space-x-4">
+                <a href="{{ path('admin_seo_urls') }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save mr-2"></i>
+                    {{ seoUrl.id ? 'Update SEO URL' : 'Create SEO URL' }}
+                </button>
+            </div>
+        </form>
+    </main>
+</div>
+
+<script>
+function addParameterRow() {
+    const container = document.getElementById('parameters-container');
+    const row = document.createElement('div');
+    row.className = 'parameter-row grid grid-cols-1 md:grid-cols-2 gap-4 mb-4';
+    row.innerHTML = `
+        <input type="text" placeholder="Parameter name" class="param-key form-input">
+        <input type="text" placeholder="Parameter value" class="param-value form-input">
+        <button type="button" onclick="this.parentElement.remove()" class="btn btn-secondary text-sm">
+            <i class="fas fa-trash"></i>
+        </button>
+    `;
+    container.appendChild(row);
+    updateParametersJson();
+}
+
+function updateParametersJson() {
+    const rows = document.querySelectorAll('.parameter-row');
+    const params = {};
+    
+    rows.forEach(row => {
+        const key = row.querySelector('.param-key').value;
+        const value = row.querySelector('.param-value').value;
+        if (key && value) {
+            params[key] = value;
+        }
+    });
+    
+    document.getElementById('parameters-json').value = JSON.stringify(params);
+}
+
+// Update JSON when any parameter input changes
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('param-key') || e.target.classList.contains('param-value')) {
+        updateParametersJson();
+    }
+});
+
+// Initialize existing parameters
+document.querySelectorAll('.parameter-row').forEach(row => {
+    row.querySelector('.param-key').addEventListener('input', updateParametersJson);
+    row.querySelector('.param-value').addEventListener('input', updateParametersJson);
+});
+</script>
+{% endblock %}

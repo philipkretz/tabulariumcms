@@ -1,0 +1,7 @@
+{% extends '@SonataAdmin/CRUD/list_string.html.twig' %}
+
+{% block field %}
+    <div class="text-truncate" style="max-width: 300px;" title="{{ value }}">
+        {{ value }}
+    </div>
+{% endblock %}

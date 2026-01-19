@@ -1,0 +1,222 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Friend Requests - {{ parent() }}{% endblock %}
+
+{% block body %}
+<!-- Include Navigation -->
+{% include 'components/navigation.html.twig' %}
+
+<!-- Cookie Banner -->
+{% include 'components/cookie_banner.html.twig' %}
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        <i class="fas fa-user-friends text-yellow-600 mr-2"></i>
+                        Friend Requests
+                    </h1>
+                    <p class="mt-1 text-sm text-gray-600">
+                        {% if pendingRequests|length > 0 %}
+                            You have {{ pendingRequests|length }} pending {{ pendingRequests|length == 1 ? 'request' : 'requests' }}
+                        {% else %}
+                            No pending friend requests
+                        {% endif %}
+                    </p>
+                </div>
+                <a href="{{ path('app_profile') }}" class="inline-flex items-center px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition">
+                    <i class="fas fa-arrow-left mr-2"></i>
+                    Back to Profile
+                </a>
+            </div>
+        </div>
+
+        <!-- Friend Requests List -->
+        <div class="bg-white rounded-lg shadow-lg">
+            {% if pendingRequests is empty %}
+                <!-- Empty State -->
+                <div class="text-center py-16 px-4">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
+                        <i class="fas fa-user-check text-gray-400 text-4xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">No pending requests</h3>
+                    <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                        You don't have any friend requests at the moment. Start connecting with others!
+                    </p>
+                    <a href="{{ path('app_profile_directory') }}" class="inline-flex items-center px-6 py-3 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg transition">
+                        <i class="fas fa-users mr-2"></i>
+                        Browse Profiles
+                    </a>
+                </div>
+            {% else %}
+                <!-- Requests List -->
+                <div class="divide-y divide-gray-200">
+                    {% for request in pendingRequests %}
+                        {% set requester = request.user %}
+
+                        <div class="p-4 sm:p-6" data-request-id="{{ request.id }}">
+                            <div class="flex items-start justify-between space-x-4">
+                                <!-- User Info -->
+                                <div class="flex items-center space-x-4 flex-1">
+                                    <!-- Avatar -->
+                                    <a href="{{ path('app_public_profile', {slug: requester.profile.profileSlug ?? requester.username}) }}" class="flex-shrink-0">
+                                        {% if requester.profile and requester.profile.avatar %}
+                                            <img src="{{ asset(requester.profile.avatar) }}"
+                                                 alt="{{ requester.username }}"
+                                                 class="w-16 h-16 rounded-full object-cover">
+                                        {% else %}
+                                            <div class="w-16 h-16 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+                                                <span class="text-white font-bold text-2xl">
+                                                    {{ requester.username|slice(0, 1)|upper }}
+                                                </span>
+                                            </div>
+                                        {% endif %}
+                                    </a>
+
+                                    <!-- User Details -->
+                                    <div class="flex-1">
+                                        <a href="{{ path('app_public_profile', {slug: requester.profile.profileSlug ?? requester.username}) }}"
+                                           class="text-lg font-semibold text-gray-900 hover:text-yellow-600 transition">
+                                            {{ requester.username }}
+                                        </a>
+                                        {% if requester.profile and requester.profile.firstName %}
+                                            <p class="text-sm text-gray-600">
+                                                {{ requester.profile.firstName }} {{ requester.profile.lastName }}
+                                            </p>
+                                        {% endif %}
+                                        {% if requester.profile and requester.profile.bio %}
+                                            <p class="mt-1 text-sm text-gray-600 line-clamp-2">
+                                                {{ requester.profile.bio }}
+                                            </p>
+                                        {% endif %}
+                                        <p class="mt-1 text-xs text-gray-500">
+                                            <i class="fas fa-clock mr-1"></i>
+                                            Sent {{ request.createdAt|date('M d, Y') }}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                                    <button
+                                        onclick="acceptFriendRequest({{ request.id }})"
+                                        class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-medium rounded-lg transition text-sm whitespace-nowrap"
+                                    >
+                                        <i class="fas fa-check mr-1"></i>
+                                        Accept
+                                    </button>
+                                    <button
+                                        onclick="rejectFriendRequest({{ request.id }})"
+                                        class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition text-sm whitespace-nowrap"
+                                    >
+                                        <i class="fas fa-times mr-1"></i>
+                                        Reject
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    async function acceptFriendRequest(requestId) {
+        if (!confirm('Accept this friend request?')) return;
+
+        try {
+            const response = await fetch(`/friends/accept/${requestId}`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                // Remove the request card with animation
+                const requestCard = document.querySelector(`[data-request-id="${requestId}"]`);
+                if (requestCard) {
+                    requestCard.style.transition = 'opacity 0.3s';
+                    requestCard.style.opacity = '0';
+                    setTimeout(() => {
+                        requestCard.remove();
+
+                        // Check if no more requests, show empty state
+                        const requestsList = document.querySelector('.divide-y');
+                        if (requestsList && requestsList.children.length === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                }
+
+                // Show success message
+                showNotification('Friend request accepted!', 'success');
+            } else {
+                const error = await response.json();
+                showNotification(error.error || 'Failed to accept request', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Network error. Please try again.', 'error');
+        }
+    }
+
+    async function rejectFriendRequest(requestId) {
+        if (!confirm('Reject this friend request?')) return;
+
+        try {
+            const response = await fetch(`/friends/reject/${requestId}`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                // Remove the request card with animation
+                const requestCard = document.querySelector(`[data-request-id="${requestId}"]`);
+                if (requestCard) {
+                    requestCard.style.transition = 'opacity 0.3s';
+                    requestCard.style.opacity = '0';
+                    setTimeout(() => {
+                        requestCard.remove();
+
+                        // Check if no more requests, show empty state
+                        const requestsList = document.querySelector('.divide-y');
+                        if (requestsList && requestsList.children.length === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                }
+
+                showNotification('Friend request rejected', 'info');
+            } else {
+                const error = await response.json();
+                showNotification(error.error || 'Failed to reject request', 'error');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            showNotification('Network error. Please try again.', 'error');
+        }
+    }
+
+    function showNotification(message, type = 'info') {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg text-white ${
+            type === 'success' ? 'bg-green-600' :
+            type === 'error' ? 'bg-red-600' :
+            'bg-blue-600'
+        }`;
+        notification.textContent = message;
+
+        document.body.appendChild(notification);
+
+        // Remove after 3 seconds
+        setTimeout(() => {
+            notification.style.transition = 'opacity 0.3s';
+            notification.style.opacity = '0';
+            setTimeout(() => notification.remove(), 300);
+        }, 3000);
+    }
+</script>
+{% endblock %}

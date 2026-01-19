@@ -1,0 +1,305 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'homepage.title'|trans }} - {{ parent() }}{% endblock %}
+
+{% block meta_description %}{{ 'homepage.meta_description'|trans }}{% endblock %}
+
+{% block body %}
+<!-- Include Navigation -->
+{% include 'components/navigation.html.twig' %}
+
+<!-- Cookie Banner -->
+
+<!-- Hero Section -->
+<div class="bg-gradient-to-br from-amber-50 via-amber-100 to-amber-200 py-20 relative overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-amber-300/20 to-transparent"></div>
+    <div class="container mx-auto px-4 text-center relative z-10">
+        <h1 class="text-5xl font-bold mb-4 bg-gradient-to-r from-amber-800 to-amber-950 bg-clip-text text-transparent">{{ 'homepage.hero.title'|trans }}</h1>
+        <p class="text-xl mb-8 text-amber-900">{{ 'homepage.hero.subtitle'|trans }}</p>
+        <div class="flex gap-4 justify-center flex-wrap">
+            <a href="{{ path('app_products') }}" class="bg-gradient-to-r from-orange-600 to-orange-800 text-white px-8 py-3 rounded-lg font-semibold hover:from-orange-700 hover:to-orange-900 transition shadow-lg">
+                {{ 'homepage.hero.browse_products'|trans }}
+            </a>
+            <a href="{{ path('admin_login') }}" class="bg-white text-amber-800 border-2 border-amber-600 px-8 py-3 rounded-lg font-semibold hover:bg-amber-50 transition shadow-lg">
+                {{ 'homepage.hero.admin_login'|trans }}
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Featured Products Section -->
+{% if featured_products|length > 0 %}
+<div class="container mx-auto px-4 py-16">
+    <div class="flex justify-between items-center mb-8">
+        <h2 class="text-3xl font-bold text-gray-800">{{ 'homepage.featured_products.title'|trans }}</h2>
+        <a href="{{ path('app_products') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
+            {{ 'homepage.featured_products.view_all'|trans }} &rarr;
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for product in featured_products %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+            <!-- Featured Badge -->
+            <div class="relative">
+                <span class="absolute top-4 left-4 bg-amber-500 text-white px-3 py-1 rounded-full text-xs font-bold z-10">
+                    {{ 'homepage.product.featured'|trans }}
+                </span>
+
+                <!-- Product Image -->
+                <div class="bg-gray-100 h-64 flex items-center justify-center">
+                    {% if product.mainImage %}
+                    <img src="/uploads/media/{{ product.mainImage.filename }}"
+                         alt="{{ product.mainImage.alt ?? product.name }}"
+                         class="w-full h-full object-cover">
+                    {% else %}
+                    <span class="text-6xl">📦</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="p-6">
+                <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ product.name }}</h3>
+
+                {% if product.shortDescription %}
+                <p class="text-gray-600 text-sm mb-4 line-clamp-2">{{ product.shortDescription }}</p>
+                {% endif %}
+
+                <div class="flex items-center justify-between">
+                    <div>{{ product.grossPrice|price_with_tax(product.taxRate|default(19), (app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en'), false)|raw }}</div>
+
+                    <!-- Stock Status -->
+                    {% if product.ignoreStock or product.stock > 0 %}
+                    <span class="text-xs text-green-600 font-semibold flex items-center gap-1">
+                        <span class="w-2 h-2 bg-green-600 rounded-full"></span>
+                        {{ 'homepage.product.in_stock'|trans }}
+                    </span>
+                    {% else %}
+                    <span class="text-xs text-red-600 font-semibold flex items-center gap-1">
+                        <span class="w-2 h-2 bg-red-600 rounded-full"></span>
+                        {{ 'homepage.product.out_of_stock'|trans }}
+                    </span>
+                    {% endif %}
+                </div>
+
+                <a href="{{ path('app_product_detail', {slug: product.slug}) }}"
+                   class="mt-4 block w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white text-center py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-900 transition shadow-md">
+                    {{ 'homepage.product.view_details'|trans }}
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Latest Products Section -->
+{% if latest_products|length > 0 %}
+<div class="bg-gray-50 py-16">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-3xl font-bold text-gray-800">{{ 'homepage.latest_products.title'|trans }}</h2>
+            <a href="{{ path('app_products') }}" class="text-blue-600 hover:text-blue-800 font-semibold">
+                {{ 'homepage.latest_products.view_all'|trans }} &rarr;
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {% for product in latest_products %}
+            <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <!-- Product Image -->
+                <div class="bg-gray-100 h-48 flex items-center justify-center">
+                    {% if product.mainImage %}
+                    <img src="/uploads/media/{{ product.mainImage.filename }}"
+                         alt="{{ product.mainImage.alt ?? product.name }}"
+                         class="w-full h-full object-cover">
+                    {% else %}
+                    <span class="text-5xl">📦</span>
+                    {% endif %}
+                </div>
+
+                <!-- Product Info -->
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-2 line-clamp-2">{{ product.name }}</h3>
+
+                    <div class="flex items-center justify-between mb-3">
+                        <div>{{ product.grossPrice|price_with_tax(product.taxRate|default(19), (app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en'), false)|raw }}</div>
+
+                        <!-- Stock Status -->
+                        {% if product.ignoreStock or product.stock > 0 %}
+                        <span class="text-xs text-green-600 font-semibold">
+                            <i class="fas fa-check-circle"></i>
+                        </span>
+                        {% else %}
+                        <span class="text-xs text-red-600 font-semibold">
+                            <i class="fas fa-times-circle"></i>
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    <a href="{{ path('app_product_detail', {slug: product.slug}) }}"
+                       class="block w-full bg-gradient-to-r from-blue-600 to-blue-800 text-white text-center py-2 rounded-lg font-semibold hover:from-blue-700 hover:to-blue-900 transition text-sm shadow-md">
+                        {{ 'homepage.product.view_details'|trans }}
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Customer Reviews / Recommendations Section -->
+{% if customer_reviews|length > 0 %}
+<div class="py-16 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">{{ 'homepage.reviews.title'|trans }}</h2>
+            <p class="text-gray-600">{{ 'homepage.reviews.subtitle'|trans }}</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for review in customer_reviews %}
+            <div class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition-shadow duration-300">
+                <!-- Rating Stars -->
+                <div class="flex items-center mb-4">
+                    {% for i in 1..5 %}
+                        {% if i <= review.rating %}
+                            <svg class="w-5 h-5 text-yellow-400 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                            </svg>
+                        {% else %}
+                            <svg class="w-5 h-5 text-gray-300 fill-current" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"/>
+                            </svg>
+                        {% endif %}
+                    {% endfor %}
+                    {% if review.isVerified %}
+                        <span class="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-semibold">
+                            ✓ Verified
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Review Text -->
+                <p class="text-gray-700 mb-4 italic leading-relaxed">"{{ review.reviewText }}"</p>
+
+                <!-- Customer Info -->
+                <div class="flex items-center mt-6 pt-4 border-t border-gray-200">
+                    {% if review.customerImage %}
+                        <img src="{{ review.customerImage }}" alt="{{ review.customerName }}"
+                             class="w-12 h-12 rounded-full object-cover mr-4">
+                    {% else %}
+                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold mr-4">
+                            {{ review.customerName|slice(0, 1)|upper }}
+                        </div>
+                    {% endif %}
+                    <div>
+                        <p class="font-semibold text-gray-800">{{ review.customerName }}</p>
+                        {% if review.customerTitle %}
+                            <p class="text-sm text-gray-600">{{ review.customerTitle }}</p>
+                        {% endif %}
+                        {% if review.customerLocation %}
+                            <p class="text-xs text-gray-500">{{ review.customerLocation }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Related Product Link -->
+                {% if review.product %}
+                    <div class="mt-4">
+                        <a href="{{ path('app_product_detail', {slug: review.product.slug}) }}"
+                           class="text-sm text-blue-600 hover:text-blue-800 font-semibold">
+                            View Product: {{ review.product.name }} &rarr;
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Newsletter Section -->
+<div class="bg-gray-50 py-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-2xl mx-auto text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">{{ 'newsletter.title'|trans }}</h2>
+            <p class="text-gray-600 mb-8">{{ 'newsletter.subtitle'|trans }}</p>
+            
+            <form id="newsletter-form" class="flex flex-col sm:flex-row gap-4 justify-center">
+                <input type="email" name="email" id="newsletter-email" required
+                       class="flex-1 max-w-md px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500"
+                       placeholder="{{ 'newsletter.email_placeholder'|trans }}">
+                <button type="submit" 
+                        class="bg-gradient-to-r from-green-600 to-green-800 text-white px-8 py-3 rounded-lg font-semibold hover:from-green-700 hover:to-green-900 transition shadow-md">
+                    {{ 'newsletter.subscribe'|trans }}
+                </button>
+            </form>
+            
+            <div id="newsletter-message" class="mt-4 hidden"></div>
+            
+            <p class="text-xs text-gray-500 mt-4">{{ 'newsletter.privacy_notice'|trans }}</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Newsletter form submission
+document.getElementById('newsletter-form')?.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const email = document.getElementById('newsletter-email').value;
+    const messageDiv = document.getElementById('newsletter-message');
+    const submitBtn = this.querySelector('button[type="submit"]');
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = '{{ "newsletter.sending"|trans }}';
+    
+    try {
+        const response = await fetch('{{ path("newsletter_subscribe") }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `email=${encodeURIComponent(email)}`
+        });
+        
+        const data = await response.json();
+        
+        messageDiv.className = `mt-4 p-4 rounded-lg ${data.success ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`;
+        messageDiv.textContent = data.message;
+        messageDiv.classList.remove('hidden');
+        
+        if (data.success) {
+            document.getElementById('newsletter-email').value = '';
+        }
+    } catch (error) {
+        messageDiv.className = 'mt-4 p-4 rounded-lg bg-red-100 text-red-800';
+        messageDiv.textContent = '{{ "newsletter.error"|trans }}';
+        messageDiv.classList.remove('hidden');
+    } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '{{ "newsletter.subscribe"|trans }}';
+    }
+});
+</script>
+
+<style>
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+@media (max-width: 640px) {
+    .grid-cols-1 {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<!-- Include Footer -->
+{% include 'components/footer.html.twig' %}
+
+{% endblock %}

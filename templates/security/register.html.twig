@@ -1,0 +1,135 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Register - TabulariumCMS{% endblock %}
+
+{% block body %}
+<style>
+    .register-page {
+        min-height: 100vh;
+        background-image: url("https://images.unsplash.com/photo-1682686578456-69ae00b0ecbd?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3");
+        background-size: cover;
+        background-position: center right;
+        background-repeat: no-repeat;
+        position: relative;
+    }
+
+    .register-page::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.4);
+    }
+
+    .register-container {
+        position: relative;
+        z-index: 10;
+    }
+
+    .register-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border-radius: 12px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+</style>
+
+<div class="register-page flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="register-container max-w-md w-full">
+        <div class="register-card p-8 space-y-8">
+            <div>
+                <h2 class="text-center text-3xl font-extrabold text-gray-900">
+                    {{ 'auth.register.heading'|trans }}
+                </h2>
+                <p class="mt-2 text-center text-sm text-gray-600">
+                    {{ 'auth.register.already_have_account'|trans }}
+                    <a href="{{ app.request.attributes.get('_route') == 'app_register_locale' ? path('app_login_locale', {_locale: app.request.locale}) : path('app_login') }}" class="font-medium text-indigo-600 hover:text-indigo-500">
+                        {{ 'auth.register.sign_in_link'|trans }}
+                    </a>
+                </p>
+            </div>
+
+            {% if success %}
+                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
+                    <strong class="font-bold">{{ 'auth.register.success_title'|trans }}</strong>
+                    <span class="block sm:inline">{{ 'auth.register.success_message'|trans }} <a href="{{ app.request.attributes.get('_route') == 'app_register_locale' ? path('app_login_locale', {_locale: app.request.locale}) : path('app_login') }}" class="underline">{{ 'auth.register.success_sign_in'|trans }}</a>.</span>
+                </div>
+            {% endif %}
+
+            {% if error %}
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <span class="block sm:inline">{{ error }}</span>
+                </div>
+            {% endif %}
+
+            {% if not success %}
+            <form class="mt-8 space-y-6" action="{{ app.request.attributes.get('_route') == 'app_register_locale' ? path('app_register_locale', {_locale: app.request.locale}) : path('app_register') }}" method="post">
+                <div class="space-y-4">
+                    <div>
+                        <label for="email" class="block text-sm font-medium text-gray-700 mb-2">{{ 'auth.field.email'|trans }} *</label>
+                        <input id="email" name="email" type="email" autocomplete="email" required
+                               class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm"
+                               placeholder="{{ 'auth.field.email_placeholder'|trans }}">
+                    </div>
+
+                    <div>
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-2">{{ 'username'|trans }} *</label>
+                        <input id="username" name="username" type="text" autocomplete="username" required
+                               class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm"
+                               placeholder="{{ 'auth.field.username_placeholder'|trans }}">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="first_name" class="block text-sm font-medium text-gray-700 mb-2">{{ 'auth.field.first_name'|trans }}</label>
+                            <input id="first_name" name="first_name" type="text" autocomplete="given-name"
+                                   class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm"
+                                   placeholder="{{ 'auth.field.first_name_placeholder'|trans }}">
+                        </div>
+
+                        <div>
+                            <label for="last_name" class="block text-sm font-medium text-gray-700 mb-2">{{ 'auth.field.last_name'|trans }}</label>
+                            <input id="last_name" name="last_name" type="text" autocomplete="family-name"
+                                   class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm"
+                                   placeholder="{{ 'auth.field.last_name_placeholder'|trans }}">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-2">{{ 'auth.field.password'|trans }} *</label>
+                        <input id="password" name="password" type="password" autocomplete="new-password" required
+                               class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm"
+                               placeholder="{{ 'auth.field.password_placeholder'|trans }}">
+                    </div>
+
+                    <div>
+                        <label for="confirm_password" class="block text-sm font-medium text-gray-700 mb-2">{{ 'auth.field.password_confirm'|trans }} *</label>
+                        <input id="confirm_password" name="confirm_password" type="password" autocomplete="new-password" required
+                               class="appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-400 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent sm:text-sm"
+                               placeholder="{{ 'auth.field.password_confirm_placeholder'|trans }}">
+                    </div>
+                </div>
+
+                <div>
+                    <button type="submit"
+                            class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors">
+                        <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                            <i class="fas fa-user-plus text-indigo-500 group-hover:text-indigo-400"></i>
+                        </span>
+                        {{ 'auth.register.button'|trans }}
+                    </button>
+                </div>
+
+                <div class="text-center space-y-2">
+                    <a href="{{ path('app_homepage') }}" class="block text-sm text-gray-500 hover:text-gray-700">
+                        &larr; {{ 'auth.register.back_to_home'|trans }}
+                    </a>
+                </div>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

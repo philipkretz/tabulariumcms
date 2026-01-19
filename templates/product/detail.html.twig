@@ -1,0 +1,303 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.name }} - {{ parent() }}{% endblock %}
+
+{% block body %}
+<!-- Include Navigation -->
+{% include 'components/navigation.html.twig' %}
+
+<!-- Cookie Banner -->
+{% include 'components/cookie_banner.html.twig' %}
+
+<div style="max-width: 1200px; margin: 0 auto; padding: 2rem;">
+    <!-- Breadcrumb -->
+    <nav style="margin-bottom: 2rem; font-size: 0.875rem;">
+        <a href="/" style="color: #3182ce;">Home</a>
+        <span style="margin: 0 0.5rem;">/</span>
+        <a href="{{ path('app_products') }}" style="color: #3182ce;">Products</a>
+        {% if product.category %}
+        <span style="margin: 0 0.5rem;">/</span>
+        <span style="color: #718096;">{{ product.category.name }}</span>
+        {% endif %}
+        <span style="margin: 0 0.5rem;">/</span>
+        <span style="color: #2d3748;">{{ product.name }}</span>
+    </nav>
+
+    <!-- Product Detail -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 4rem;">
+        <!-- Product Image -->
+        <div>
+            <div style="background: #f7fafc; border-radius: 12px; padding: 2rem; text-align: center;">
+                {% if product.mainImage %}
+                <img src="/uploads/media/{{ product.mainImage.filename }}" 
+                     alt="{{ product.mainImage.alt ?? product.name }}"
+                     style="max-width: 100%; height: auto; border-radius: 8px;">
+                {% else %}
+                <div style="background: #e2e8f0; height: 400px; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                    <span style="color: #a0aec0; font-size: 3rem;">📦</span>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Product Info -->
+        <div>
+            {% if product.isFeatured %}
+            <span style="display: inline-block; background: #f59e0b; color: white; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; margin-bottom: 1rem;">
+                Featured
+            </span>
+            {% endif %}
+
+            <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; color: #1a202c;">
+                {{ product.name }}
+            </h1>
+
+            {% if product.sku %}
+            <p style="color: #718096; margin-bottom: 1rem; font-size: 0.875rem;">
+                SKU: {{ product.sku }}
+            </p>
+            {% endif %}
+
+            <div style="margin-bottom: 1.5rem;">
+                {{ product.grossPrice|price_with_tax(product.taxRate|default(19), (app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en'), true)|raw }}
+            </div>
+
+            <!-- Stock Status -->
+            {% if product.ignoreStock or product.stock > 0 %}
+            <div style="color: #16a34a; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span style="display: inline-block; width: 8px; height: 8px; background: #16a34a; border-radius: 50%;"></span>
+                {% if product.ignoreStock %}
+                In Stock
+                {% else %}
+                {{ product.stock }} available
+                {% endif %}
+            </div>
+            {% else %}
+            <div style="color: #ef4444; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <span style="display: inline-block; width: 8px; height: 8px; background: #ef4444; border-radius: 50%;"></span>
+                Out of Stock
+            </div>
+            {% endif %}
+
+            <!-- Short Description -->
+            {% if product.shortDescription %}
+            <p style="color: #4a5568; line-height: 1.6; margin-bottom: 2rem;">
+                {{ product.shortDescription }}
+            </p>
+            {% endif %}
+
+            <!-- Add to Cart or Request -->
+            {% if product.isRequestOnly %}
+            <div style="margin-bottom: 1.5rem;">
+                <p style="color: #4a5568; margin-bottom: 0.5rem; font-weight: 600;">Contact us at:</p>
+                <p style="color: #059669; font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem;">{{ product.requestEmail }}</p>
+            </div>
+            <a href="mailto:{{ product.requestEmail }}?subject=Product Inquiry: {{ product.name|url_encode }}&body=I am interested in: {{ product.name|url_encode }}"
+               style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%); color: white; padding: 1rem 2rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 1.125rem; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3); transition: all 0.3s ease;">
+                📧 Request Product via Email
+            </a>
+            {% else %}
+            <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                <input type="number" 
+                       id="quantity" 
+                       value="1" 
+                       min="1" 
+                       {% if not product.ignoreStock %}max="{{ product.stock }}"{% endif %}
+                       style="width: 80px; padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 1rem; text-align: center;">
+                
+                <button onclick="addToCart({{ product.id }})"
+                        id="add-to-cart-btn"
+                        {% if not product.ignoreStock and product.stock == 0 %}disabled{% endif %}
+                        class="add-to-cart-button"
+                        style="flex: 1; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.75rem 2rem; border: none; border-radius: 8px; font-weight: 600; font-size: 1.125rem; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3);">
+                    🛒 {{ 'cart.add_to_cart'|trans }}
+                </button>
+            </div>
+            {% endif %}
+
+            <!-- Category & Type -->
+            <div style="padding-top: 2rem; border-top: 1px solid #e2e8f0;">
+                {% if product.category %}
+                <div style="margin-bottom: 0.75rem;">
+                    <span style="color: #718096; font-weight: 600;">Category:</span>
+                    <span style="color: #2d3748;">{{ product.category.name }}</span>
+                </div>
+                {% endif %}
+                <div>
+                    <span style="color: #718096; font-weight: 600;">Type:</span>
+                    <span style="color: #2d3748;">
+                        {% if product.type == 'physical' %}Physical Product
+                        {% elseif product.type == 'virtual' %}Digital Product
+                        {% elseif product.type == 'bundle' %}Bundle
+                        {% else %}{{ product.type|title }}{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Description -->
+    {% if product.description %}
+    <div style="background: #f7fafc; padding: 2rem; border-radius: 12px; margin-bottom: 4rem;">
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #1a202c;">
+            Product Description
+        </h2>
+        <div style="color: #4a5568; line-height: 1.8;">
+            {{ product.description|raw }}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Related Products -->
+    {% if relatedProducts|length > 0 %}
+    <div>
+        <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 2rem; color: #1a202c;">
+            Related Products
+        </h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1.5rem;">
+            {% for related in relatedProducts %}
+            <a href="{{ path('app_product_detail', {slug: related.slug}) }}" 
+               style="text-decoration: none; color: inherit; display: block; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); overflow: hidden; transition: box-shadow 0.2s;">
+                <div style="background: #f7fafc; height: 200px; display: flex; align-items: center; justify-content: center;">
+                    {% if related.mainImage %}
+                    <img src="/uploads/media/{{ related.mainImage.filename }}" 
+                         alt="{{ related.name }}"
+                         style="max-width: 100%; max-height: 100%; object-fit: cover;">
+                    {% else %}
+                    <span style="font-size: 3rem;">📦</span>
+                    {% endif %}
+                </div>
+                <div style="padding: 1rem;">
+                    <h3 style="font-weight: 600; margin-bottom: 0.5rem;">{{ related.name }}</h3>
+                    <p style="font-size: 1.25rem; font-weight: 700; color: #16a34a;">{{ related.grossPrice|price((app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en')) }}</p>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Toast Notification -->
+<div id="toast" style="display: none; position: fixed; bottom: 2rem; right: 2rem; background: #16a34a; color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); z-index: 1000; animation: slideIn 0.3s ease-out;">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <span style="font-size: 1.5rem;">✓</span>
+        <span id="toast-message" style="font-weight: 600;"></span>
+    </div>
+</div>
+
+<script>
+// Translation strings
+const translations = {
+    adding: "{{ 'cart.adding'|trans }}",
+    addToCart: "🛒 {{ 'cart.add_to_cart'|trans }}",
+    addedSuccess: "{{ 'cart.added_success'|trans }}",
+    addedFailed: "{{ 'cart.add_failed'|trans }}",
+    addedError: "{{ 'cart.add_error'|trans }}"
+};
+
+async function addToCart(articleId) {
+    const quantity = parseInt(document.getElementById('quantity').value) || 1;
+    const button = document.getElementById('add-to-cart-btn');
+
+    button.disabled = true;
+    button.textContent = translations.adding;
+
+    try {
+        const response = await fetch('/api/cart/add', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                article_id: articleId,
+                quantity: quantity
+            })
+        });
+
+        const data = await response.json();
+        console.log('Add to cart response:', data);
+
+        if (data.success) {
+            showToast(translations.addedSuccess);
+            // Update cart count in header if exists
+            updateCartCount(data.cart.totals.itemCount);
+            console.log('Cart items:', data.cart.items);
+            console.log('Item count:', data.cart.totals.itemCount);
+            // Redirect to cart after 1 second
+            setTimeout(() => {
+                window.location.href = '/cart';
+            }, 1000);
+        } else {
+            showToast('✗ ' + (data.error || translations.addedFailed), true);
+            button.disabled = false;
+            button.textContent = translations.addToCart;
+        }
+    } catch (error) {
+        showToast(translations.addedError, true);
+        button.disabled = false;
+        button.textContent = translations.addToCart;
+    }
+}
+
+function showToast(message, isError = false) {
+    const toast = document.getElementById('toast');
+    const toastMessage = document.getElementById('toast-message');
+    
+    toast.style.background = isError ? '#ef4444' : '#16a34a';
+    toastMessage.textContent = message;
+    toast.style.display = 'block';
+
+    setTimeout(() => {
+        toast.style.display = 'none';
+    }, 3000);
+}
+
+function updateCartCount(count) {
+    const cartBadges = document.querySelectorAll('#cart-count, #cart-count-mobile');
+    cartBadges.forEach(badge => {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? 'flex' : 'none';
+    });
+}
+</script>
+
+<style>
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.add-to-cart-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, #059669 0%, #047857 100%) !important;
+    box-shadow: 0 6px 12px -2px rgba(16, 185, 129, 0.5) !important;
+    transform: translateY(-2px);
+}
+
+.add-to-cart-button:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.3) !important;
+}
+
+.add-to-cart-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+}
+
+@media (max-width: 768px) {
+    div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+
+<!-- Include Footer -->
+{% include 'components/footer.html.twig' %}
+
+{% endblock %}

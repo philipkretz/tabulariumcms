@@ -1,0 +1,110 @@
+security:
+    password_hashers:
+        Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'auto'
+
+    providers:
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+
+    firewalls:
+        dev:
+            pattern: ^/(_profiler|_wdt|assets|build)/
+            security: false
+
+        setup:
+            pattern: ^/setup
+            security: false
+
+        public_api:
+            pattern: ^/api/(articles/public|cart|checkout|search|products|stores|payment)
+            stateless: true
+            security: false
+
+        webhooks:
+            pattern: ^/webhook/
+            stateless: true
+            security: false
+
+        payment:
+            pattern: ^/payment/
+            stateless: false
+            security: false
+
+        social_api:
+            pattern: ^/api/social/
+            lazy: true
+            provider: app_user_provider
+            stateless: false
+            context: main
+
+        api:
+            pattern: ^/api/
+            stateless: true
+            custom_authenticators:
+                - App\Security\ApiKeyAuthenticator
+
+        admin:
+            pattern: ^/admin
+            lazy: true
+            provider: app_user_provider
+            user_checker: App\Security\AccountLockedChecker
+            entry_point: form_login
+            form_login:
+                login_path: admin_login
+                check_path: admin_login
+                default_target_path: sonata_admin_dashboard
+                always_use_default_target_path: true
+                enable_csrf: true
+            logout:
+                path: app_logout
+                target: app_homepage
+
+        main:
+            lazy: true
+            provider: app_user_provider
+            user_checker: App\Security\AccountLockedChecker
+            context: main
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
+                default_target_path: app_profile
+            logout:
+                path: app_logout
+            remember_me:
+                secret: '%kernel.secret%'
+                lifetime: 604800 # 1 week in seconds
+                path: /
+                always_remember_me: false
+
+    access_control:
+        - { path: ^/setup, roles: PUBLIC_ACCESS }
+        - { path: ^/admin/login, roles: PUBLIC_ACCESS }
+        - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/social, roles: ROLE_USER }
+        - { path: ^/login, roles: PUBLIC_ACCESS }
+        - { path: '^/[a-z]{2}/login', roles: PUBLIC_ACCESS }
+        - { path: ^/register, roles: PUBLIC_ACCESS }
+        - { path: '^/[a-z]{2}/register', roles: PUBLIC_ACCESS }
+        - { path: ^/seller/register, roles: PUBLIC_ACCESS }
+        - { path: ^/seller, roles: ROLE_SELLER }
+        - { path: ^/profile, roles: ROLE_USER }
+        - { path: '^/[a-z]{2}/profile', roles: ROLE_USER }
+        - { path: ^/, roles: PUBLIC_ACCESS }
+
+    role_hierarchy:
+        ROLE_SELLER: ROLE_USER
+        ROLE_ADMIN: ROLE_USER
+        ROLE_SUPER_ADMIN: [ROLE_ADMIN, ROLE_ALLOWED_TO_SWITCH]
+
+when@test:
+    security:
+        password_hashers:
+            # Password hashers are resource-intensive by design to ensure security.
+            # In tests, it's safe to reduce their cost to improve performance.
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4 # Lowest possible value for bcrypt
+                time_cost: 3 # Lowest possible value for argon
+                memory_cost: 10 # Lowest possible value for argon

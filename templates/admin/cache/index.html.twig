@@ -1,0 +1,199 @@
+{% extends '@SonataAdmin/standard_layout.html.twig' %}
+
+{% block title %}Cache Management{% endblock %}
+
+{% block sonata_admin_content %}
+<div class="box box-primary">
+    <div class="box-header with-border">
+        <h3 class="box-title">
+            <i class="fa fa-database"></i> Cache Management
+        </h3>
+    </div>
+
+    <div class="box-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-box bg-aqua">
+                    <span class="info-box-icon"><i class="fa fa-folder-open"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Cache Directory</span>
+                        <span class="info-box-number" style="font-size: 14px;">{{ cache_dir }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="info-box bg-green">
+                    <span class="info-box-icon"><i class="fa fa-hdd-o"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Cache Size</span>
+                        <span class="info-box-number">{{ cache_size_formatted }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-12">
+                <div class="alert alert-info">
+                    <i class="fa fa-info-circle"></i>
+                    <strong>Cache Operations:</strong>
+                    <ul class="mb-0">
+                        <li><strong>Clear Cache:</strong> Removes all cached data. Use this when configuration or code changes are not reflecting.</li>
+                        <li><strong>Warmup Cache:</strong> Pre-generates cache files for optimal performance. Run after clearing cache.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="box box-danger">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Clear Cache</h3>
+                    </div>
+                    <div class="box-body">
+                        <p>Remove all cached files and regenerate on next request.</p>
+                        <button id="clear-cache-btn" class="btn btn-danger btn-lg btn-block">
+                            <i class="fa fa-trash"></i> Clear Cache
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="box box-success">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Warmup Cache</h3>
+                    </div>
+                    <div class="box-body">
+                        <p>Pre-generate cache files for improved performance.</p>
+                        <button id="warmup-cache-btn" class="btn btn-success btn-lg btn-block">
+                            <i class="fa fa-fire"></i> Warmup Cache
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" id="result-container" style="display: none;">
+            <div class="col-md-12">
+                <div class="box">
+                    <div class="box-header with-border">
+                        <h3 class="box-title">Operation Result</h3>
+                    </div>
+                    <div class="box-body">
+                        <div id="result-message"></div>
+                        <pre id="result-output" style="max-height: 300px; overflow-y: auto; background: #f4f4f4; padding: 10px; border-radius: 4px; display: none;"></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .info-box {
+        min-height: 90px;
+        margin-bottom: 15px;
+    }
+    .info-box-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 45px;
+    }
+    #result-message {
+        margin-bottom: 10px;
+    }
+</style>
+
+<script>
+(function() {
+    const clearBtn = document.getElementById('clear-cache-btn');
+    const warmupBtn = document.getElementById('warmup-cache-btn');
+    const resultContainer = document.getElementById('result-container');
+    const resultMessage = document.getElementById('result-message');
+    const resultOutput = document.getElementById('result-output');
+
+    function showLoading(button, text = 'Processing...') {
+        button.disabled = true;
+        button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> ' + text;
+    }
+
+    function resetButton(button, icon, text) {
+        button.disabled = false;
+        button.innerHTML = '<i class="fa fa-' + icon + '"></i> ' + text;
+    }
+
+    function showResult(success, message, output = null) {
+        resultContainer.style.display = 'block';
+
+        if (success) {
+            resultMessage.innerHTML = '<div class="alert alert-success"><i class="fa fa-check-circle"></i> ' + message + '</div>';
+        } else {
+            resultMessage.innerHTML = '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> ' + message + '</div>';
+        }
+
+        if (output) {
+            resultOutput.textContent = output;
+            resultOutput.style.display = 'block';
+        } else {
+            resultOutput.style.display = 'none';
+        }
+
+        resultContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        if (success) {
+            setTimeout(() => location.reload(), 2000);
+        }
+    }
+
+    clearBtn.addEventListener('click', function() {
+        if (!confirm('Are you sure you want to clear the cache? This may temporarily slow down the application.')) {
+            return;
+        }
+
+        showLoading(clearBtn, 'Clearing Cache...');
+
+        fetch('{{ path('admin_cache_clear') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            resetButton(clearBtn, 'trash', 'Clear Cache');
+            showResult(data.success, data.message, data.output);
+        })
+        .catch(error => {
+            resetButton(clearBtn, 'trash', 'Clear Cache');
+            showResult(false, 'Error: ' + error.message);
+        });
+    });
+
+    warmupBtn.addEventListener('click', function() {
+        showLoading(warmupBtn, 'Warming Up Cache...');
+
+        fetch('{{ path('admin_cache_warmup') }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            resetButton(warmupBtn, 'fire', 'Warmup Cache');
+            showResult(data.success, data.message, data.output);
+        })
+        .catch(error => {
+            resetButton(warmupBtn, 'fire', 'Warmup Cache');
+            showResult(false, 'Error: ' + error.message);
+        });
+    });
+})();
+</script>
+{% endblock %}

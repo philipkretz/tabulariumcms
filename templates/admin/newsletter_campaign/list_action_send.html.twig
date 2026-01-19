@@ -1,0 +1,7 @@
+{% if object.isDraft %}
+<a class="btn btn-sm btn-success" href="{{ admin.generateObjectUrl('send', object) }}"
+   onclick="return confirm('Are you sure you want to send this campaign to all subscribers? This action cannot be undone.');"
+   title="Send to All Subscribers">
+    <i class="fa fa-paper-plane"></i> Send Now
+</a>
+{% endif %}

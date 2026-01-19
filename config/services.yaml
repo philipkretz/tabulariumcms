@@ -1,0 +1,393 @@
+parameters:
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    App\:
+        resource: '../src/'
+
+    # Service definitions
+    App\Service\LanguageService:
+        arguments:
+            $languageRepository: '@App\Repository\LanguageRepository'
+            $siteSettingsRepository: '@App\Repository\SiteSettingsRepository'
+            $entityManager: '@doctrine.orm.default_entity_manager'
+            $cache: '@cache.app'
+
+    App\Service\TemplateService:
+        arguments:
+            $templateRepository: '@App\Repository\TemplateRepository'
+            $menuRepository: '@App\Repository\MenuRepository'
+            $pageRepository: '@App\Repository\PageRepository'
+            $postRepository: '@App\Repository\PostRepository'
+            $commentRepository: '@App\Repository\CommentRepository'
+            $entityManager: '@doctrine.orm.default_entity_manager'
+            $urlGenerator: '@router.default'
+            $translator: '@translator'
+
+    App\Service\EncryptionService:
+        arguments:
+            $appSecret: '%env(APP_SECRET)%'
+
+    # TEMPORARILY DISABLED - Debugging Twig timeout
+    # App\Twig\AppExtension:
+    #     tags: ['twig.extension']
+    #     arguments:
+    #         $languageService: '@App\Service\LanguageService'
+    #         $templateService: '@App\Service\TemplateService'
+
+    # Sonata Admin classes
+    admin.theme:
+        class: App\Admin\ThemeAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Theme, controller: App\Controller\Admin\ThemeAdminController, manager_type: orm, label: Theme, group: Administration }
+        public: true
+
+    admin.category:
+        class: App\Admin\CategoryAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Category, manager_type: orm, label: Category, group: Administration }
+        public: true
+
+    admin.language:
+        class: App\Admin\LanguageAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Language, manager_type: orm, label: Language, group: Administration }
+        public: true
+
+    admin.seourl:
+        class: App\Admin\SeoUrlAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\SeoUrl, manager_type: orm, label: 'SEO URL', group: Administration }
+        public: true
+
+    admin.sitesettings:
+        class: App\Admin\SiteSettingsAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\SiteSettings, manager_type: orm, label: "Site Settings", group: Administration }
+        public: true
+
+    admin.cookiebanner:
+        class: App\Admin\CookieBannerAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\CookieBanner, manager_type: orm, label: "Cookie Banner", group: Communication }
+        public: true
+
+    admin.newsletter:
+        class: App\Admin\NewsletterAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Newsletter, manager_type: orm, label: Newsletter, group: Communication }
+        public: true
+
+    admin.newsletter_campaign:
+        class: App\Admin\NewsletterCampaignAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\NewsletterCampaign, manager_type: orm, label: "Newsletter Campaigns", group: Communication }
+        public: true
+
+    admin.emailtemplate:
+        class: App\Admin\EmailTemplateAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\EmailTemplate, manager_type: orm, label: "Email Templates", group: CMS }
+        public: true
+
+    admin.email_log:
+        class: App\Admin\EmailLogAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\EmailLog, manager_type: orm, label: "Email Log", group: CMS }
+        public: true
+
+    admin.user:
+        class: App\Admin\UserAdmin
+        arguments:
+            - '@security.user_password_hasher'
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\User, manager_type: orm, label: User, group: Administration }
+        public: true
+
+    admin.media:
+        class: App\Admin\MediaAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Media, manager_type: orm, label: Media, group: Administration }
+        public: true
+
+    admin.address:
+        class: App\Admin\AddressAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Address, manager_type: orm, label: Address, group: Administration }
+        public: true
+
+    # Removed - consolidated into admin.template below
+
+    admin.page:
+        class: App\Admin\PageAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Page, manager_type: orm, label: Page, group: Administration }
+        public: true
+
+    admin.post:
+        class: App\Admin\PostAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Post, manager_type: orm, label: Post, group: Administration }
+        public: true
+
+    admin.comment:
+        class: App\Admin\CommentAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Comment, manager_type: orm, label: Comment, group: Administration }
+        public: true
+
+    admin.menu:
+        class: App\Admin\MenuAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Menu, manager_type: orm, label: Menu, group: Administration }
+        public: true
+
+    admin.menu_item:
+        class: App\Admin\MenuItemAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\MenuItem, manager_type: orm, label: 'Menu Item', group: Administration }
+        public: true
+
+    admin.translation:
+        class: App\Admin\TranslationAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Translation, manager_type: orm, label: Translation, group: Administration }
+        public: true
+
+    admin.booking:
+        class: App\Admin\BookingAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Booking, manager_type: orm, label: Bookings, group: ECommerce }
+        public: true
+
+    admin.site_settings:
+        class: App\Admin\SiteSettingsAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\SiteSettings, manager_type: orm, label: 'Site Settings', group: Administration }
+        public: true
+
+    # Repository services
+    App\Repository\LanguageRepository:
+        arguments:
+            - '@doctrine'
+
+    App\Repository\TemplateRepository:
+        arguments:
+            - '@doctrine'
+
+    App\Repository\SiteSettingsRepository:
+        arguments:
+            - '@doctrine'
+
+    # LocaleSubscriber - Symfony event subscriber (not Doctrine)
+    App\EventSubscriber\LocaleSubscriber:
+        arguments:
+            $defaultLocale: '%kernel.default_locale%'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    # LocaleRedirectSubscriber - Redirects to localized URLs based on user preference
+    App\EventSubscriber\LocaleRedirectSubscriber:
+        tags:
+            - { name: kernel.event_subscriber }
+
+    # MediaUploadListener - Handles file uploads for Media entity
+    App\EventListener\MediaUploadListener:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    # Setup Wizard Services
+    App\Service\InstallationChecker:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    App\Service\SetupService:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    App\Controller\SetupController:
+        arguments:
+            $projectDir: '%kernel.project_dir%'
+
+    # MenuExtension - Twig functions for menu rendering
+    App\Twig\MenuExtension:
+        arguments:
+            - '@App\Service\MenuService'
+        tags:
+            - { name: twig.extension }
+
+    # E-Commerce Admin Services
+    admin.article_translation:
+        class: App\Admin\ArticleTranslationAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\ArticleTranslation, manager_type: orm, label: 'Article Translations', show_in_dashboard: false }
+        public: true
+
+    admin.article_variant:
+        class: App\Admin\ArticleVariantAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\ArticleVariant, manager_type: orm, label: 'Article Variants', show_in_dashboard: false }
+        public: true
+
+    admin.article:
+        class: App\Admin\ArticleAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Article, manager_type: orm, label: Articles, group: ECommerce }
+        calls:
+            - [addChild, ['@admin.article_translation', 'translations']]
+            - [addChild, ['@admin.article_variant', 'variants']]
+        public: true
+
+    admin.order:
+        class: App\Admin\OrderAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Order, manager_type: orm, label: Orders, group: ECommerce }
+        calls:
+            - [addChild, ['@admin.order_item', 'order']]
+        public: true
+
+    admin.order_item:
+        class: App\Admin\OrderItemAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\OrderItem, manager_type: orm, label: 'Order Items', show_in_dashboard: false }
+        public: true
+
+    admin.store:
+        class: App\Admin\StoreAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Store, manager_type: orm, label: Stores, group: ECommerce }
+        public: true
+
+    admin.product_stock:
+        class: App\Admin\ProductStockAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\ProductStock, manager_type: orm, label: 'Product Stock', group: ECommerce }
+        public: true
+
+    admin.shipping_method:
+        class: App\Admin\ShippingMethodAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\ShippingMethod, manager_type: orm, label: 'Shipping Methods', group: ECommerce }
+        public: true
+
+    admin.payment_method:
+        class: App\Admin\PaymentMethodAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\PaymentMethod, manager_type: orm, label: 'Payment Methods', group: ECommerce }
+        public: true
+
+    admin.voucher_code:
+        class: App\Admin\VoucherCodeAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\VoucherCode, manager_type: orm, label: 'Voucher Codes', group: ECommerce }
+        public: true
+
+    # API Admin Services
+    admin.api_key:
+        class: App\Admin\ApiKeyAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\ApiKey, manager_type: orm, label: 'API Keys', group: API }
+        public: true
+
+    # Template Management (CMS, E-Commerce, User, Seller)
+    admin.template:
+        class: App\Admin\FrontendTemplateAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\FrontendTemplate, manager_type: orm, label: Templates, group: CMS, code: admin.template }
+        public: true
+
+    # Seller Management
+    admin.seller:
+        class: App\Admin\SellerAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\Seller, manager_type: orm, label: Sellers, group: ECommerce }
+        public: true
+
+    # Tax Rates
+    admin.tax_rate:
+        class: App\Admin\TaxRateAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\TaxRate, manager_type: orm, label: 'Tax Rates', group: ECommerce }
+        public: true
+
+    admin.customer_review:
+        class: App\Admin\CustomerReviewAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\CustomerReview, controller: App\Controller\Admin\CustomerReviewAdminController, manager_type: orm, label: 'Customer Reviews', group: ECommerce }
+        public: true
+
+    # Activity Log
+    admin.activity_log:
+        class: App\Admin\ActivityLogAdmin
+        tags:
+            - { name: sonata.admin, model_class: App\Entity\ActivityLog, manager_type: orm, label: 'Activity Log', group: System }
+        public: true
+
+    App\Service\AiContentGeneratorService:
+        arguments:
+            $openaiApiKey: '%env(OPENAI_API_KEY)%'
+
+    App\Service\AgentToolsService:
+        arguments:
+            $entityManager: '@doctrine.orm.default_entity_manager'
+            $pageRepository: '@App\Repository\PageRepository'
+            $postRepository: '@App\Repository\PostRepository'
+            $articleRepository: '@App\Repository\ArticleRepository'
+            $userRepository: '@App\Repository\UserRepository'
+            $orderRepository: '@App\Repository\OrderRepository'
+            $categoryRepository: '@App\Repository\CategoryRepository'
+            $mailer: '@mailer'
+
+    App\Service\AgentExecutorService:
+        arguments:
+            $httpClient: '@http_client'
+            $toolsService: '@App\Service\AgentToolsService'
+            $entityManager: '@doctrine.orm.default_entity_manager'
+            $logger: '@logger'
+            $openaiApiKey: '%env(OPENAI_API_KEY)%'
+
+    # Elasticsearch Services
+    App\Command\ElasticsearchPopulateCommand:
+        arguments:
+            $indexManager: '@fos_elastica.index_manager'
+            $articlePersister: '@fos_elastica.object_persister.articles'
+            $postPersister: '@fos_elastica.object_persister.posts'
+            $pagePersister: '@fos_elastica.object_persister.pages'
+            $categoryPersister: '@fos_elastica.object_persister.categories'
+            $articleRepository: '@App\Repository\ArticleRepository'
+            $postRepository: '@App\Repository\PostRepository'
+            $pageRepository: '@App\Repository\PageRepository'
+            $categoryRepository: '@App\Repository\CategoryRepository'
+
+    App\Service\SearchService:
+        arguments:
+            $articlesFinder: '@fos_elastica.finder.articles'
+            $postsFinder: '@fos_elastica.finder.posts'
+            $pagesFinder: '@fos_elastica.finder.pages'
+            $categoriesFinder: '@fos_elastica.finder.categories'
+            $urlGenerator: '@router.default'
+
+    # Admin Menu Event Listener
+    App\EventListener\AdminMenuListener:
+        arguments:
+            $urlGenerator: '@router.default'
+            $siteSettingsRepository: '@App\Repository\SiteSettingsRepository'
+        tags:
+            - { name: kernel.event_listener, event: sonata.admin.event.configure.menu.sidebar, method: addMenuItems }
+
+    # Payment Services
+    App\Service\Payment\StripePaymentService:
+        arguments:
+            $stripeSecretKey: '%env(STRIPE_SECRET_KEY)%'
+            $stripePublicKey: '%env(STRIPE_PUBLIC_KEY)%'
+            $urlGenerator: '@router.default'
+
+    App\Service\Payment\PayPalPaymentService:
+        arguments:
+            $paypalClientId: '%env(PAYPAL_CLIENT_ID)%'
+            $paypalClientSecret: '%env(PAYPAL_CLIENT_SECRET)%'
+            $paypalSandbox: '%env(bool:PAYPAL_SANDBOX)%'
+            $urlGenerator: '@router.default'

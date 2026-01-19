@@ -1,0 +1,167 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ post.metaTitle ?? post.title }} - {{ parent() }}{% endblock %}
+
+{% block meta_description %}{{ post.metaDescription ?? (post.content|striptags|slice(0, 160)) }}{% endblock %}
+{% block meta_keywords %}{{ post.metaKeywords is iterable ? post.metaKeywords|join(', ') : (post.metaKeywords ?? '') }}{% endblock %}
+{% block meta_author %}{{ post.author }}{% endblock %}
+
+{% block og_title %}{{ post.metaTitle ?? post.title }}{% endblock %}
+{% block og_description %}{{ post.metaDescription ?? (post.content|striptags|slice(0, 160)) }}{% endblock %}
+{% block og_type %}article{% endblock %}
+{% if post.featuredImage %}
+    {% block og_image %}{{ app.request.schemeAndHttpHost ~ post.featuredImage.path }}{% endblock %}
+{% endif %}
+
+{% block twitter_title %}{{ post.metaTitle ?? post.title }}{% endblock %}
+{% block twitter_description %}{{ post.metaDescription ?? (post.content|striptags|slice(0, 160)) }}{% endblock %}
+{% if post.featuredImage %}
+    {% block twitter_image %}{{ app.request.schemeAndHttpHost ~ post.featuredImage.path }}{% endblock %}
+{% endif %}
+
+{% block structured_data %}
+    {{ parent() }}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "BlogPosting",
+        "headline": "{{ post.title|e('js') }}",
+        "description": "{{ post.metaDescription|default(post.content|striptags|slice(0, 160))|e('js') }}",
+        "author": {
+            "@type": "Person",
+            "name": "{{ post.author|e('js') }}"
+        },
+        "datePublished": "{{ (post.publishedAt ?? post.createdAt)|date('c') }}",
+        "dateModified": "{{ post.updatedAt|date('c') }}",
+        {% if post.featuredImage %}
+        "image": "{{ app.request.schemeAndHttpHost ~ post.featuredImage.path }}",
+        {% endif %}
+        "publisher": {
+            "@type": "Organization",
+            "name": "TabulariumCMS",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "{{ app.request.schemeAndHttpHost }}{{ asset('tabulariumcms.png') }}"
+            }
+        },
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "{{ app.request.uri }}"
+        },
+        "commentCount": {{ comments|length }},
+        "inLanguage": "{{ (app.request.locale is iterable ? app.request.locale|first : app.request.locale)|default('en') }}"
+    }
+    </script>
+{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8 max-w-4xl">
+    <article class="prose lg:prose-xl mx-auto" itemscope itemtype="https://schema.org/BlogPosting">
+        <header class="mb-8">
+            <h1 class="text-4xl font-bold mb-4" itemprop="headline">{{ post.title }}</h1>
+            <div class="text-gray-600 text-sm mb-4">
+                <i class="fas fa-user mr-2"></i>
+                <span itemprop="author" itemscope itemtype="https://schema.org/Person">
+                    <span itemprop="name">{{ post.author }}</span>
+                </span>
+                <i class="fas fa-calendar ml-4 mr-2"></i>
+                <time datetime="{{ (post.publishedAt ?? post.createdAt)|date('c') }}" itemprop="datePublished">
+                    {{ post.publishedAt ? post.publishedAt|date('F j, Y') : post.createdAt|date('F j, Y') }}
+                </time>
+                <meta itemprop="dateModified" content="{{ post.updatedAt|date('c') }}">
+            </div>
+        </header>
+
+        <div class="content mb-12" itemprop="articleBody">
+            {{ post.content|raw }}
+        </div>
+    </article>
+
+    <!-- Comments Section -->
+    <div class="max-w-4xl mx-auto mt-12 border-t pt-8">
+        <h2 class="text-2xl font-bold mb-6">
+            <i class="fas fa-comments mr-2"></i>
+            Comments ({{ comments|length }})
+        </h2>
+
+        {% if comment_submitted %}
+            <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6">
+                <i class="fas fa-check-circle mr-2"></i>
+                Your comment has been submitted and is awaiting moderation.
+            </div>
+        {% endif %}
+
+        {% if error %}
+            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+                {{ error }}
+            </div>
+        {% endif %}
+
+        <!-- Comment Form -->
+        {% if app.user %}
+            <div class="bg-gray-50 rounded-lg p-6 mb-8">
+                <h3 class="text-lg font-semibold mb-4">Leave a Comment</h3>
+                <form method="post" action="{{ path('app_post', {slug: post.slug}) }}">
+                    <textarea name="comment_content" 
+                              rows="4" 
+                              class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                              placeholder="Share your thoughts..." 
+                              required></textarea>
+                    <div class="mt-4 flex justify-between items-center">
+                        <p class="text-sm text-gray-600">
+                            Commenting as <strong>{{ app.user.username }}</strong>
+                        </p>
+                        <button type="submit" 
+                                class="bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                            <i class="fas fa-paper-plane mr-2"></i>
+                            Post Comment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        {% else %}
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8 text-center">
+                <p class="text-gray-700">
+                    <i class="fas fa-info-circle mr-2"></i>
+                    Please <a href="{{ path('app_login') }}" class="text-indigo-600 hover:underline">sign in</a> 
+                    or <a href="{{ path('app_register') }}" class="text-indigo-600 hover:underline">register</a> 
+                    to leave a comment.
+                </p>
+            </div>
+        {% endif %}
+
+        <!-- Comments List -->
+        {% if comments|length > 0 %}
+            <div class="space-y-6">
+                {% for comment in comments %}
+                    <div class="bg-white border border-gray-200 rounded-lg p-6">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0">
+                                <div class="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-user text-indigo-600"></i>
+                                </div>
+                            </div>
+                            <div class="ml-4 flex-1">
+                                <div class="flex items-center justify-between">
+                                    <h4 class="text-sm font-semibold text-gray-900">
+                                        {{ comment.author.username }}
+                                    </h4>
+                                    <p class="text-sm text-gray-500">
+                                        {{ comment.createdAt|date('M j, Y g:i A') }}
+                                    </p>
+                                </div>
+                                <p class="mt-2 text-gray-700">{{ comment.content }}</p>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="text-gray-500 text-center py-8">
+                <i class="fas fa-comment-slash mr-2"></i>
+                No comments yet. Be the first to comment!
+            </p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

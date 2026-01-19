@@ -1,0 +1,295 @@
+{% extends '@SonataAdmin/standard_layout.html.twig' %}
+
+{% block title %}Email Settings - System Email Management{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .email-settings-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+        }
+        .email-group-card {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        .email-group-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+        }
+        .email-template-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #f0f0f0;
+            transition: background 0.2s ease;
+        }
+        .email-template-item:hover {
+            background: #f8f9fa;
+        }
+        .email-template-item:last-child {
+            border-bottom: none;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #ccc;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .toggle-switch.active {
+            background: #28a745;
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+        .toggle-switch.active::after {
+            transform: translateX(30px);
+        }
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .group-toggle-btn {
+            margin-left: auto;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="email-settings-header">
+            <h1><i class="fas fa-envelope-open-text me-3"></i>Email Settings</h1>
+            <p class="mb-0">Manage and control all system email notifications</p>
+        </div>
+
+        {# Global Controls #}
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="mb-2"><i class="fas fa-power-off me-2"></i>Global Email Control</h3>
+                        <p class="text-muted mb-0">Enable or disable all email notifications with one click</p>
+                    </div>
+                    <div class="col-md-4 text-end">
+                        <button id="toggle-all-btn" class="btn btn-lg btn-success" onclick="toggleAllEmails()">
+                            <i class="fas fa-check-circle me-2"></i>
+                            Enable All Emails
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Statistics #}
+        <div class="row mb-4" id="statistics">
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                    <div class="stats-number" id="total-count">{{ emailTemplates|length }}</div>
+                    <div class="text-muted">Total Templates</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                    <div class="stats-number text-success" id="active-count">
+                        {% set active = 0 %}
+                        {% for template in emailTemplates %}
+                            {% if template.isActive %}{% set active = active + 1 %}{% endif %}
+                        {% endfor %}
+                        {{ active }}
+                    </div>
+                    <div class="text-muted">Active</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stats-card">
+                    <i class="fas fa-times-circle fa-3x text-danger mb-3"></i>
+                    <div class="stats-number text-danger" id="inactive-count">{{ emailTemplates|length - active }}</div>
+                    <div class="text-muted">Inactive</div>
+                </div>
+            </div>
+        </div>
+
+        {# Email Templates by Group #}
+        <div class="row">
+            {% set groups = {} %}
+            {% for template in emailTemplates %}
+                {% set prefix = template.slug|split('-')[0] %}
+                {% if groups[prefix] is not defined %}
+                    {% set groups = groups|merge({(prefix): []}) %}
+                {% endif %}
+                {% set groups = groups|merge({(prefix): groups[prefix]|merge([template])}) %}
+            {% endfor %}
+
+            {% for groupName, templates in groups %}
+                <div class="col-md-6">
+                    <div class="email-group-card">
+                        <div class="d-flex align-items-center mb-3">
+                            <h4 class="mb-0">
+                                <i class="fas fa-folder me-2 text-primary"></i>
+                                {{ groupName|capitalize }} Emails
+                                <span class="badge bg-secondary ms-2">{{ templates|length }}</span>
+                            </h4>
+                            <button class="btn btn-sm btn-outline-primary group-toggle-btn" onclick="toggleGroup('{{ groupName }}', true)">
+                                <i class="fas fa-check-circle me-1"></i> Enable Group
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary ms-2" onclick="toggleGroup('{{ groupName }}', false)">
+                                <i class="fas fa-times-circle me-1"></i> Disable Group
+                            </button>
+                        </div>
+
+                        {% for template in templates %}
+                            <div class="email-template-item" id="template-{{ template.id }}">
+                                <div>
+                                    <strong>{{ template.name }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ template.slug }}</small>
+                                </div>
+                                <div class="toggle-switch {% if template.isActive %}active{% endif %}"
+                                     data-template-id="{{ template.id }}"
+                                     onclick="toggleTemplate({{ template.id }})">
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <script>
+        // Toggle all emails
+        function toggleAllEmails() {
+            const btn = document.getElementById('toggle-all-btn');
+            const isEnabling = btn.classList.contains('btn-success');
+
+            fetch('{{ path('admin_email_settings_toggle_all') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enabled: isEnabling })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update button
+                    if (isEnabling) {
+                        btn.classList.replace('btn-success', 'btn-danger');
+                        btn.innerHTML = '<i class="fas fa-times-circle me-2"></i>Disable All Emails';
+                    } else {
+                        btn.classList.replace('btn-danger', 'btn-success');
+                        btn.innerHTML = '<i class="fas fa-check-circle me-2"></i>Enable All Emails';
+                    }
+
+                    // Update all toggles
+                    document.querySelectorAll('.toggle-switch').forEach(toggle => {
+                        if (isEnabling) {
+                            toggle.classList.add('active');
+                        } else {
+                            toggle.classList.remove('active');
+                        }
+                    });
+
+                    updateStatistics();
+                    showNotification(data.message, 'success');
+                }
+            });
+        }
+
+        // Toggle individual template
+        function toggleTemplate(templateId) {
+            fetch(`{{ path('admin_email_settings_toggle_template', {id: 'TEMPLATE_ID'}) }}`.replace('TEMPLATE_ID', templateId), {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const toggle = document.querySelector(`[data-template-id="${templateId}"]`);
+                    toggle.classList.toggle('active');
+                    updateStatistics();
+                    showNotification(data.message, 'success');
+                }
+            });
+        }
+
+        // Toggle group
+        function toggleGroup(group, enabled) {
+            fetch('{{ path('admin_email_settings_toggle_group') }}', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ group: group, enabled: enabled })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Find all toggles in this group and update them
+                    document.querySelectorAll('.email-template-item').forEach(item => {
+                        const slug = item.querySelector('small').textContent;
+                        if (slug.startsWith(group + '-')) {
+                            const toggle = item.querySelector('.toggle-switch');
+                            if (enabled) {
+                                toggle.classList.add('active');
+                            } else {
+                                toggle.classList.remove('active');
+                            }
+                        }
+                    });
+
+                    updateStatistics();
+                    showNotification(data.message, 'success');
+                }
+            });
+        }
+
+        // Update statistics
+        function updateStatistics() {
+            fetch('{{ path('admin_email_settings_statistics') }}')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('active-count').textContent = data.active;
+                    document.getElementById('inactive-count').textContent = data.inactive;
+                });
+        }
+
+        // Show notification
+        function showNotification(message, type) {
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+            alert.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+            alert.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(alert);
+
+            setTimeout(() => alert.remove(), 3000);
+        }
+    </script>
+{% endblock %}

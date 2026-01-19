@@ -1,0 +1,46 @@
+<!-- Step 1: Welcome & Requirements Check -->
+<div class="accordion-section active bg-white rounded-2xl shadow-lg border-2 border-yellow-500 mb-6" data-step="1">
+    <div class="accordion-header bg-gradient-to-r from-yellow-600 via-yellow-500 to-yellow-600 text-white p-4 rounded-t-xl cursor-pointer flex justify-between items-center">
+        <div class="flex items-center">
+            <span class="text-2xl mr-3">1</span>
+            <h2 class="text-xl font-bold">{{ 'setup.steps.welcome'|trans }}</h2>
+        </div>
+        <i class="fas fa-chevron-down transition-transform"></i>
+    </div>
+    <div class="accordion-body p-6">
+        <div class="mb-6">
+            <h3 class="text-lg font-bold mb-2">{{ 'setup.welcome_title'|trans }}</h3>
+            <p class="text-gray-600">{{ 'setup.welcome_description'|trans }}</p>
+        </div>
+
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle text-blue-600 mt-1 mr-3"></i>
+                <div>
+                    <h4 class="font-semibold text-blue-800">{{ 'setup.before_you_begin'|trans }}</h4>
+                    <ul class="text-blue-700 text-sm mt-2 space-y-1">
+                        <li>{{ 'setup.requirement_database'|trans }}</li>
+                        <li>{{ 'setup.requirement_credentials'|trans }}</li>
+                        <li>{{ 'setup.requirement_email'|trans }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-lg font-bold mb-4">{{ 'setup.system_requirements'|trans }}</h3>
+        <div id="requirements-container" class="mb-6">
+            <p class="text-gray-500 text-center py-4">{{ 'setup.click_check_requirements'|trans }}</p>
+        </div>
+
+        <div class="flex gap-4">
+            <button id="check-requirements-btn" onclick="checkRequirements()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition">
+                <i class="fas fa-search mr-2"></i> {{ 'setup.check_requirements'|trans }}
+            </button>
+            <button id="step1-next-btn" onclick="markStepCompleted(1); openStep(2);" disabled
+                    class="flex-1 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-3 px-6 rounded-lg transition opacity-50 cursor-not-allowed">
+                {{ 'setup.continue'|trans }} <i class="fas fa-arrow-right ml-2"></i>
+            </button>
+        </div>
+    </div>
+</div>

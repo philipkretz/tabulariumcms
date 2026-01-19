@@ -1,0 +1,135 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ 'auth.register.title'|trans }} - {{ parent() }}{% endblock %}
+
+{% block meta_tags %}
+<meta name="description" content="{{ 'auth.register.meta_description'|trans }}">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="{{ url('app_register') }}">
+
+{# Open Graph #}
+<meta property="og:title" content="{{ 'auth.register.title'|trans }}">
+<meta property="og:description" content="{{ 'auth.register.og_description'|trans }}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ url('app_register') }}">
+
+{# Twitter Card #}
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="{{ 'auth.register.title'|trans }}">
+<meta name="twitter:description" content="{{ 'auth.register.og_description'|trans }}">
+
+{# Schema.org Structured Data #}
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "User Registration",
+    "description": "Create a new user account",
+    "url": "{{ url('app_register') }}",
+    "potentialAction": {
+        "@type": "RegisterAction",
+        "target": {
+            "@type": "EntryPoint",
+            "urlTemplate": "{{ url('app_register') }}"
+        }
+    }
+}
+</script>
+{% endblock %}
+
+{% block body %}
+<section class="user-registration py-16 bg-gradient-to-br from-blue-50 via-white to-purple-50 min-h-screen flex items-center"
+         itemscope itemtype="https://schema.org/WebPage">
+    <div class="container mx-auto px-4 max-w-md">
+        <article class="bg-white rounded-2xl shadow-2xl p-8" itemscope itemtype="https://schema.org/RegisterAction">
+            <header class="text-center mb-8">
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">{{ 'auth.register.heading'|trans }}</h1>
+                <p class="text-gray-600">{{ 'auth.register.subheading'|trans }}</p>
+            </header>
+
+            {% for message in app.flashes('error') %}
+                <div class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 mb-4 rounded" role="alert" aria-live="polite">
+                    <p class="font-medium">{{ message }}</p>
+                </div>
+            {% endfor %}
+
+            {% for message in app.flashes('success') %}
+                <div class="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 mb-4 rounded" role="alert" aria-live="polite">
+                    <p class="font-medium">{{ message }}</p>
+                </div>
+            {% endfor %}
+
+            <form action="{{ path('app_register') }}" method="POST" class="space-y-6" aria-label="{{ 'auth.register.form_aria_label'|trans }}">
+                <div>
+                    <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ 'auth.field.email'|trans }} <span class="text-red-500" aria-label="{{ 'common.required'|trans }}">*</span>
+                    </label>
+                    <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        required
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                        placeholder="{{ 'auth.field.email_placeholder'|trans }}"
+                        aria-required="true"
+                        autocomplete="email"
+                    >
+                </div>
+
+                <div>
+                    <label for="password" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ 'auth.field.password'|trans }} <span class="text-red-500" aria-label="{{ 'common.required'|trans }}">*</span>
+                    </label>
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        required
+                        minlength="8"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                        placeholder="{{ 'auth.field.password_placeholder'|trans }}"
+                        aria-required="true"
+                        aria-describedby="password-help"
+                        autocomplete="new-password"
+                    >
+                    <p id="password-help" class="text-xs text-gray-500 mt-1">
+                        <i class="fa fa-info-circle"></i> {{ 'auth.field.password_help'|trans }}
+                    </p>
+                </div>
+
+                <div>
+                    <label for="password_confirm" class="block text-sm font-medium text-gray-700 mb-2">
+                        {{ 'auth.field.password_confirm'|trans }} <span class="text-red-500" aria-label="{{ 'common.required'|trans }}">*</span>
+                    </label>
+                    <input
+                        type="password"
+                        id="password_confirm"
+                        name="password_confirm"
+                        required
+                        minlength="8"
+                        class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                        placeholder="{{ 'auth.field.password_confirm_placeholder'|trans }}"
+                        aria-required="true"
+                        autocomplete="new-password"
+                    >
+                </div>
+
+                <button
+                    type="submit"
+                    class="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-300 transition duration-300 transform hover:scale-105"
+                    aria-label="{{ 'auth.register.button_aria_label'|trans }}"
+                >
+                    <i class="fa fa-user-plus mr-2"></i> {{ 'auth.register.button'|trans }}
+                </button>
+            </form>
+
+            <footer class="mt-6 text-center text-sm text-gray-600">
+                {{ 'auth.register.already_have_account'|trans }}
+                <a href="{{ path('app_login') }}" class="text-blue-600 hover:text-blue-800 font-medium hover:underline">
+                    {{ 'auth.register.sign_in_link'|trans }}
+                </a>
+            </footer>
+        </article>
+    </div>
+</section>
+{% endblock %}

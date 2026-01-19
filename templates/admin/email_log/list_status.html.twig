@@ -1,0 +1,32 @@
+{% extends '@SonataAdmin/CRUD/base_list_field.html.twig' %}
+
+{% block field %}
+    {% set status = object.status %}
+    {% set badgeClass = 'secondary' %}
+    {% set icon = 'fa-question' %}
+
+    {% if status == 'sent' %}
+        {% set badgeClass = 'success' %}
+        {% set icon = 'fa-check-circle' %}
+    {% elseif status == 'failed' %}
+        {% set badgeClass = 'danger' %}
+        {% set icon = 'fa-times-circle' %}
+    {% elseif status == 'pending' %}
+        {% set badgeClass = 'warning' %}
+        {% set icon = 'fa-clock' %}
+    {% elseif status == 'bounced' %}
+        {% set badgeClass = 'dark' %}
+        {% set icon = 'fa-exclamation-triangle' %}
+    {% endif %}
+
+    <span class="badge badge-{{ badgeClass }}" title="{{ status|capitalize }}">
+        <i class="fas {{ icon }} me-1"></i>
+        {{ status|capitalize }}
+    </span>
+
+    {% if object.errorMessage %}
+        <i class="fas fa-info-circle text-danger ms-2"
+           title="{{ object.errorMessage }}"
+           data-toggle="tooltip"></i>
+    {% endif %}
+{% endblock %}

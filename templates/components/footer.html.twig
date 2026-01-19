@@ -1,0 +1,83 @@
+<!-- Footer -->
+<footer class="bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 text-amber-900 mt-16 shadow-lg border-t border-amber-300">
+    <div class="container mx-auto px-4 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <!-- About Section -->
+            <div>
+                <h3 class="text-xl font-bold mb-4 flex items-center">
+                    <img src="{{ asset('tabulariumcms.png') }}" alt="TabulariumCMS" class="h-8 w-8 mr-2 rounded">
+                    TabulariumCMS
+                </h3>
+                <p class="text-amber-800 text-sm">
+                    Professional CMS platform for content management, e-commerce, and digital experiences.
+                </p>
+            </div>
+
+            <!-- Footer Menu Sections (parent items with children) -->
+            {% if footerMenu is defined and footerMenu %}
+                {% set parentItems = footerMenu.menuItems|filter(item => item.active and item.parent is null)|sort((a, b) => a.sortOrder <=> b.sortOrder) %}
+                {% for parentItem in parentItems %}
+                    <div>
+                        <h4 class="text-lg font-semibold mb-4">{{ parentItem.title }}</h4>
+                        {% set children = parentItem.children|filter(child => child.active)|sort((a, b) => a.sortOrder <=> b.sortOrder) %}
+                        {% if children|length > 0 %}
+                            <ul class="space-y-2">
+                                {% for child in children %}
+                                    <li>
+                                        <a href="{{ child.effectiveUrl ?? '#' }}"
+                                           class="text-amber-700 hover:text-amber-900 transition text-sm{% if child.cssClass %} {{ child.cssClass }}{% endif %}"
+                                           {% if child.openInNewTab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                                            {% if child.icon %}<i class="{{ child.icon }} mr-1"></i>{% endif %}
+                                            {{ child.title }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            {# If no children, show the parent as a link #}
+                            <a href="{{ parentItem.effectiveUrl ?? '#' }}"
+                               class="text-amber-700 hover:text-amber-900 transition text-sm"
+                               {% if parentItem.openInNewTab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                                {% if parentItem.icon %}<i class="{{ parentItem.icon }} mr-1"></i>{% endif %}
+                                View {{ parentItem.title }}
+                            </a>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            {% else %}
+                <!-- Contact Info (fallback if no footer menu) -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Contact</h4>
+                    <ul class="space-y-2 text-amber-800 text-sm">
+                        <li><i class="fas fa-envelope mr-2"></i>info@tabulariumcms.com</li>
+                        <li><i class="fas fa-phone mr-2"></i>+1 234 567 890</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i>123 CMS Street, Web City</li>
+                    </ul>
+                </div>
+
+                <!-- Social Links -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-4">Follow Us</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-amber-700 hover:text-amber-900 transition">
+                            <i class="fab fa-facebook-f text-xl"></i>
+                        </a>
+                        <a href="#" class="text-amber-700 hover:text-amber-900 transition">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-amber-700 hover:text-amber-900 transition">
+                            <i class="fab fa-linkedin-in text-xl"></i>
+                        </a>
+                        <a href="#" class="text-amber-700 hover:text-amber-900 transition">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="border-t border-amber-300 mt-8 pt-8 text-center text-amber-800 text-sm">
+            <p>&copy; {{ 'now'|date('Y') }} Profundi Web Solutions, S.L. All rights reserved.</p>
+        </div>
+    </div>
+</footer>

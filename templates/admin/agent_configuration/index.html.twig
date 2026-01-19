@@ -1,0 +1,977 @@
+{% extends '@SonataAdmin/standard_layout.html.twig' %}
+
+{% block title %}AI Agent Configuration{% endblock %}
+
+{% block sonata_page_content_header %}
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-robot"></i>
+            AI Agent Configuration
+        </h1>
+        <p class="text-muted">Manage intelligent agents with drag-and-drop tool assignment</p>
+    </div>
+{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <link href="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.css" rel="stylesheet">
+    <style>
+        .agent-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: white;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .agent-card:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        .agent-card.active {
+            border-color: #48bb78;
+            background: #f0fff4;
+        }
+        .agent-card.inactive {
+            opacity: 0.6;
+        }
+        .tool-item {
+            border: 1px solid #cbd5e0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            cursor: move;
+            transition: all 0.2s;
+        }
+        .tool-item:hover {
+            background: #edf2f7;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .tool-item.ghost {
+            opacity: 0.4;
+            background: #bee3f8;
+        }
+        .selected-tools-area {
+            min-height: 200px;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            padding: 16px;
+            background: #f7fafc;
+        }
+        .selected-tools-area.drag-over {
+            background: #ebf8ff;
+            border-color: #4299e1;
+        }
+        .tool-category {
+            margin-bottom: 24px;
+        }
+        .tool-category-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 2% auto;
+            padding: 30px;
+            border: 1px solid #888;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 1200px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover {
+            color: #000;
+        }
+        .param-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #cbd5e0;
+            border-radius: 4px;
+            margin-top: 4px;
+        }
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(102,126,234,0.4);
+        }
+        .btn-success {
+            background: #48bb78;
+            color: white;
+        }
+        .btn-danger {
+            background: #f56565;
+            color: white;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label {
+            color: #718096;
+            font-size: 14px;
+            margin-top: 8px;
+        }
+        .tab-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        .tab-btn {
+            padding: 12px 24px;
+            background: none;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-weight: 600;
+            color: #718096;
+            transition: all 0.3s;
+        }
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+{% endblock %}
+
+{% block sonata_admin_content %}
+<div class="container-fluid">
+<div class="flex justify-between items-center mb-6">
+    <button onclick="openCreateModal()" class="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold rounded-lg shadow-lg transition transform hover:scale-105">
+        <i class="fas fa-plus mr-2"></i>Create New Agent
+    </button>
+</div>
+
+{# Statistics Dashboard #}
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ agents|length }}</div>
+            <div class="stat-label">Total Agents</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ agents|filter(a => a.isActive)|length }}</div>
+            <div class="stat-label">Active Agents</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ statistics.totalExecutions|default(0) }}</div>
+            <div class="stat-label">Total Executions</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ statistics.avgSuccessRate|default(0) }}%</div>
+            <div class="stat-label">Avg Success Rate</div>
+        </div>
+    </div>
+
+    {# Agents List #}
+    <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+        <h2 class="text-2xl font-bold mb-4">
+            <i class="fas fa-list mr-2"></i>Configured Agents
+        </h2>
+
+        {% if agents|length > 0 %}
+            {% for agent in agents %}
+                <div class="agent-card {% if agent.isActive %}active{% else %}inactive{% endif %}"
+                     onclick="editAgent({{ agent.id }})">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <h3 class="text-xl font-bold mb-2">
+                                <i class="fas fa-robot mr-2"></i>
+                                {{ agent.name }}
+                                {% if agent.isActive %}
+                                    <span class="text-sm text-green-600 ml-2">
+                                        <i class="fas fa-check-circle"></i> Active
+                                    </span>
+                                {% else %}
+                                    <span class="text-sm text-gray-500 ml-2">
+                                        <i class="fas fa-pause-circle"></i> Inactive
+                                    </span>
+                                {% endif %}
+                            </h3>
+                            <p class="text-gray-600 mb-3">{{ agent.description }}</p>
+                            <div class="flex gap-4 text-sm text-gray-500">
+                                <span><i class="fas fa-tag mr-1"></i>Type: {{ agent.type }}</span>
+                                <span><i class="fas fa-brain mr-1"></i>Model: {{ agent.model }}</span>
+                                <span><i class="fas fa-tools mr-1"></i>Tools: {{ agent.tools ? agent.tools|length : 0 }}</span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-sm text-gray-600 mb-2">
+                                <div>Executions: <strong>{{ agent.executionCount }}</strong></div>
+                                <div>Success Rate: <strong class="text-green-600">{{ agent.successRate }}%</strong></div>
+                            </div>
+                            <div class="flex gap-2 mt-3">
+                                <button onclick="event.stopPropagation(); toggleAgent({{ agent.id }})"
+                                        class="btn btn-sm {% if agent.isActive %}btn-danger{% else %}btn-success{% endif %}">
+                                    {% if agent.isActive %}
+                                        <i class="fas fa-pause"></i> Deactivate
+                                    {% else %}
+                                        <i class="fas fa-play"></i> Activate
+                                    {% endif %}
+                                </button>
+                                <button onclick="event.stopPropagation(); testAgent({{ agent.id }})"
+                                        class="btn btn-sm btn-primary">
+                                    <i class="fas fa-flask"></i> Test
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="text-center py-12 text-gray-500">
+                <i class="fas fa-robot text-6xl mb-4 opacity-50"></i>
+                <p class="text-xl">No agents configured yet.</p>
+                <p class="mt-2">Create your first AI agent to get started!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    {# Create/Edit Agent Modal #}
+    <div id="agentModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <h2 class="text-3xl font-bold mb-6">
+                <i class="fas fa-robot mr-2"></i>
+                <span id="modalTitle">Create New Agent</span>
+            </h2>
+
+            {# Tabbed Interface #}
+            <div class="tab-buttons">
+                <button class="tab-btn active" onclick="switchTab('basic')">
+                    <i class="fas fa-info-circle mr-2"></i>Basic Info
+                </button>
+                <button class="tab-btn" onclick="switchTab('tools')">
+                    <i class="fas fa-tools mr-2"></i>Tools
+                </button>
+                <button class="tab-btn" onclick="switchTab('configuration')">
+                    <i class="fas fa-cog mr-2"></i>Configuration
+                </button>
+                <button class="tab-btn" onclick="switchTab('advanced')">
+                    <i class="fas fa-sliders-h mr-2"></i>Advanced
+                </button>
+            </div>
+
+            <form id="agentForm">
+                <input type="hidden" id="agentId" name="agentId">
+
+                {# Basic Info Tab #}
+                <div id="tab-basic" class="tab-content active">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-bold mb-2">
+                                <i class="fas fa-tag mr-1"></i>Agent Name *
+                            </label>
+                            <input type="text" id="agentName" name="name" required
+                                   class="param-input" placeholder="e.g., Content Moderator">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-2">
+                                <i class="fas fa-link mr-1"></i>Slug
+                            </label>
+                            <input type="text" id="agentSlug" name="slug"
+                                   class="param-input" placeholder="auto-generated">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2">
+                            <i class="fas fa-align-left mr-1"></i>Description
+                        </label>
+                        <textarea id="agentDescription" name="description" rows="3"
+                                  class="param-input" placeholder="Describe what this agent does..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-bold mb-2">
+                                <i class="fas fa-layer-group mr-1"></i>Agent Type *
+                            </label>
+                            <select id="agentType" name="type" class="param-input">
+                                <option value="custom">Custom</option>
+                                <option value="content_moderator">Content Moderator</option>
+                                <option value="ecommerce_assistant">E-Commerce Assistant</option>
+                                <option value="customer_support">Customer Support</option>
+                                <option value="data_analyst">Data Analyst</option>
+                                <option value="marketing">Marketing</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-2">
+                                <i class="fas fa-brain mr-1"></i>AI Model
+                            </label>
+                            <select id="agentModel" name="model" class="param-input">
+                                <option value="gpt-4">GPT-4</option>
+                                <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                <option value="claude-3-opus">Claude 3 Opus</option>
+                                <option value="claude-3-sonnet">Claude 3 Sonnet</option>
+                                <option value="gemini-pro">Gemini Pro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2">
+                            <i class="fas fa-comment-dots mr-1"></i>System Prompt *
+                        </label>
+                        <textarea id="agentSystemPrompt" name="systemPrompt" rows="6"
+                                  class="param-input" required
+                                  placeholder="You are a helpful AI assistant that..."></textarea>
+                    </div>
+
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="agentIsActive" name="isActive" class="mr-2">
+                        <label for="agentIsActive" class="text-sm font-bold">
+                            <i class="fas fa-toggle-on mr-1"></i>Activate agent immediately
+                        </label>
+                    </div>
+                </div>
+
+                {# Tools Tab #}
+                <div id="tab-tools" class="tab-content">
+                    <div class="grid grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-xl font-bold mb-4">
+                                <i class="fas fa-toolbox mr-2"></i>Available Tools
+                            </h3>
+                            <div id="availableToolsContainer" style="max-height: 500px; overflow-y: auto;">
+                                <div class="text-center py-8 text-gray-500">
+                                    <i class="fas fa-spinner fa-spin text-3xl mb-2"></i>
+                                    <p>Loading available tools...</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold mb-4">
+                                <i class="fas fa-check-square mr-2"></i>Selected Tools
+                            </h3>
+                            <div id="selectedToolsArea" class="selected-tools-area">
+                                <p class="text-gray-500 text-center py-8">
+                                    <i class="fas fa-hand-pointer text-3xl mb-2"></i><br>
+                                    Drag tools here to assign them to this agent
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# Configuration Tab #}
+                <div id="tab-configuration" class="tab-content">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-bold mb-2">
+                                <i class="fas fa-thermometer-half mr-1"></i>Temperature
+                            </label>
+                            <input type="number" id="agentTemperature" name="temperature"
+                                   min="0" max="2" step="0.1" value="0.7"
+                                   class="param-input">
+                            <small class="text-gray-600">Controls randomness (0-2)</small>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-2">
+                                <i class="fas fa-text-width mr-1"></i>Max Tokens
+                            </label>
+                            <input type="number" id="agentMaxTokens" name="maxTokens"
+                                   min="100" max="32000" step="100" value="2000"
+                                   class="param-input">
+                            <small class="text-gray-600">Maximum response length</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2">
+                            <i class="fas fa-project-diagram mr-1"></i>Workflow Steps (JSON)
+                        </label>
+                        <textarea id="agentWorkflow" name="workflow" rows="8"
+                                  class="param-input font-mono text-sm"
+                                  placeholder='{"steps": [{"name": "analyze", "action": "analyze_input"}, {"name": "execute", "action": "perform_task"}]}'></textarea>
+                        <small class="text-gray-600">Define the agent's execution workflow</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2">
+                            <i class="fas fa-code mr-1"></i>Custom Configuration (JSON)
+                        </label>
+                        <textarea id="agentConfiguration" name="configuration" rows="6"
+                                  class="param-input font-mono text-sm"
+                                  placeholder='{"key": "value"}'></textarea>
+                        <small class="text-gray-600">Additional configuration parameters</small>
+                    </div>
+                </div>
+
+                {# Advanced Tab #}
+                <div id="tab-advanced" class="tab-content">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm font-bold mb-2">
+                                <i class="fas fa-sort-numeric-up mr-1"></i>Priority
+                            </label>
+                            <input type="number" id="agentPriority" name="priority"
+                                   min="0" max="100" value="50"
+                                   class="param-input">
+                            <small class="text-gray-600">Higher = more important (0-100)</small>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-2">
+                                <i class="fas fa-bolt mr-1"></i>Trigger Event
+                            </label>
+                            <select id="agentTriggerEvent" name="triggerEvent" class="param-input">
+                                <option value="">None (Manual)</option>
+                                <option value="page_created">Page Created</option>
+                                <option value="post_created">Post Created</option>
+                                <option value="order_placed">Order Placed</option>
+                                <option value="user_registered">User Registered</option>
+                                <option value="comment_posted">Comment Posted</option>
+                                <option value="schedule_daily">Daily Schedule</option>
+                                <option value="schedule_hourly">Hourly Schedule</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2">
+                            <i class="fas fa-filter mr-1"></i>Trigger Conditions (JSON)
+                        </label>
+                        <textarea id="agentTriggerConditions" name="triggerConditions" rows="6"
+                                  class="param-input font-mono text-sm"
+                                  placeholder='{"field": "status", "operator": "equals", "value": "pending"}'></textarea>
+                        <small class="text-gray-600">Conditions that must be met to trigger this agent</small>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-sm font-bold mb-2">
+                            <i class="fas fa-shield-alt mr-1"></i>Security & Permissions
+                        </label>
+                        <div class="space-y-2">
+                            <label class="flex items-center">
+                                <input type="checkbox" id="allowContentModification" class="mr-2">
+                                <span class="text-sm">Allow content modification</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="allowDatabaseWrite" class="mr-2">
+                                <span class="text-sm">Allow database write operations</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="allowExternalApi" class="mr-2">
+                                <span class="text-sm">Allow external API calls</span>
+                            </label>
+                            <label class="flex items-center">
+                                <input type="checkbox" id="allowEmailSending" class="mr-2">
+                                <span class="text-sm">Allow email sending</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                {# Form Actions #}
+                <div class="flex justify-end gap-3 mt-6 pt-6 border-t">
+                    <button type="button" onclick="closeModal()" class="btn" style="background: #e2e8f0; color: #2d3748;">
+                        <i class="fas fa-times mr-2"></i>Cancel
+                    </button>
+                    <button type="button" onclick="deleteAgent()" id="deleteBtn" class="btn btn-danger" style="display: none;">
+                        <i class="fas fa-trash mr-2"></i>Delete Agent
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save mr-2"></i>Save Agent
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {# Test Agent Modal #}
+    <div id="testModal" class="modal">
+        <div class="modal-content" style="max-width: 800px;">
+            <span class="close" onclick="closeTestModal()">&times;</span>
+            <h2 class="text-3xl font-bold mb-6">
+                <i class="fas fa-flask mr-2"></i>Test Agent
+            </h2>
+
+            <div class="mb-4">
+                <label class="block text-sm font-bold mb-2">
+                    <i class="fas fa-keyboard mr-1"></i>Test Input
+                </label>
+                <textarea id="testInput" rows="4" class="param-input"
+                          placeholder="Enter test input for the agent..."></textarea>
+            </div>
+
+            <div class="flex justify-end gap-3 mb-4">
+                <button onclick="runTest()" class="btn btn-primary">
+                    <i class="fas fa-play mr-2"></i>Run Test
+                </button>
+            </div>
+
+            <div id="testResults" style="display: none;">
+                <h3 class="text-xl font-bold mb-3">
+                    <i class="fas fa-chart-bar mr-2"></i>Test Results
+                </h3>
+                <div id="testResultsContent" class="bg-gray-100 p-4 rounded-lg font-mono text-sm"
+                     style="max-height: 400px; overflow-y: auto;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <script>
+        let currentAgentId = null;
+        let availableTools = {};
+        let selectedTools = [];
+        let availableToolsSortable = null;
+        let selectedToolsSortable = null;
+
+        // Load tools on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAvailableTools();
+        });
+
+        // Load available tools from backend
+        async function loadAvailableTools() {
+            try {
+                const response = await fetch('/admin/agent-configuration/tools');
+                const data = await response.json();
+
+                if (data.success) {
+                    availableTools = data.tools;
+                    renderAvailableTools(data.grouped);
+                }
+            } catch (error) {
+                console.error('Error loading tools:', error);
+                document.getElementById('availableToolsContainer').innerHTML =
+                    '<div class="text-center py-8 text-red-500"><i class="fas fa-exclamation-circle text-3xl mb-2"></i><p>Failed to load tools</p></div>';
+            }
+        }
+
+        // Render available tools grouped by category
+        function renderAvailableTools(groupedTools) {
+            const container = document.getElementById('availableToolsContainer');
+            container.innerHTML = '';
+
+            for (const [category, tools] of Object.entries(groupedTools)) {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'tool-category';
+
+                const header = document.createElement('div');
+                header.className = 'tool-category-header';
+                header.innerHTML = `<i class="fas fa-folder mr-2"></i>${category}`;
+                categoryDiv.appendChild(header);
+
+                const toolsList = document.createElement('div');
+                toolsList.className = 'tools-list';
+                toolsList.id = `category-${category.replace(/\s+/g, '-')}`;
+
+                for (const [toolKey, tool] of Object.entries(tools)) {
+                    const toolItem = createToolElement(toolKey, tool);
+                    toolsList.appendChild(toolItem);
+                }
+
+                categoryDiv.appendChild(toolsList);
+                container.appendChild(categoryDiv);
+            }
+
+            // Initialize SortableJS for available tools
+            document.querySelectorAll('.tools-list').forEach(list => {
+                new Sortable(list, {
+                    group: {
+                        name: 'tools',
+                        pull: 'clone',
+                        put: false
+                    },
+                    animation: 150,
+                    sort: false,
+                    ghostClass: 'ghost'
+                });
+            });
+
+            initializeSelectedToolsSortable();
+        }
+
+        // Create tool element
+        function createToolElement(toolKey, tool) {
+            const toolItem = document.createElement('div');
+            toolItem.className = 'tool-item';
+            toolItem.dataset.toolKey = toolKey;
+
+            let paramsHtml = '';
+            if (tool.parameters) {
+                const paramCount = Object.keys(tool.parameters).length;
+                paramsHtml = `<span class="text-xs text-gray-500 ml-2">(${paramCount} params)</span>`;
+            }
+
+            toolItem.innerHTML = `
+                <div class="flex items-start justify-between">
+                    <div class="flex-1">
+                        <div class="font-bold text-sm">
+                            <i class="fas fa-puzzle-piece mr-1"></i>${tool.name}${paramsHtml}
+                        </div>
+                        <div class="text-xs text-gray-600 mt-1">${tool.description}</div>
+                    </div>
+                    <i class="fas fa-grip-vertical text-gray-400 ml-2"></i>
+                </div>
+            `;
+
+            return toolItem;
+        }
+
+        // Initialize SortableJS for selected tools area
+        function initializeSelectedToolsSortable() {
+            const selectedArea = document.getElementById('selectedToolsArea');
+
+            if (selectedToolsSortable) {
+                selectedToolsSortable.destroy();
+            }
+
+            selectedToolsSortable = new Sortable(selectedArea, {
+                group: {
+                    name: 'tools',
+                    pull: true,
+                    put: true
+                },
+                animation: 150,
+                ghostClass: 'ghost',
+                onAdd: function(evt) {
+                    const toolKey = evt.item.dataset.toolKey;
+                    if (!selectedTools.includes(toolKey)) {
+                        selectedTools.push(toolKey);
+                    }
+                    updateSelectedToolsDisplay();
+                },
+                onRemove: function(evt) {
+                    const toolKey = evt.item.dataset.toolKey;
+                    selectedTools = selectedTools.filter(t => t !== toolKey);
+                    updateSelectedToolsDisplay();
+                }
+            });
+        }
+
+        // Update selected tools display
+        function updateSelectedToolsDisplay() {
+            const container = document.getElementById('selectedToolsArea');
+
+            if (selectedTools.length === 0) {
+                container.innerHTML = '<p class="text-gray-500 text-center py-8"><i class="fas fa-hand-pointer text-3xl mb-2"></i><br>Drag tools here to assign them to this agent</p>';
+            } else {
+                container.innerHTML = '';
+                selectedTools.forEach(toolKey => {
+                    if (availableTools[toolKey]) {
+                        const toolItem = createToolElement(toolKey, availableTools[toolKey]);
+                        container.appendChild(toolItem);
+                    }
+                });
+            }
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.tab-btn').classList.add('active');
+
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // Open create modal
+        function openCreateModal() {
+            currentAgentId = null;
+            document.getElementById('modalTitle').textContent = 'Create New Agent';
+            document.getElementById('agentForm').reset();
+            document.getElementById('agentId').value = '';
+            document.getElementById('deleteBtn').style.display = 'none';
+            selectedTools = [];
+            updateSelectedToolsDisplay();
+            document.getElementById('agentModal').style.display = 'block';
+        }
+
+        // Edit agent
+        async function editAgent(agentId) {
+            currentAgentId = agentId;
+            document.getElementById('modalTitle').textContent = 'Edit Agent';
+            document.getElementById('deleteBtn').style.display = 'inline-block';
+
+            try {
+                const response = await fetch(`/admin/agent-configuration/${agentId}`);
+                const agent = await response.json();
+
+                // Populate form fields
+                document.getElementById('agentId').value = agent.id;
+                document.getElementById('agentName').value = agent.name || '';
+                document.getElementById('agentSlug').value = agent.slug || '';
+                document.getElementById('agentDescription').value = agent.description || '';
+                document.getElementById('agentType').value = agent.type || 'custom';
+                document.getElementById('agentModel').value = agent.model || 'gpt-4';
+                document.getElementById('agentSystemPrompt').value = agent.systemPrompt || '';
+                document.getElementById('agentIsActive').checked = agent.isActive || false;
+                document.getElementById('agentTemperature').value = agent.temperature || 0.7;
+                document.getElementById('agentMaxTokens').value = agent.maxTokens || 2000;
+                document.getElementById('agentPriority').value = agent.priority || 50;
+                document.getElementById('agentTriggerEvent').value = agent.triggerEvent || '';
+
+                // Handle JSON fields
+                if (agent.workflow) {
+                    document.getElementById('agentWorkflow').value =
+                        typeof agent.workflow === 'string' ? agent.workflow : JSON.stringify(agent.workflow, null, 2);
+                }
+                if (agent.configuration) {
+                    document.getElementById('agentConfiguration').value =
+                        typeof agent.configuration === 'string' ? agent.configuration : JSON.stringify(agent.configuration, null, 2);
+                }
+                if (agent.triggerConditions) {
+                    document.getElementById('agentTriggerConditions').value =
+                        typeof agent.triggerConditions === 'string' ? agent.triggerConditions : JSON.stringify(agent.triggerConditions, null, 2);
+                }
+
+                // Handle tools
+                selectedTools = agent.tools || [];
+                updateSelectedToolsDisplay();
+
+                document.getElementById('agentModal').style.display = 'block';
+            } catch (error) {
+                console.error('Error loading agent:', error);
+                alert('Failed to load agent data');
+            }
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('agentModal').style.display = 'none';
+        }
+
+        // Form submission
+        document.getElementById('agentForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const formData = {
+                name: document.getElementById('agentName').value,
+                slug: document.getElementById('agentSlug').value,
+                description: document.getElementById('agentDescription').value,
+                type: document.getElementById('agentType').value,
+                model: document.getElementById('agentModel').value,
+                systemPrompt: document.getElementById('agentSystemPrompt').value,
+                isActive: document.getElementById('agentIsActive').checked,
+                temperature: parseFloat(document.getElementById('agentTemperature').value),
+                maxTokens: parseInt(document.getElementById('agentMaxTokens').value),
+                priority: parseInt(document.getElementById('agentPriority').value),
+                triggerEvent: document.getElementById('agentTriggerEvent').value,
+                tools: selectedTools
+            };
+
+            // Parse JSON fields
+            try {
+                const workflow = document.getElementById('agentWorkflow').value.trim();
+                if (workflow) formData.workflow = JSON.parse(workflow);
+
+                const configuration = document.getElementById('agentConfiguration').value.trim();
+                if (configuration) formData.configuration = JSON.parse(configuration);
+
+                const triggerConditions = document.getElementById('agentTriggerConditions').value.trim();
+                if (triggerConditions) formData.triggerConditions = JSON.parse(triggerConditions);
+            } catch (error) {
+                alert('Invalid JSON format in one of the fields. Please check your input.');
+                return;
+            }
+
+            try {
+                const agentId = document.getElementById('agentId').value;
+                const url = agentId
+                    ? `/admin/agent-configuration/${agentId}/update`
+                    : '/admin/agent-configuration/create';
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    closeModal();
+                    location.reload();
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error saving agent:', error);
+                alert('Failed to save agent');
+            }
+        });
+
+        // Toggle agent status
+        async function toggleAgent(agentId) {
+            if (!confirm('Are you sure you want to toggle this agent\'s status?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/admin/agent-configuration/${agentId}/toggle`, {
+                    method: 'POST'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    location.reload();
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error toggling agent:', error);
+                alert('Failed to toggle agent status');
+            }
+        }
+
+        // Delete agent
+        async function deleteAgent() {
+            if (!confirm('Are you sure you want to delete this agent? This action cannot be undone.')) {
+                return;
+            }
+
+            const agentId = document.getElementById('agentId').value;
+            if (!agentId) return;
+
+            try {
+                const response = await fetch(`/admin/agent-configuration/${agentId}/delete`, {
+                    method: 'DELETE'
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    closeModal();
+                    location.reload();
+                } else {
+                    alert('Error: ' + (result.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error deleting agent:', error);
+                alert('Failed to delete agent');
+            }
+        }
+
+        // Test agent
+        let testAgentId = null;
+
+        function testAgent(agentId) {
+            testAgentId = agentId;
+            document.getElementById('testInput').value = '';
+            document.getElementById('testResults').style.display = 'none';
+            document.getElementById('testModal').style.display = 'block';
+        }
+
+        function closeTestModal() {
+            document.getElementById('testModal').style.display = 'none';
+        }
+
+        async function runTest() {
+            const input = document.getElementById('testInput').value;
+            if (!input.trim()) {
+                alert('Please enter test input');
+                return;
+            }
+
+            const resultsDiv = document.getElementById('testResults');
+            const resultsContent = document.getElementById('testResultsContent');
+
+            resultsContent.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Running test...</div>';
+            resultsDiv.style.display = 'block';
+
+            try {
+                const response = await fetch(`/admin/agent-configuration/${testAgentId}/test`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ input: input })
+                });
+
+                const result = await response.json();
+                resultsContent.innerHTML = '<pre>' + JSON.stringify(result, null, 2) + '</pre>';
+            } catch (error) {
+                console.error('Error testing agent:', error);
+                resultsContent.innerHTML = '<div class="text-red-500">Error: ' + error.message + '</div>';
+            }
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const agentModal = document.getElementById('agentModal');
+            const testModal = document.getElementById('testModal');
+
+            if (event.target === agentModal) {
+                closeModal();
+            }
+            if (event.target === testModal) {
+                closeTestModal();
+            }
+        }
+    </script>
+{% endblock %}

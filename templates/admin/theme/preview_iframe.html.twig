@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Theme Preview</title>
+    <style id="theme-styles">
+        :root {
+            --primary-color: {{ theme.primaryColor ?? '#3b82f6' }};
+            --secondary-color: {{ theme.secondaryColor ?? '#8b5cf6' }};
+            --accent-color: {{ theme.accentColor ?? '#10b981' }};
+            --background-color: {{ theme.backgroundColor ?? '#ffffff' }};
+            --text-color: {{ theme.textColor ?? '#1f2937' }};
+            --heading-font: {{ theme.headingFont ?? 'Roboto, sans-serif' }};
+            --body-font: {{ theme.bodyFont ?? 'Roboto, sans-serif' }};
+            --font-size: {{ theme.fontSize ?? '16px' }};
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--body-font);
+            font-size: var(--font-size);
+            color: var(--text-color);
+            background: var(--background-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: var(--heading-font);
+            margin-bottom: 1rem;
+            color: var(--text-color);
+        }
+
+        h1 { font-size: 2.5em; }
+        h2 { font-size: 2em; }
+        h3 { font-size: 1.5em; }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: var(--secondary-color);
+            color: #fff;
+        }
+
+        .card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .header {
+            background: var(--primary-color);
+            color: #fff;
+            padding: 20px;
+            margin: -20px -20px 30px -20px;
+        }
+
+        .header h1 {
+            color: #fff;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        {% if theme.customCss %}
+        /* Custom CSS */
+        {{ theme.customCss|raw }}
+        {% endif %}
+    </style>
+    <script src="{{ asset('admin-assets/js/theme-preview-iframe.js') }}"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>{{ theme.displayName }}</h1>
+            <p>Live theme preview - See your changes in real-time</p>
+        </div>
+
+        <div class="content">
+            <h2>Welcome to Your Theme</h2>
+            <p>This is how your theme looks with the current settings. Try changing colors, fonts, and other options in the theme builder to see instant updates.</p>
+
+            <div class="grid">
+                <div class="card">
+                    <h3>Card Title 1</h3>
+                    <p>This is a sample card showing how content will look with your theme. The text uses your selected body font and color.</p>
+                    <a href="#" class="btn btn-primary">Primary Button</a>
+                </div>
+
+                <div class="card">
+                    <h3>Card Title 2</h3>
+                    <p>Cards are great for displaying organized content. Notice how the accent color is used for <a href="#">links like this</a>.</p>
+                    <a href="#" class="btn btn-secondary">Secondary Button</a>
+                </div>
+
+                <div class="card">
+                    <h3>Card Title 3</h3>
+                    <p>Your theme's color scheme creates a cohesive and professional look throughout your site.</p>
+                    <a href="#" class="btn btn-primary">Learn More</a>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Typography Example</h2>
+                <h1>Heading 1</h1>
+                <h2>Heading 2</h2>
+                <h3>Heading 3</h3>
+                <p>This is a paragraph of body text. It demonstrates how regular text will appear on your site with the current font family and size settings.</p>
+                <p>You can see how multiple paragraphs look together and ensure the spacing and readability work well for your content.</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

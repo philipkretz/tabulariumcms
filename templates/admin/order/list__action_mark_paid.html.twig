@@ -1,0 +1,5 @@
+{% if object.status == "pending" %}
+    <a href="{{ admin.generateObjectUrl('mark_paid', object) }}" class="btn btn-sm btn-success" title="Mark as payment received">
+        <i class="fa fa-check-circle"></i> Mark Paid
+    </a>
+{% endif %}

@@ -1,0 +1,1339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TabulariumCMS API Documentation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        nav {
+            background: #f8f9fa;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav h3 {
+            margin-bottom: 1rem;
+            color: #555;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        nav a {
+            display: inline-block;
+            margin-right: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            color: #764ba2;
+            text-decoration: underline;
+        }
+
+        main {
+            padding: 2rem;
+        }
+
+        section {
+            margin-bottom: 4rem;
+        }
+
+        section h2 {
+            font-size: 2rem;
+            color: #667eea;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 3px solid #667eea;
+        }
+
+        section h3 {
+            font-size: 1.5rem;
+            color: #333;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        section p {
+            margin-bottom: 1rem;
+            color: #555;
+            font-size: 1.05rem;
+        }
+
+        .endpoint {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-radius: 4px;
+        }
+
+        .endpoint-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .method {
+            display: inline-block;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.85rem;
+            margin-right: 1rem;
+            font-family: 'Courier New', monospace;
+        }
+
+        .method.get { background: #28a745; color: white; }
+        .method.post { background: #007bff; color: white; }
+        .method.put { background: #ffc107; color: #333; }
+        .method.patch { background: #17a2b8; color: white; }
+        .method.delete { background: #dc3545; color: white; }
+
+        .endpoint-path {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .endpoint-desc {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .subsection {
+            margin-top: 1rem;
+        }
+
+        .subsection h4 {
+            font-size: 1rem;
+            color: #667eea;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .param-table, .response-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 1rem;
+            background: white;
+        }
+
+        .param-table th, .response-table th {
+            background: #667eea;
+            color: white;
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .param-table td, .response-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .param-table tr:hover, .response-table tr:hover {
+            background: #f8f9fa;
+        }
+
+        code {
+            background: #2d2d2d;
+            color: #f8f8f2;
+            padding: 1rem;
+            border-radius: 4px;
+            display: block;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .inline-code {
+            background: #e9ecef;
+            color: #d63384;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            display: inline;
+        }
+
+        .note {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .note strong {
+            color: #856404;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #17a2b8;
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+        }
+
+        .info-box strong {
+            color: #0c5460;
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        footer {
+            background: #2d2d2d;
+            color: #aaa;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 4rem;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            nav a {
+                display: block;
+                margin-bottom: 0.5rem;
+            }
+
+            .endpoint-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .method {
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TabulariumCMS API Documentation</h1>
+            <p>Complete reference for the TabulariumCMS REST API</p>
+        </header>
+
+        <nav>
+            <h3>Jump to Section</h3>
+            <a href="#getting-started">Getting Started</a>
+            <a href="#authentication">Authentication</a>
+            <a href="#products">Products</a>
+            <a href="#articles">Articles</a>
+            <a href="#cart">Shopping Cart</a>
+            <a href="#checkout">Checkout</a>
+            <a href="#search">Search</a>
+            <a href="#stores">Stores</a>
+            <a href="#languages">Languages</a>
+            <a href="#errors">Error Handling</a>
+        </nav>
+
+        <main>
+            <!-- Getting Started -->
+            <section id="getting-started">
+                <h2>Getting Started</h2>
+                <p>Welcome to the TabulariumCMS API. This is a RESTful API that returns JSON responses and follows standard HTTP conventions for methods, headers, and status codes.</p>
+
+                <h3>Base URL</h3>
+                <code>https://your-domain.com/api</code>
+
+                <h3>Response Format</h3>
+                <p>All API responses are returned in JSON format. Successful responses will include the requested data along with appropriate status codes. Error responses will include an error message and details.</p>
+
+                <div class="note">
+                    <strong>Note:</strong> Some endpoints are public and don't require authentication, while others require a valid API key. Check each endpoint's documentation for specific requirements.
+                </div>
+            </section>
+
+            <!-- Authentication -->
+            <section id="authentication">
+                <h2>Authentication</h2>
+                <p>Protected API endpoints require authentication using an API key. You can generate API keys from the admin panel.</p>
+
+                <h3>Using API Keys</h3>
+                <p>Include your API key in the request header:</p>
+                <code>X-API-Key: your-api-key-here</code>
+
+                <h3>Permissions</h3>
+                <p>Each API key has specific permissions that define what resources it can access and what actions it can perform. Actions include:</p>
+                <ul>
+                    <li><strong>read</strong> - View resources</li>
+                    <li><strong>create</strong> - Create new resources</li>
+                    <li><strong>update</strong> - Modify existing resources</li>
+                    <li><strong>delete</strong> - Remove resources</li>
+                </ul>
+
+                <div class="info-box">
+                    <strong>Public Endpoints:</strong> Some endpoints like product listings, search, and cart operations don't require API keys and can be accessed without authentication.
+                </div>
+            </section>
+
+            <!-- Products API -->
+            <section id="products">
+                <h2>Products</h2>
+                <p>The Products API lets you browse and filter the product catalog. These endpoints are public and don't require authentication.</p>
+
+                <!-- List Products -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/products</span>
+                    </div>
+                    <p class="endpoint-desc">Get a paginated list of products with optional filtering and sorting.</p>
+
+                    <div class="subsection">
+                        <h4>Query Parameters</h4>
+                        <table class="param-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="inline-code">page</span></td>
+                                    <td>integer</td>
+                                    <td>Page number (default: 1)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">limit</span></td>
+                                    <td>integer</td>
+                                    <td>Items per page (default: 12, max: 50)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">price_min</span></td>
+                                    <td>float</td>
+                                    <td>Minimum price filter</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">price_max</span></td>
+                                    <td>float</td>
+                                    <td>Maximum price filter</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">categories</span></td>
+                                    <td>array</td>
+                                    <td>Filter by category IDs</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">type</span></td>
+                                    <td>string</td>
+                                    <td>Product type (physical, virtual, bundle, room, timeslot, ticket)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">in_stock</span></td>
+                                    <td>boolean</td>
+                                    <td>Show only in-stock products (true/false)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">sort</span></td>
+                                    <td>string</td>
+                                    <td>Sort order: newest, price_asc, price_desc, name_asc</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>Example Request</h4>
+                        <code>GET /api/products?page=1&limit=12&price_min=10&price_max=100&sort=price_asc</code>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>Example Response</h4>
+                        <code>{
+  "success": true,
+  "data": [
+    {
+      "id": 1,
+      "name": "Premium Widget",
+      "slug": "premium-widget",
+      "shortDescription": "A high-quality widget for your needs",
+      "grossPrice": 49.99,
+      "stock": 100,
+      "isFeatured": true,
+      "type": "physical",
+      "isRequestOnly": false,
+      "requestEmail": null,
+      "mainImage": {
+        "url": "/uploads/media/widget.jpg",
+        "alt": "Premium Widget"
+      },
+      "category": {
+        "id": 5,
+        "name": "Widgets",
+        "slug": "widgets"
+      }
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 12,
+    "total": 45,
+    "totalPages": 4,
+    "hasMore": true
+  }
+}</code>
+                    </div>
+                </div>
+
+                <!-- Get Product Categories -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/products/categories</span>
+                    </div>
+                    <p class="endpoint-desc">Get all active product categories.</p>
+
+                    <div class="subsection">
+                        <h4>Example Response</h4>
+                        <code>[
+  {
+    "id": 1,
+    "name": "Electronics",
+    "slug": "electronics"
+  },
+  {
+    "id": 2,
+    "name": "Clothing",
+    "slug": "clothing"
+  }
+]</code>
+                    </div>
+                </div>
+
+                <!-- Get Product Types -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/products/types</span>
+                    </div>
+                    <p class="endpoint-desc">Get available product types.</p>
+
+                    <div class="subsection">
+                        <h4>Example Response</h4>
+                        <code>[
+  { "value": "physical", "label": "Physical Product" },
+  { "value": "virtual", "label": "Digital Product" },
+  { "value": "bundle", "label": "Bundle" },
+  { "value": "room", "label": "Room Booking" },
+  { "value": "timeslot", "label": "Time Slot" },
+  { "value": "ticket", "label": "Ticket" }
+]</code>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Articles API -->
+            <section id="articles">
+                <h2>Articles</h2>
+                <p>The Articles API provides access to product and content articles. Public endpoints don't require authentication.</p>
+
+                <!-- List Articles (Public) -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/articles/public</span>
+                    </div>
+                    <p class="endpoint-desc">Get public articles with filtering and pagination. Similar to products endpoint but with more detailed filtering options.</p>
+
+                    <div class="subsection">
+                        <h4>Query Parameters</h4>
+                        <table class="param-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="inline-code">search</span></td>
+                                    <td>string</td>
+                                    <td>Search in name, SKU, or description</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">category</span></td>
+                                    <td>integer</td>
+                                    <td>Filter by category ID</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">type</span></td>
+                                    <td>string</td>
+                                    <td>Filter by product type</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">price_min</span></td>
+                                    <td>float</td>
+                                    <td>Minimum price</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">price_max</span></td>
+                                    <td>float</td>
+                                    <td>Maximum price</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">in_stock</span></td>
+                                    <td>boolean</td>
+                                    <td>Only show items in stock</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">sort</span></td>
+                                    <td>string</td>
+                                    <td>newest, price_asc, price_desc, name_asc, featured</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">page</span></td>
+                                    <td>integer</td>
+                                    <td>Page number (default: 1)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">limit</span></td>
+                                    <td>integer</td>
+                                    <td>Results per page (default: 12, max: 100)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- List Articles (Protected) -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/articles</span>
+                    </div>
+                    <p class="endpoint-desc">Get all articles. Requires authentication and read permission.</p>
+
+                    <div class="note">
+                        <strong>Authentication Required:</strong> This endpoint requires a valid API key with read permission for Articles.
+                    </div>
+                </div>
+
+                <!-- Get Single Article -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/articles/{id}</span>
+                    </div>
+                    <p class="endpoint-desc">Get a specific article by ID. Requires authentication.</p>
+
+                    <div class="subsection">
+                        <h4>URL Parameters</h4>
+                        <table class="param-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="inline-code">id</span></td>
+                                    <td>integer</td>
+                                    <td>Article ID</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Create Article -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/articles</span>
+                    </div>
+                    <p class="endpoint-desc">Create a new article. Requires authentication and create permission.</p>
+
+                    <div class="subsection">
+                        <h4>Request Body</h4>
+                        <code>{
+  "title": "New Article",
+  "sku": "ART-001",
+  "price": "29.99",
+  "content": "Article description",
+  "isActive": true
+}</code>
+                    </div>
+                </div>
+
+                <!-- Update Article -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method put">PUT</span>
+                        <span class="method patch">PATCH</span>
+                        <span class="endpoint-path">/api/articles/{id}</span>
+                    </div>
+                    <p class="endpoint-desc">Update an existing article. Requires authentication and update permission.</p>
+                </div>
+
+                <!-- Delete Article -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method delete">DELETE</span>
+                        <span class="endpoint-path">/api/articles/{id}</span>
+                    </div>
+                    <p class="endpoint-desc">Delete an article. Requires authentication and delete permission.</p>
+                </div>
+
+                <!-- Get Article Stock -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/articles/{id}/stock</span>
+                    </div>
+                    <p class="endpoint-desc">Get stock information for a specific article. Requires authentication.</p>
+                </div>
+            </section>
+
+            <!-- Shopping Cart API -->
+            <section id="cart">
+                <h2>Shopping Cart</h2>
+                <p>Manage shopping cart operations. These endpoints are public but use session-based cart tracking.</p>
+
+                <!-- Get Cart -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/cart</span>
+                    </div>
+                    <p class="endpoint-desc">Get the current cart for the session.</p>
+
+                    <div class="subsection">
+                        <h4>Example Response</h4>
+                        <code>{
+  "items": [
+    {
+      "id": 1,
+      "article": {
+        "id": 10,
+        "name": "Premium Widget",
+        "slug": "premium-widget",
+        "sku": "WID-001",
+        "image": "/uploads/media/widget.jpg"
+      },
+      "quantity": 2,
+      "price": 49.99,
+      "subtotal": 99.98
+    }
+  ],
+  "totals": {
+    "subtotal": 99.98,
+    "itemCount": 2
+  }
+}</code>
+                    </div>
+                </div>
+
+                <!-- Add to Cart -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/cart/add</span>
+                    </div>
+                    <p class="endpoint-desc">Add a product to the cart.</p>
+
+                    <div class="subsection">
+                        <h4>Request Body</h4>
+                        <table class="param-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Required</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="inline-code">article_id</span></td>
+                                    <td>integer</td>
+                                    <td>Yes</td>
+                                    <td>ID of the product to add</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">quantity</span></td>
+                                    <td>integer</td>
+                                    <td>No</td>
+                                    <td>Quantity to add (default: 1, min: 1)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>Example Request</h4>
+                        <code>{
+  "article_id": 10,
+  "quantity": 2
+}</code>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>Example Response</h4>
+                        <code>{
+  "success": true,
+  "message": "Product added to cart",
+  "cart": {
+    "items": [...],
+    "totals": {
+      "subtotal": 99.98,
+      "itemCount": 2
+    }
+  }
+}</code>
+                    </div>
+                </div>
+
+                <!-- Update Cart Item -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method put">PUT</span>
+                        <span class="endpoint-path">/api/cart/update/{itemId}</span>
+                    </div>
+                    <p class="endpoint-desc">Update the quantity of a cart item.</p>
+
+                    <div class="subsection">
+                        <h4>Request Body</h4>
+                        <code>{
+  "quantity": 3
+}</code>
+                    </div>
+                </div>
+
+                <!-- Remove from Cart -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method delete">DELETE</span>
+                        <span class="endpoint-path">/api/cart/remove/{itemId}</span>
+                    </div>
+                    <p class="endpoint-desc">Remove an item from the cart.</p>
+
+                    <div class="subsection">
+                        <h4>URL Parameters</h4>
+                        <table class="param-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="inline-code">itemId</span></td>
+                                    <td>integer</td>
+                                    <td>Cart item ID to remove</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Checkout API -->
+            <section id="checkout">
+                <h2>Checkout</h2>
+                <p>Process orders and handle payments.</p>
+
+                <!-- Get Checkout Methods -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/checkout/methods</span>
+                    </div>
+                    <p class="endpoint-desc">Get available payment and shipping methods.</p>
+
+                    <div class="subsection">
+                        <h4>Example Response</h4>
+                        <code>{
+  "payment_methods": [
+    {
+      "id": 1,
+      "name": "Credit Card",
+      "type": "stripe",
+      "description": "Pay with credit or debit card",
+      "fee": 0
+    },
+    {
+      "id": 2,
+      "name": "PayPal",
+      "type": "paypal",
+      "description": "Pay with PayPal",
+      "fee": 0
+    }
+  ],
+  "shipping_methods": [
+    {
+      "id": 1,
+      "name": "Standard Shipping",
+      "description": "5-7 business days",
+      "price": 9.99,
+      "delivery_time": "5-7 days"
+    },
+    {
+      "id": 2,
+      "name": "Express Shipping",
+      "description": "2-3 business days",
+      "price": 19.99,
+      "delivery_time": "2-3 days"
+    }
+  ]
+}</code>
+                    </div>
+                </div>
+
+                <!-- Process Checkout -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/checkout/process</span>
+                    </div>
+                    <p class="endpoint-desc">Process the checkout and create an order.</p>
+
+                    <div class="subsection">
+                        <h4>Request Body</h4>
+                        <table class="param-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Required</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="inline-code">payment_method_id</span></td>
+                                    <td>integer</td>
+                                    <td>Yes</td>
+                                    <td>Selected payment method ID</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">shipping_method_id</span></td>
+                                    <td>integer</td>
+                                    <td>Yes</td>
+                                    <td>Selected shipping method ID</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">email</span></td>
+                                    <td>string</td>
+                                    <td>Yes</td>
+                                    <td>Customer email</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">name</span></td>
+                                    <td>string</td>
+                                    <td>Yes</td>
+                                    <td>Customer name</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">shipping_address</span></td>
+                                    <td>string</td>
+                                    <td>Yes</td>
+                                    <td>Shipping address</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">billing_address</span></td>
+                                    <td>string</td>
+                                    <td>No</td>
+                                    <td>Billing address (defaults to shipping address)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">payment_data</span></td>
+                                    <td>object</td>
+                                    <td>No</td>
+                                    <td>Payment-specific data (tokens, etc.)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>Example Request</h4>
+                        <code>{
+  "payment_method_id": 1,
+  "shipping_method_id": 1,
+  "email": "customer@example.com",
+  "name": "John Doe",
+  "shipping_address": "123 Main St, City, State 12345",
+  "billing_address": "123 Main St, City, State 12345",
+  "payment_data": {}
+}</code>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>Example Response (Success)</h4>
+                        <code>{
+  "success": true,
+  "message": "Payment processed successfully",
+  "order_id": 42,
+  "transaction_id": "txn_abc123",
+  "instructions": null
+}</code>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>Example Response (Error)</h4>
+                        <code>{
+  "success": false,
+  "error": "Payment was declined"
+}</code>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Search API -->
+            <section id="search">
+                <h2>Search</h2>
+                <p>Search across products, articles, and other content. These endpoints include rate limiting (10 requests per minute per IP).</p>
+
+                <!-- Search -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/search</span>
+                    </div>
+                    <p class="endpoint-desc">Search for products and content.</p>
+
+                    <div class="subsection">
+                        <h4>Query Parameters</h4>
+                        <table class="param-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Required</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="inline-code">q</span></td>
+                                    <td>string</td>
+                                    <td>Yes</td>
+                                    <td>Search query (2-100 characters)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">limit</span></td>
+                                    <td>integer</td>
+                                    <td>No</td>
+                                    <td>Max results (default: 5, max: 20)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>Example Request</h4>
+                        <code>GET /api/search?q=widget&limit=10</code>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>Example Response</h4>
+                        <code>{
+  "success": true,
+  "query": "widget",
+  "data": {
+    "products": [...],
+    "articles": [...],
+    "total": 15
+  },
+  "total": 15
+}</code>
+                    </div>
+
+                    <div class="note">
+                        <strong>Rate Limiting:</strong> This endpoint is limited to 10 requests per minute per IP address. You'll receive a 429 status code if you exceed this limit.
+                    </div>
+                </div>
+
+                <!-- Search Suggestions -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/search/suggestions</span>
+                    </div>
+                    <p class="endpoint-desc">Get autocomplete suggestions for search queries.</p>
+
+                    <div class="subsection">
+                        <h4>Query Parameters</h4>
+                        <table class="param-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Required</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="inline-code">q</span></td>
+                                    <td>string</td>
+                                    <td>Yes</td>
+                                    <td>Partial search query (2-100 characters)</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">limit</span></td>
+                                    <td>integer</td>
+                                    <td>No</td>
+                                    <td>Max suggestions (default: 10, max: 20)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="subsection">
+                        <h4>Example Response</h4>
+                        <code>{
+  "success": true,
+  "query": "wid",
+  "data": [
+    "widget",
+    "widgets premium",
+    "wide screen"
+  ]
+}</code>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Stores API -->
+            <section id="stores">
+                <h2>Stores</h2>
+                <p>Find physical store locations and get store details.</p>
+
+                <!-- List Stores -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/stores</span>
+                    </div>
+                    <p class="endpoint-desc">Get a list of all stores.</p>
+                </div>
+
+                <!-- Get Store Details -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/stores/{id}</span>
+                    </div>
+                    <p class="endpoint-desc">Get details about a specific store.</p>
+                </div>
+
+                <!-- Get Nearby Stores -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/stores/nearby</span>
+                    </div>
+                    <p class="endpoint-desc">Find stores near a given location.</p>
+
+                    <div class="subsection">
+                        <h4>Query Parameters</h4>
+                        <table class="param-table">
+                            <thead>
+                                <tr>
+                                    <th>Parameter</th>
+                                    <th>Type</th>
+                                    <th>Description</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="inline-code">lat</span></td>
+                                    <td>float</td>
+                                    <td>Latitude</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">lng</span></td>
+                                    <td>float</td>
+                                    <td>Longitude</td>
+                                </tr>
+                                <tr>
+                                    <td><span class="inline-code">radius</span></td>
+                                    <td>integer</td>
+                                    <td>Search radius in kilometers</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Languages API -->
+            <section id="languages">
+                <h2>Languages</h2>
+                <p>Manage site languages and localization.</p>
+
+                <!-- Get Languages -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method get">GET</span>
+                        <span class="endpoint-path">/api/languages</span>
+                    </div>
+                    <p class="endpoint-desc">Get a list of available languages.</p>
+
+                    <div class="subsection">
+                        <h4>Example Response</h4>
+                        <code>[
+  {
+    "id": 1,
+    "code": "en",
+    "name": "English",
+    "isActive": true
+  },
+  {
+    "id": 2,
+    "code": "de",
+    "name": "Deutsch",
+    "isActive": true
+  },
+  {
+    "id": 3,
+    "code": "es",
+    "name": "Español",
+    "isActive": true
+  }
+]</code>
+                    </div>
+                </div>
+
+                <!-- Configure Language -->
+                <div class="endpoint">
+                    <div class="endpoint-header">
+                        <span class="method post">POST</span>
+                        <span class="endpoint-path">/api/language/{code}/configure</span>
+                    </div>
+                    <p class="endpoint-desc">Configure language settings. Requires authentication.</p>
+                </div>
+            </section>
+
+            <!-- Error Handling -->
+            <section id="errors">
+                <h2>Error Handling</h2>
+                <p>The API uses standard HTTP status codes to indicate success or failure of requests.</p>
+
+                <h3>HTTP Status Codes</h3>
+                <table class="response-table">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Status</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>200</strong></td>
+                            <td>OK</td>
+                            <td>Request succeeded</td>
+                        </tr>
+                        <tr>
+                            <td><strong>201</strong></td>
+                            <td>Created</td>
+                            <td>Resource created successfully</td>
+                        </tr>
+                        <tr>
+                            <td><strong>400</strong></td>
+                            <td>Bad Request</td>
+                            <td>Invalid request parameters or data</td>
+                        </tr>
+                        <tr>
+                            <td><strong>401</strong></td>
+                            <td>Unauthorized</td>
+                            <td>Missing or invalid API key</td>
+                        </tr>
+                        <tr>
+                            <td><strong>403</strong></td>
+                            <td>Forbidden</td>
+                            <td>API key lacks required permissions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>404</strong></td>
+                            <td>Not Found</td>
+                            <td>Resource doesn't exist</td>
+                        </tr>
+                        <tr>
+                            <td><strong>429</strong></td>
+                            <td>Too Many Requests</td>
+                            <td>Rate limit exceeded</td>
+                        </tr>
+                        <tr>
+                            <td><strong>500</strong></td>
+                            <td>Internal Server Error</td>
+                            <td>Something went wrong on the server</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Error Response Format</h3>
+                <p>When an error occurs, the API returns a JSON response with an error message:</p>
+                <code>{
+  "error": "Description of what went wrong",
+  "success": false
+}</code>
+
+                <h3>Common Error Scenarios</h3>
+
+                <h4>Missing API Key</h4>
+                <code>{
+  "error": "No API key found"
+}</code>
+
+                <h4>Insufficient Permissions</h4>
+                <code>{
+  "error": "Permission denied: create on Article"
+}</code>
+
+                <h4>Resource Not Found</h4>
+                <code>{
+  "error": "Article not found"
+}</code>
+
+                <h4>Validation Error</h4>
+                <code>{
+  "errors": {
+    "title": "This field is required",
+    "price": "Price must be a valid number"
+  }
+}</code>
+
+                <h4>Rate Limit Exceeded</h4>
+                <code>{
+  "success": false,
+  "error": "Rate limit exceeded. Please try again in a minute.",
+  "data": []
+}</code>
+
+                <div class="info-box">
+                    <strong>Best Practice:</strong> Always check the HTTP status code and handle errors appropriately in your application. Include error handling for network failures, timeouts, and unexpected responses.
+                </div>
+            </section>
+
+            <!-- Additional Information -->
+            <section id="additional">
+                <h2>Additional Information</h2>
+
+                <h3>Pagination</h3>
+                <p>Most list endpoints support pagination using these parameters:</p>
+                <ul>
+                    <li><span class="inline-code">page</span> - The page number (starts at 1)</li>
+                    <li><span class="inline-code">limit</span> - Number of items per page</li>
+                </ul>
+                <p>Paginated responses include a pagination object with details:</p>
+                <code>{
+  "data": [...],
+  "pagination": {
+    "page": 1,
+    "limit": 20,
+    "total": 100,
+    "pages": 5
+  }
+}</code>
+
+                <h3>Rate Limiting</h3>
+                <p>Search endpoints are rate-limited to 10 requests per minute per IP address. When you hit the rate limit, you'll receive a 429 status code. Wait a minute before trying again.</p>
+
+                <h3>CORS</h3>
+                <p>The API supports CORS (Cross-Origin Resource Sharing) for browser-based applications. Make sure your domain is configured in the system if you're accessing the API from a web application.</p>
+
+                <h3>Data Formats</h3>
+                <ul>
+                    <li><strong>Dates:</strong> All dates are in ISO 8601 format (YYYY-MM-DD HH:MM:SS)</li>
+                    <li><strong>Prices:</strong> Decimal values as strings or floats</li>
+                    <li><strong>Booleans:</strong> true/false or 1/0 for query parameters</li>
+                </ul>
+
+                <h3>Best Practices</h3>
+                <ul>
+                    <li>Store your API key securely and never expose it in client-side code</li>
+                    <li>Use pagination to limit response sizes</li>
+                    <li>Implement proper error handling for all API calls</li>
+                    <li>Cache responses when appropriate to reduce API calls</li>
+                    <li>Respect rate limits to ensure service availability</li>
+                </ul>
+
+                <h3>Need Help?</h3>
+                <p>If you run into issues or have questions about the API:</p>
+                <ul>
+                    <li>Check the error message for specific details about what went wrong</li>
+                    <li>Verify your API key has the correct permissions</li>
+                    <li>Review the request parameters and format</li>
+                    <li>Contact support if you need additional assistance</li>
+                </ul>
+            </section>
+        </main>
+
+        <footer>
+            <p>TabulariumCMS API Documentation - Last updated January 2026</p>
+            <p>For questions or support, contact your system administrator</p>
+        </footer>
+    </div>
+</body>
+</html>

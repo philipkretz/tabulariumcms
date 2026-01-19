@@ -1,0 +1,5 @@
+{% if object.isDraft %}
+<a class="btn btn-sm btn-warning" href="{{ admin.generateObjectUrl('test', object) }}" title="Send Test Email">
+    <i class="fa fa-envelope"></i> Test
+</a>
+{% endif %}

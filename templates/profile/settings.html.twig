@@ -1,0 +1,245 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Account Settings - {{ parent() }}{% endblock %}
+
+{% block body %}
+<!-- Include Navigation -->
+{% include 'components/navigation.html.twig' %}
+
+<!-- Cookie Banner -->
+{% include 'components/cookie_banner.html.twig' %}
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        {% include 'profile/_navigation.html.twig' %}
+
+        {% for type, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="mb-6 rounded-lg p-4 {{ type == 'success' ? 'bg-green-50 border border-green-200 text-green-800' : 'bg-red-50 border border-red-200 text-red-800' }}">
+                    <div class="flex items-center">
+                        <i class="fas {{ type == 'success' ? 'fa-check-circle' : 'fa-exclamation-circle' }} mr-2"></i>
+                        {{ message }}
+                    </div>
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2">
+                <!-- Password Change Section -->
+                <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-lock mr-3 text-yellow-600"></i>
+                        Change Password
+                    </h2>
+
+                    <form method="post" action="{{ path('app_profile_change_password') }}">
+                        <div class="mb-6">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Current Password <span class="text-red-500">*</span>
+                            </label>
+                            <input type="password"
+                                   name="current_password"
+                                   required
+                                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition"
+                                   placeholder="Enter your current password">
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    New Password <span class="text-red-500">*</span>
+                                </label>
+                                <input type="password"
+                                       name="new_password"
+                                       id="new_password"
+                                       required
+                                       minlength="8"
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition"
+                                       placeholder="At least 8 characters">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Confirm New Password <span class="text-red-500">*</span>
+                                </label>
+                                <input type="password"
+                                       name="confirm_password"
+                                       required
+                                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 focus:border-transparent transition"
+                                       placeholder="Re-enter new password">
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+                            <p class="text-sm text-blue-800">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                <strong>Password Requirements:</strong> At least 8 characters long
+                            </p>
+                        </div>
+
+                        <input type="hidden" name="_csrf_token" value="{{ csrf_token('change_password') }}">
+
+                        <div class="flex justify-end">
+                            <button type="submit"
+                                    class="px-8 py-3 bg-gradient-to-r from-yellow-600 to-yellow-500 hover:from-yellow-700 hover:to-yellow-600 text-white font-semibold rounded-lg transition shadow-lg">
+                                <i class="fas fa-key mr-2"></i>Update Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Two-Factor Authentication Section -->
+                <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-shield-alt mr-3 text-yellow-600"></i>
+                        Two-Factor Authentication
+                    </h2>
+
+                    {% if app.user.isTwoFactorEnabled %}
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <h3 class="text-lg font-semibold text-green-900 mb-1">2FA is Enabled</h3>
+                                    <p class="text-sm text-green-800">
+                                        Your account is protected with two-factor authentication.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm text-gray-600">
+                                    Configured on: {{ app.user.createdAt|date('F d, Y') }}
+                                </p>
+                            </div>
+                            <a href="{{ path('app_2fa_disable') }}"
+                               onclick="return confirm('Are you sure you want to disable 2FA? This will make your account less secure.')"
+                               class="px-6 py-3 bg-red-100 hover:bg-red-200 text-red-700 font-semibold rounded-lg transition">
+                                <i class="fas fa-times-circle mr-2"></i>Disable 2FA
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl"></i>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <h3 class="text-lg font-semibold text-yellow-900 mb-1">2FA is Not Enabled</h3>
+                                    <p class="text-sm text-yellow-800 mb-4">
+                                        Add an extra layer of security to your account by enabling two-factor authentication.
+                                    </p>
+                                    <ul class="text-sm text-yellow-800 space-y-1 mb-4">
+                                        <li><i class="fas fa-check mr-2"></i>Protect your account from unauthorized access</li>
+                                        <li><i class="fas fa-check mr-2"></i>Use Google Authenticator or similar apps</li>
+                                        <li><i class="fas fa-check mr-2"></i>Quick and easy setup</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <a href="{{ path('app_2fa_setup') }}"
+                               class="px-8 py-3 bg-gradient-to-r from-green-600 to-green-500 hover:from-green-700 hover:to-green-600 text-white font-semibold rounded-lg transition shadow-lg">
+                                <i class="fas fa-shield-alt mr-2"></i>Enable 2FA
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Email Verification Section -->
+                <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+                    <h2 class="text-2xl font-bold text-gray-900 mb-6 flex items-center">
+                        <i class="fas fa-envelope-circle-check mr-3 text-yellow-600"></i>
+                        Email Verification
+                    </h2>
+
+                    {% if app.user.isVerified %}
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                            <div class="flex items-center">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                                </div>
+                                <div class="ml-4">
+                                    <h3 class="text-lg font-semibold text-green-900">Email Verified</h3>
+                                    <p class="text-sm text-green-800">{{ app.user.email }}</p>
+                                </div>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-4">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0">
+                                    <i class="fas fa-exclamation-triangle text-yellow-600 text-2xl"></i>
+                                </div>
+                                <div class="ml-4 flex-1">
+                                    <h3 class="text-lg font-semibold text-yellow-900 mb-1">Email Not Verified</h3>
+                                    <p class="text-sm text-yellow-800">
+                                        Please verify your email address: <strong>{{ app.user.email }}</strong>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end">
+                            <button type="button"
+                                    onclick="alert('Verification email sent! Please check your inbox.')"
+                                    class="px-8 py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 text-white font-semibold rounded-lg transition shadow-lg">
+                                <i class="fas fa-paper-plane mr-2"></i>Resend Verification Email
+                            </button>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Danger Zone -->
+                <div class="bg-white rounded-lg shadow-lg p-8 border-2 border-red-200">
+                    <h2 class="text-2xl font-bold text-red-600 mb-6 flex items-center">
+                        <i class="fas fa-exclamation-triangle mr-3"></i>
+                        Danger Zone
+                    </h2>
+
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-6 mb-4">
+                        <h3 class="font-semibold text-red-900 mb-2">Delete Account</h3>
+                        <p class="text-sm text-red-800 mb-4">
+                            Once you delete your account, there is no going back. This action cannot be undone.
+                            All your data including orders, addresses, and personal information will be permanently removed.
+                        </p>
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button type="button"
+                                onclick="if(confirm('Are you ABSOLUTELY sure you want to delete your account? This action CANNOT be undone!')) { alert('Account deletion requested. Please contact support to complete this action.'); }"
+                                class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition">
+                            <i class="fas fa-trash-alt mr-2"></i>Delete My Account
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                {% include 'profile/_sidebar.html.twig' %}
+
+                <!-- Security Tips -->
+                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
+                    <h3 class="font-bold text-blue-900 mb-3">
+                        <i class="fas fa-lightbulb mr-2"></i>Security Tips
+                    </h3>
+                    <ul class="text-sm text-blue-800 space-y-2">
+                        <li><i class="fas fa-check-circle mr-2"></i>Use a strong, unique password</li>
+                        <li><i class="fas fa-check-circle mr-2"></i>Enable two-factor authentication</li>
+                        <li><i class="fas fa-check-circle mr-2"></i>Never share your password</li>
+                        <li><i class="fas fa-check-circle mr-2"></i>Verify your email address</li>
+                        <li><i class="fas fa-check-circle mr-2"></i>Log out on shared devices</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

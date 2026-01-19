@@ -1,0 +1,14 @@
+{% extends '@SonataAdmin/CRUD/list_string.html.twig' %}
+
+{% block field %}
+    {% if object.user %}
+        <i class="fa fa-user"></i>
+        <a href="{{ admin.generateObjectUrl('show', object) }}">
+            {{ object.user.username }}
+        </a>
+    {% else %}
+        <span class="text-muted">
+            <i class="fa fa-user-slash"></i> System
+        </span>
+    {% endif %}
+{% endblock %}

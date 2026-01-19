@@ -1,0 +1,413 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Post Editor{% endblock %}
+
+{% block stylesheets %}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/theme/material.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+    <style>
+        .cm-editor { height: 500px; font-size: 14px; }
+        .grid-layout { display: grid; gap: 1rem; }
+        .grid-layout.cols-12 { grid-template-columns: repeat(12, 1fr); }
+        .grid-layout.cols-6 { grid-template-columns: repeat(6, 1fr); }
+        .grid-layout.cols-4 { grid-template-columns: repeat(4, 1fr); }
+        .grid-layout.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-layout.cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-layout.freeform { position: relative; min-height: 500px; }
+        .grid-block { border: 2px dashed #d1d5db; min-height: 60px; display: flex; align-items: center; justify-content: center; background: #f9fafb; }
+        .ruler { position: absolute; background: #e5e7eb; z-index: 1000; }
+        .ruler.horizontal { height: 1px; width: 100%; }
+        .ruler.vertical { width: 1px; height: 100%; }
+        .content-preview { border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; min-height: 400px; }
+        .ai-panel { border: 1px solid #e5e7eb; border-radius: 8px; padding: 1rem; }
+        .suggestion-item { padding: 0.75rem; border: 1px solid #e5e7eb; border-radius: 4px; margin-bottom: 0.5rem; cursor: pointer; }
+        .suggestion-item:hover { background: #f3f4f6; }
+    </style>
+{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-100">
+    <!-- Admin Header -->
+    <header class="bg-white shadow-sm border-b">
+        <div class="px-6 py-4">
+            <div class="flex items-center justify-between">
+                <h1 class="text-2xl font-semibold text-gray-900">Edit Post</h1>
+                <div class="flex items-center space-x-4">
+                    <a href="{{ path('admin_post_index') }}" class="text-gray-600 hover:text-gray-900">
+                        <i class="fas fa-arrow-left mr-2"></i>Back to Posts
+                    </a>
+                    <button onclick="savePost()" class="btn btn-primary">
+                        <i class="fas fa-save mr-2"></i>Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-80 bg-white shadow-lg overflow-y-auto">
+            <div class="p-6 space-y-6">
+                <!-- Post Information -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Post Information</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                            <input type="text" id="post-title" value="{{ post.title }}" class="form-input">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Slug</label>
+                            <input type="text" id="post-slug" value="{{ post.slug }}" class="form-input">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+                            <select id="post-status" class="form-input">
+                                <option value="draft" {{ post.status == 'draft' ? 'selected' : '' }}>Draft</option>
+                                <option value="published" {{ post.status == 'published' ? 'selected' : '' }}>Published</option>
+                                <option value="archived" {{ post.status == 'archived' ? 'selected' : '' }}>Archived</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Layout Settings -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Layout Settings</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Layout Type</label>
+                            <select id="layout-type" onchange="changeLayout()" class="form-input">
+                                <option value="grid" {{ layoutSettings.block_layout == 'grid' ? 'selected' : '' }}>Grid</option>
+                                <option value="block" {{ layoutSettings.block_layout == 'block' ? 'selected' : '' }}>Block</option>
+                                <option value="freeform" {{ layoutSettings.block_layout == 'freeform' ? 'selected' : '' }}>Free Form</option>
+                            </select>
+                        </div>
+                        <div id="grid-settings" class="space-y-2">
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Grid Columns</label>
+                            <select id="grid-columns" class="form-input">
+                                <option value="12" {{ layoutSettings.grid_columns == 12 ? 'selected' : '' }}>12</option>
+                                <option value="6" {{ layoutSettings.grid_columns == 6 ? 'selected' : '' }}>6</option>
+                                <option value="4" {{ layoutSettings.grid_columns == 4 ? 'selected' : '' }}>4</option>
+                                <option value="3" {{ layoutSettings.grid_columns == 3 ? 'selected' : '' }}>3</option>
+                                <option value="2" {{ layoutSettings.grid_columns == 2 ? 'selected' : '' }}>2</option>
+                            </select>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="show-rulers" {{ layoutSettings.show_rulers ? 'checked' : '' }} class="rounded">
+                            <label for="show-rulers" class="text-sm text-gray-700">Show Rulers</label>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox" id="show-guides" {{ layoutSettings.show_guides ? 'checked' : '' }} class="rounded">
+                            <label for="show-guides" class="text-sm text-gray-700">Show Guides</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Block Library -->
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Block Library</h3>
+                    <div class="space-y-2">
+                        {% for category, blocks in layoutSettings.default_blocks %}
+                            <div>
+                                <h4 class="text-sm font-medium text-gray-700">{{ category|title }}</h4>
+                                <div class="grid grid-cols-2 gap-2">
+                                    {% for block in blocks %}
+                                        <div class="block-library-item cursor-pointer" onclick="addBlock('{{ block }}')" 
+                                             title="{{ block }}">
+                                            <i class="fas fa-{{ block == 'paragraph' ? 'paragraph' : block }}"></i>
+                                            <div class="text-xs">{{ block|capitalize }}</div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Editor Area -->
+        <div class="flex-1 flex flex-col">
+            <!-- Toolbar -->
+            <div class="bg-white border-b px-4 py-2">
+                <div class="flex items-center space-x-2">
+                    <button onclick="formatContent('bold')" class="p-2 hover:bg-gray-100 rounded">
+                        <i class="fas fa-bold"></i>
+                    </button>
+                    <button onclick="formatContent('italic')" class="p-2 hover:bg-gray-100 rounded">
+                        <i class="fas fa-italic"></i>
+                    </button>
+                    <button onclick="formatContent('underline')" class="p-2 hover:bg-gray-100 rounded">
+                        <i class="fas fa-underline"></i>
+                    </button>
+                    <div class="h-6 w-px bg-gray-300"></div>
+                    <button onclick="toggleAIAssist()" class="p-2 hover:bg-gray-100 rounded">
+                        <i class="fas fa-robot"></i> AI Assist
+                    </button>
+                </div>
+            </div>
+
+            <!-- Editor Container -->
+            <div id="editor-container" class="flex-1 flex">
+                <div id="layout-editor" class="w-full h-full">
+                    <!-- Rulers -->
+                    {% if layoutSettings.show_rulers %}
+                    <div class="ruler horizontal"></div>
+                    <div class="ruler vertical"></div>
+                    {% endif %}
+
+                    <!-- Layout Grid -->
+                    <div id="layout-grid" class="grid-layout {{ 'grid-layout.cols-' ~ layoutSettings.grid_columns }}">
+                        <!-- Existing blocks would be rendered here -->
+                    </div>
+
+                    <!-- Free Form Area -->
+                    <div id="freeform-area" class="grid-layout freeform">
+                        <!-- Existing freeform blocks would be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Code Editor -->
+                <div id="code-editor" class="flex-1">
+                    <textarea id="content-editor">{{ post.content }}</textarea>
+                </div>
+            </div>
+
+            <!-- AI Panel -->
+            <div id="ai-panel" class="w-80 hidden">
+                <div class="p-4 space-y-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">AI Assistant</h3>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Prompt</label>
+                        <textarea id="ai-prompt" rows="3" 
+                                  placeholder="Describe what you want to create..."
+                                  class="form-input"></textarea>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Target</label>
+                        <select id="ai-target" class="form-input">
+                            <option value="title">Title</option>
+                            <option value="content">Content</option>
+                            <option value="excerpt">Excerpt</option>
+                            <option value="keywords">Keywords</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex space-x-2">
+                        <button onclick="generateAIContent()" class="btn btn-primary">Generate</button>
+                        <button onclick="getAISuggestions()" class="btn btn-secondary">Suggestions</button>
+                    </div>
+                    
+                    <div id="ai-suggestions" class="mt-4"></div>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div id="preview-panel" class="w-80 bg-white border-l">
+                <div class="p-4">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Preview</h3>
+                    <div id="preview-content" class="content-preview">
+                        <!-- Live preview would render here -->
+                        {{ post.content|raw }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.0/mode/xml/xml.js"></script>
+    <script>
+        let editor;
+        let layoutData = {{ layoutSettings|json_encode }};
+        let currentLayout = '{{ layoutSettings.block_layout }}';
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize CodeMirror
+            editor = CodeMirror.fromTextArea(document.getElementById('content-editor'), {
+                lineNumbers: true,
+                mode: 'xml',
+                theme: 'material',
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 4,
+                lineWrapping: true,
+                extraKeys: {"Ctrl-S": "save"}
+            });
+
+            // Save keyboard shortcut
+            editor.addKeyMap({
+                "Ctrl-S": function(cm) {
+                    savePost();
+                }
+            });
+        });
+
+        function changeLayout() {
+            const layoutType = document.getElementById('layout-type').value;
+            currentLayout = layoutType;
+            
+            const gridEditor = document.getElementById('layout-editor');
+            const codeEditor = document.getElementById('code-editor');
+            
+            if (layoutType === 'grid') {
+                gridEditor.classList.remove('hidden');
+                codeEditor.classList.add('hidden');
+                updateGridColumns();
+            } else if (layoutType === 'freeform') {
+                gridEditor.classList.add('hidden');
+                codeEditor.classList.remove('hidden');
+            } else {
+                gridEditor.classList.add('hidden');
+                codeEditor.classList.remove('hidden');
+            }
+        }
+
+        function updateGridColumns() {
+            const gridEditor = document.getElementById('layout-grid');
+            const columns = document.getElementById('grid-columns').value;
+            gridEditor.className = 'grid-layout grid-layout-cols-' + columns;
+        }
+
+        function addBlock(blockType) {
+            if (currentLayout === 'grid') {
+                const gridEditor = document.getElementById('layout-grid');
+                const block = document.createElement('div');
+                block.className = 'grid-block';
+                block.textContent = blockType;
+                block.draggable = true;
+                gridEditor.appendChild(block);
+            }
+        }
+
+        function toggleAIAssist() {
+            const aiPanel = document.getElementById('ai-panel');
+            aiPanel.classList.toggle('hidden');
+        }
+
+        function generateAIContent() {
+            const prompt = document.getElementById('ai-prompt').value;
+            const target = document.getElementById('ai-target').value;
+            
+            if (!prompt || !target) {
+                alert('Please enter a prompt and select a target');
+                return;
+            }
+
+            fetch('{{ path('admin_ai_generate') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    content_type: 'post',
+                    target: target
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.content) {
+                    if (target === 'title') {
+                        document.getElementById('post-title').value = data.content;
+                    } else if (target === 'content') {
+                        editor.setValue(data.content);
+                    } else if (target === 'excerpt') {
+                        // Add excerpt field or handle as needed
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('AI generation error:', error);
+                alert('Failed to generate content');
+            });
+        }
+
+        function getAISuggestions() {
+            const content = editor.getValue();
+            
+            fetch('{{ path('admin_ai_suggestions') }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    content_type: 'post',
+                    existing_content: content,
+                    target: 'content'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const suggestionsContainer = document.getElementById('ai-suggestions');
+                suggestionsContainer.innerHTML = '';
+                
+                if (data.suggestions && data.suggestions.length > 0) {
+                    data.suggestions.forEach(suggestion => {
+                        const div = document.createElement('div');
+                        div.className = 'suggestion-item';
+                        div.textContent = suggestion;
+                        div.onclick = function() {
+                            editor.replaceSelection(suggestion);
+                        };
+                        suggestionsContainer.appendChild(div);
+                    });
+                } else {
+                    suggestionsContainer.innerHTML = '<p class="text-gray-500">No suggestions available</p>';
+                }
+            })
+            .catch(error => {
+                console.error('Suggestions error:', error);
+            });
+        }
+
+        function formatContent(command) {
+            const selection = editor.getSelection();
+            if (selection) {
+                const formatted = command + selection + command;
+                editor.replaceSelection(formatted);
+            }
+        }
+
+        function savePost() {
+            const content = editor.getValue();
+            const title = document.getElementById('post-title').value;
+            const slug = document.getElementById('post-slug').value;
+            const status = document.getElementById('post-status').value;
+
+            // Update the post content and layout
+            fetch('{{ path('admin_post_update', {'id': post.id}) }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({
+                    title: title,
+                    slug: slug,
+                    content: content,
+                    status: status,
+                    layout_data: layoutData
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Post saved successfully!');
+                } else {
+                    alert('Error saving post: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Save error:', error);
+                alert('Failed to save post');
+            });
+        }
+    </script>
+{% endblock %}

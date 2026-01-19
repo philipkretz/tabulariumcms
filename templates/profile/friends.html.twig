@@ -1,0 +1,121 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ targetUser.fullName }} - Friends{% endblock %}
+
+{% block body %}
+<div class="min-h-screen bg-gray-50">
+    {# Header Section #}
+    <div class="bg-white border-b">
+        <div class="max-w-6xl mx-auto px-4 py-6">
+            <div class="flex items-center gap-4">
+                {# Back to Profile #}
+                <a href="{{ path('app_public_profile', {slug: profile.profileSlug ?? targetUser.username}) }}" class="text-gray-600 hover:text-gray-900">
+                    <i class="fas fa-arrow-left text-xl"></i>
+                </a>
+
+                {# Profile Info #}
+                <div class="flex items-center gap-4 flex-grow">
+                    {% if profile.avatar %}
+                        <img src="{{ asset('uploads/profiles/' ~ profile.avatar) }}" alt="{{ targetUser.fullName }}" class="w-16 h-16 rounded-full">
+                    {% else %}
+                        {% set initials = targetUser.firstName|slice(0, 1)|upper ~ targetUser.lastName|slice(0, 1)|upper %}
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 flex items-center justify-center text-white text-xl font-bold">
+                            {{ initials }}
+                        </div>
+                    {% endif %}
+
+                    <div>
+                        <h1 class="text-2xl font-bold text-gray-900">{{ targetUser.fullName }}'s Friends</h1>
+                        <p class="text-gray-600">{{ friends|length }} friends</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Main Content #}
+    <div class="max-w-6xl mx-auto px-4 py-8">
+        {% if not canViewFriends %}
+            {# Private Profile Notice #}
+            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6">
+                <div class="flex items-center">
+                    <i class="fas fa-lock text-yellow-600 mr-3 text-2xl"></i>
+                    <div>
+                        <h3 class="font-semibold text-yellow-900 text-lg">Friends List is Private</h3>
+                        <p class="text-yellow-700">This user's friends list is private. Add {{ targetUser.firstName }} as a friend to see their friends.</p>
+                    </div>
+                </div>
+            </div>
+        {% elseif friends|length > 0 %}
+            {# Friends Grid #}
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {% for friend in friends %}
+                    <div class="bg-white rounded-xl shadow hover:shadow-lg transition p-6">
+                        <div class="text-center">
+                            {# Avatar #}
+                            <a href="{{ path('app_public_profile', {slug: friend.profile.profileSlug ?? friend.username}) }}" class="block">
+                                {% if friend.profile.avatar %}
+                                    <img src="{{ asset('uploads/profiles/' ~ friend.profile.avatar) }}" alt="{{ friend.fullName }}" class="w-24 h-24 rounded-full mx-auto hover:opacity-80 transition">
+                                {% else %}
+                                    {% set friendInitials = friend.firstName|slice(0, 1)|upper ~ friend.lastName|slice(0, 1)|upper %}
+                                    <div class="w-24 h-24 rounded-full mx-auto bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center text-white text-2xl font-bold hover:opacity-80 transition">
+                                        {{ friendInitials }}
+                                    </div>
+                                {% endif %}
+                            </a>
+
+                            {# Name #}
+                            <a href="{{ path('app_public_profile', {slug: friend.profile.profileSlug ?? friend.username}) }}" class="block mt-4">
+                                <h3 class="text-lg font-bold text-gray-900 hover:text-yellow-600">{{ friend.fullName }}</h3>
+                            </a>
+
+                            {# Tagline #}
+                            {% if friend.profile.tagline %}
+                                <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ friend.profile.tagline }}</p>
+                            {% endif %}
+
+                            {# Location #}
+                            {% if friend.profile.location %}
+                                <div class="flex items-center justify-center text-sm text-gray-500 mt-2">
+                                    <i class="fas fa-map-marker-alt mr-1"></i>
+                                    {{ friend.profile.location }}
+                                </div>
+                            {% endif %}
+
+                            {# Actions #}
+                            <div class="mt-4 flex gap-2">
+                                <a href="{{ path('app_public_profile', {slug: friend.profile.profileSlug ?? friend.username}) }}" class="flex-1 bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 transition text-sm">
+                                    View Profile
+                                </a>
+                                {% if app.user and friend.profile.allowMessages %}
+                                    <a href="{{ path('app_messages_conversation', {username: friend.username}) }}" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition text-sm">
+                                        <i class="fas fa-envelope"></i>
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            {# Empty State #}
+            <div class="bg-white rounded-xl shadow p-12 text-center">
+                <i class="fas fa-user-friends text-gray-300 text-6xl mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-900 mb-2">No Friends Yet</h3>
+                <p class="text-gray-600">
+                    {% if isOwnProfile %}
+                        Start connecting with other members to build your network!
+                    {% else %}
+                        {{ targetUser.firstName }} hasn't added any friends yet.
+                    {% endif %}
+                </p>
+                {% if isOwnProfile %}
+                    <a href="{{ path('app_profile_directory') }}" class="inline-block mt-4 bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition">
+                        <i class="fas fa-users mr-2"></i>Discover Members
+                    </a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

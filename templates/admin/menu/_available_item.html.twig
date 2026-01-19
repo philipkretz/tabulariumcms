@@ -1,0 +1,12 @@
+<div class="available-item" data-item-id="{{ item.id }}" draggable="true">
+    <div class="item-content">
+        <i class="fas fa-plus-circle handle text-success"></i>
+        <span class="title">{{ item.title }}</span>
+        {% if item.menu %}
+            <span class="text-muted ml-2">(Currently in {{ item.menu.name }})</span>
+        {% endif %}
+        {% if item.effectiveUrl %}
+            <div class="url text-muted small">{{ item.effectiveUrl }}</div>
+        {% endif %}
+    </div>
+</div>

@@ -1,0 +1,11 @@
+<button type="button"
+        class="btn btn-default"
+        onclick="if(confirm('Create a copy of this theme?')) { document.getElementById('copy-form').submit(); }">
+    <i class="fas fa-copy"></i> Copy Theme
+</button>
+
+<form id="copy-form"
+      action="{{ path('admin_theme_copy', {id: object.id}) }}"
+      method="post"
+      style="display: none;">
+</form>

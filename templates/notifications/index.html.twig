@@ -1,0 +1,135 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Notifications - {{ parent() }}{% endblock %}
+
+{% block body %}
+<!-- Include Navigation -->
+{% include 'components/navigation.html.twig' %}
+
+<!-- Cookie Banner -->
+{% include 'components/cookie_banner.html.twig' %}
+
+<div class="min-h-screen bg-gradient-to-b from-gray-50 to-white py-8">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="mb-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">
+                        <i class="fas fa-bell text-yellow-600 mr-2"></i>
+                        Notifications
+                    </h1>
+                    <p class="mt-1 text-sm text-gray-600">
+                        {% if unreadCount > 0 %}
+                            You have <span class="font-semibold text-yellow-600">{{ unreadCount }}</span> unread {{ unreadCount == 1 ? 'notification' : 'notifications' }}
+                        {% else %}
+                            All caught up! No unread notifications
+                        {% endif %}
+                    </p>
+                </div>
+                <div class="flex items-center space-x-2">
+                    {% if unreadCount > 0 %}
+                        <button
+                            onclick="markAllAsRead()"
+                            class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-medium rounded-lg transition text-sm"
+                        >
+                            <i class="fas fa-check-double mr-2"></i>
+                            Mark All Read
+                        </button>
+                    {% endif %}
+                    <a href="{{ path('app_profile') }}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-lg transition text-sm">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notifications List -->
+        <div class="bg-white rounded-lg shadow-lg">
+            {% if notifications is empty %}
+                <!-- Empty State -->
+                <div class="text-center py-16 px-4">
+                    <div class="inline-flex items-center justify-center w-20 h-20 bg-gray-100 rounded-full mb-4">
+                        <i class="fas fa-bell-slash text-gray-400 text-4xl"></i>
+                    </div>
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">No notifications yet</h3>
+                    <p class="text-gray-600 mb-6 max-w-md mx-auto">
+                        When you get notifications about friend requests, messages, or other activities, they'll appear here.
+                    </p>
+                </div>
+            {% else %}
+                <!-- Notifications -->
+                <div id="notifications-list" class="divide-y divide-gray-200">
+                    {% for notification in notifications %}
+                        {% include 'notifications/_notification_item.html.twig' with {'notification': notification} %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    async function markAllAsRead() {
+        try {
+            const response = await fetch('{{ path('app_notifications_mark_all_read') }}', {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                // Reload page to update UI
+                location.reload();
+            } else {
+                alert('Failed to mark all as read');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Network error. Please try again.');
+        }
+    }
+
+    async function markNotificationRead(notificationId) {
+        try {
+            await fetch(`/notifications/${notificationId}/mark-read`, {
+                method: 'POST'
+            });
+        } catch (error) {
+            console.error('Error marking notification as read:', error);
+        }
+    }
+
+    async function deleteNotification(notificationId) {
+        if (!confirm('Delete this notification?')) return;
+
+        try {
+            const response = await fetch(`/notifications/${notificationId}/delete`, {
+                method: 'POST'
+            });
+
+            if (response.ok) {
+                // Remove notification from UI
+                const notificationElement = document.querySelector(`[data-notification-id="${notificationId}"]`);
+                if (notificationElement) {
+                    notificationElement.style.transition = 'opacity 0.3s';
+                    notificationElement.style.opacity = '0';
+                    setTimeout(() => {
+                        notificationElement.remove();
+
+                        // Check if no more notifications
+                        const notificationsList = document.getElementById('notifications-list');
+                        if (notificationsList && notificationsList.children.length === 0) {
+                            location.reload();
+                        }
+                    }, 300);
+                }
+            } else {
+                alert('Failed to delete notification');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Network error. Please try again.');
+        }
+    }
+</script>
+{% endblock %}

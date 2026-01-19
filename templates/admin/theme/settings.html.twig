@@ -1,0 +1,252 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Theme Settings{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-lg p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h1 class="text-3xl font-bold text-gray-900">
+                <i class="fas fa-palette mr-2 text-purple-600"></i>
+                Theme Settings
+            </h1>
+            <a href="{{ path('sonata_admin_dashboard') }}" class="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition">
+                <i class="fas fa-arrow-left mr-2"></i>Back to Dashboard
+            </a>
+        </div>
+
+        {% for label, messages in app.flashes %}
+            {% for message in messages %}
+                <div class="mb-4 p-4 rounded-lg {% if label == 'success' %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endfor %}
+
+        <form method="post" class="space-y-8">
+            <!-- Logo Settings -->
+            <div class="border-b border-gray-200 pb-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-image mr-2 text-blue-600"></i>
+                    Logo & Branding
+                </h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="site_name" class="block text-sm font-medium text-gray-700 mb-2">Site Name</label>
+                        <input type="text" id="site_name" name="site_name" value="{{ settings.siteName }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                    </div>
+                    <div>
+                        <label for="logo_path" class="block text-sm font-medium text-gray-700 mb-2">Logo Path</label>
+                        <input type="text" id="logo_path" name="logo_path" value="{{ settings.logoPath }}"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                               placeholder="tabulariumcms.png">
+                        <p class="text-xs text-gray-500 mt-1">Path relative to public directory</p>
+                    </div>
+                    <div>
+                        <label for="logo_size_multiplier" class="block text-sm font-medium text-gray-700 mb-2">Logo Size Multiplier</label>
+                        <input type="number" id="logo_size_multiplier" name="logo_size_multiplier" value="{{ settings.logoSizeMultiplier }}"
+                               min="1" max="5" step="1"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">1 = small, 2 = medium, 3 = large (default), 4-5 = extra large</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Color Settings -->
+            <div class="border-b border-gray-200 pb-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-paint-brush mr-2 text-purple-600"></i>
+                    Color Scheme
+                </h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div>
+                        <label for="primary_color" class="block text-sm font-medium text-gray-700 mb-2">Primary Color</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" id="primary_color" name="primary_color" value="{{ settings.primaryColor }}"
+                                   class="h-10 w-20 border border-gray-300 rounded cursor-pointer">
+                            <input type="text" value="{{ settings.primaryColor }}"
+                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                                   readonly onclick="this.select()">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="secondary_color" class="block text-sm font-medium text-gray-700 mb-2">Secondary Color</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" id="secondary_color" name="secondary_color" value="{{ settings.secondaryColor }}"
+                                   class="h-10 w-20 border border-gray-300 rounded cursor-pointer">
+                            <input type="text" value="{{ settings.secondaryColor }}"
+                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                                   readonly onclick="this.select()">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="accent_color" class="block text-sm font-medium text-gray-700 mb-2">Accent Color</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" id="accent_color" name="accent_color" value="{{ settings.accentColor }}"
+                                   class="h-10 w-20 border border-gray-300 rounded cursor-pointer">
+                            <input type="text" value="{{ settings.accentColor }}"
+                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                                   readonly onclick="this.select()">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="navigation_bg_color" class="block text-sm font-medium text-gray-700 mb-2">Navigation Background</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" id="navigation_bg_color" name="navigation_bg_color" value="{{ settings.navigationBgColor }}"
+                                   class="h-10 w-20 border border-gray-300 rounded cursor-pointer">
+                            <input type="text" value="{{ settings.navigationBgColor }}"
+                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                                   readonly onclick="this.select()">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="navigation_text_color" class="block text-sm font-medium text-gray-700 mb-2">Navigation Text</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" id="navigation_text_color" name="navigation_text_color" value="{{ settings.navigationTextColor }}"
+                                   class="h-10 w-20 border border-gray-300 rounded cursor-pointer">
+                            <input type="text" value="{{ settings.navigationTextColor }}"
+                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                                   readonly onclick="this.select()">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="button_color" class="block text-sm font-medium text-gray-700 mb-2">Button Color</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" id="button_color" name="button_color" value="{{ settings.buttonColor }}"
+                                   class="h-10 w-20 border border-gray-300 rounded cursor-pointer">
+                            <input type="text" value="{{ settings.buttonColor }}"
+                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                                   readonly onclick="this.select()">
+                        </div>
+                    </div>
+                    <div>
+                        <label for="button_hover_color" class="block text-sm font-medium text-gray-700 mb-2">Button Hover Color</label>
+                        <div class="flex items-center gap-2">
+                            <input type="color" id="button_hover_color" name="button_hover_color" value="{{ settings.buttonHoverColor }}"
+                                   class="h-10 w-20 border border-gray-300 rounded cursor-pointer">
+                            <input type="text" value="{{ settings.buttonHoverColor }}"
+                                   class="flex-1 px-4 py-2 border border-gray-300 rounded-lg"
+                                   readonly onclick="this.select()">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Responsive Breakpoints -->
+            <div class="border-b border-gray-200 pb-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-mobile-alt mr-2 text-green-600"></i>
+                    Responsive Breakpoints (pixels)
+                </h2>
+                <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div>
+                        <label for="breakpoint_mobile" class="block text-sm font-medium text-gray-700 mb-2">Mobile → Tablet</label>
+                        <input type="number" id="breakpoint_mobile" name="breakpoint_mobile" value="{{ settings.breakpointMobile }}"
+                               min="320" max="1024" step="1"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">Default: 768px</p>
+                    </div>
+                    <div>
+                        <label for="breakpoint_tablet" class="block text-sm font-medium text-gray-700 mb-2">Tablet → Desktop</label>
+                        <input type="number" id="breakpoint_tablet" name="breakpoint_tablet" value="{{ settings.breakpointTablet }}"
+                               min="768" max="1536" step="1"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">Default: 1024px</p>
+                    </div>
+                    <div>
+                        <label for="breakpoint_desktop" class="block text-sm font-medium text-gray-700 mb-2">Desktop → XL</label>
+                        <input type="number" id="breakpoint_desktop" name="breakpoint_desktop" value="{{ settings.breakpointDesktop }}"
+                               min="1024" max="2048" step="1"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">Default: 1280px</p>
+                    </div>
+                    <div>
+                        <label for="breakpoint_xl" class="block text-sm font-medium text-gray-700 mb-2">XL Breakpoint</label>
+                        <input type="number" id="breakpoint_xl" name="breakpoint_xl" value="{{ settings.breakpointXl }}"
+                               min="1280" max="2560" step="1"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">Default: 1536px</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Container Settings -->
+            <div class="border-b border-gray-200 pb-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+                    <i class="fas fa-expand mr-2 text-orange-600"></i>
+                    Layout Settings
+                </h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="container_max_width" class="block text-sm font-medium text-gray-700 mb-2">Container Max Width (pixels)</label>
+                        <input type="number" id="container_max_width" name="container_max_width" value="{{ settings.containerMaxWidth }}"
+                               min="960" max="1920" step="1"
+                               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent">
+                        <p class="text-xs text-gray-500 mt-1">Default: 1280px. Maximum width of content container.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex items-center justify-between pt-4">
+                <button type="submit" class="px-8 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition shadow-lg">
+                    <i class="fas fa-save mr-2"></i>
+                    Save Theme Settings
+                </button>
+                <button type="button" onclick="resetToDefaults()" class="px-6 py-3 bg-gray-500 hover:bg-gray-600 text-white font-semibold rounded-lg transition">
+                    <i class="fas fa-undo mr-2"></i>
+                    Reset to Defaults
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Live Preview (Optional) -->
+    <div class="mt-8 bg-white rounded-lg shadow-lg p-6">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">
+            <i class="fas fa-eye mr-2 text-indigo-600"></i>
+            Preview
+        </h2>
+        <div class="bg-gray-100 rounded-lg p-4">
+            <p class="text-gray-600 text-center">
+                <i class="fas fa-info-circle mr-2"></i>
+                Save your settings and refresh the frontend to see changes applied.
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Reset form to default values
+    function resetToDefaults() {
+        if (confirm('Are you sure you want to reset all theme settings to defaults?')) {
+            document.getElementById('logo_path').value = 'tabulariumcms.png';
+            document.getElementById('site_name').value = 'TabulariumCMS';
+            document.getElementById('logo_size_multiplier').value = 3;
+            document.getElementById('primary_color').value = '#d97706';
+            document.getElementById('secondary_color').value = '#b45309';
+            document.getElementById('accent_color').value = '#92400e';
+            document.getElementById('navigation_bg_color').value = '#fef3c7';
+            document.getElementById('navigation_text_color').value = '#92400e';
+            document.getElementById('button_color').value = '#d97706';
+            document.getElementById('button_hover_color').value = '#b45309';
+            document.getElementById('breakpoint_mobile').value = 768;
+            document.getElementById('breakpoint_tablet').value = 1024;
+            document.getElementById('breakpoint_desktop').value = 1280;
+            document.getElementById('breakpoint_xl').value = 1536;
+            document.getElementById('container_max_width').value = 1280;
+        }
+    }
+
+    // Update text input when color picker changes
+    document.querySelectorAll('input[type="color"]').forEach(colorInput => {
+        colorInput.addEventListener('input', function() {
+            const textInput = this.nextElementSibling;
+            if (textInput && textInput.type === 'text') {
+                textInput.value = this.value;
+            }
+        });
+    });
+</script>
+{% endblock %}

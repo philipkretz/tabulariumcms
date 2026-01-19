@@ -1,0 +1,354 @@
+{% verbatim %}
+// Navigation Component
+const Navigation = {
+    name: 'Navigation',
+    props: {
+        position: {
+            type: String,
+            default: 'header'
+        }
+    },
+    data() {
+        return {
+            menuItems: [],
+            languages: [
+                { code: 'en', name: 'English', nativeName: 'English', flagEmoji: '🇬🇧', isDefault: true },
+                { code: 'de', name: 'German', nativeName: 'Deutsch', flagEmoji: '🇩🇪', isDefault: false },
+                { code: 'es', name: 'Spanish', nativeName: 'Español', flagEmoji: '🇪🇸', isDefault: false },
+                { code: 'fr', name: 'French', nativeName: 'Français', flagEmoji: '🇫🇷', isDefault: false },
+                { code: 'ca', name: 'Catalan', nativeName: 'Català', flagEmoji: '🇪🇸', isDefault: false }
+            ],
+            currentLanguage: 'en',
+            languageSwitcherEnabled: false,
+            languageDropdownOpen: false,
+            mobileMenuOpen: false,
+            openSubmenus: [],
+            cartCount: 0
+        }
+    },
+    template: `
+        <nav class="bg-white shadow-lg sticky top-0 z-50">
+            <div class="container mx-auto px-4">
+                <div class="flex justify-between items-center py-4">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-40 h-40 rounded-lg overflow-hidden">
+                            <img src="/tabulariumcms.png" alt="TabulariumCMS Logo" class="w-full h-full object-cover">
+                        </div>
+                        <a href="/" class="text-xl font-bold" style="color: #4c505b;">
+                            TabulariumCMS
+                        </a>
+                    </div>
+                    <div class="hidden lg:flex items-center space-x-1">
+                        <template v-for="item in menuItems" :key="item.id">
+                            <div v-if="item.children && item.children.length > 0" class="relative group">
+                                <button class="px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 flex items-center space-x-1">
+                                    <i v-if="item.icon" :class="item.icon" class="text-sm"></i>
+                                    <span class="font-medium text-gray-700">{{ item.title }}</span>
+                                    <svg class="w-4 h-4 transform group-hover:rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                    </svg>
+                                </button>
+                                <div class="absolute left-0 mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
+                                    <div class="py-2">
+                                        <a v-for="child in item.children" :key="child.id"
+                                           :href="child.url"
+                                           :target="child.openInNewTab ? '_blank' : '_self'"
+                                           class="block px-4 py-2 text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-150">
+                                            <i v-if="child.icon" :class="child.icon" class="text-sm mr-2"></i>
+                                            {{ child.title }}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <a v-else
+                               :href="item.url"
+                               :target="item.openInNewTab ? '_blank' : '_self'"
+                               class="px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 flex items-center space-x-2">
+                                <i v-if="item.icon" :class="item.icon" class="text-sm"></i>
+                                <span class="font-medium text-gray-700">{{ item.title }}</span>
+                            </a>
+                        </template>
+                        <a :href="cartUrl" class="relative p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200 group ml-2" :title="cartCount + ' item(s) in cart'">
+                            <svg class="w-6 h-6 text-gray-700 group-hover:text-blue-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            <span v-if="cartCount > 0" class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                {{ cartCount > 99 ? '99+' : cartCount }}
+                            </span>
+                        </a>
+                        <div v-if="languages.length > 0" class="relative ml-4">
+                            <button @click.stop="languageDropdownOpen = !languageDropdownOpen; console.log('Dropdown toggled:', languageDropdownOpen, 'Languages:', languages.length)"
+                                    class="px-4 py-2 rounded-lg transition-colors duration-200 flex items-center space-x-2" style="background: linear-gradient(135deg, #f0e8d0 0%, #d1b05f 50%, #d3c29d 100%); border: 2px solid #d1b05f;">
+                                <i class="fas fa-globe" style="color: #4c505b;"></i>
+                                <span class="font-medium" style="color: #4c505b;">{{ currentLanguage.toUpperCase() }}</span>
+                                <svg class="w-4 h-4 transform transition-transform duration-200" :class="{ 'rotate-180': languageDropdownOpen }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                            <div v-show="languageDropdownOpen" @click.stop class="absolute right-0 mt-2 w-48 bg-white border-2 border-gray-800 rounded-lg shadow-xl" style="z-index: 9999;">
+                                <div class="py-2">
+                                    <button v-for="lang in languages" :key="lang.code"
+                                            @click="changeLanguage(lang.code)"
+                                            :class="{ 'language-active': lang.code === currentLanguage }"
+                                            class="w-full text-left px-4 py-2 hover:bg-gray-100 transition-colors duration-150 flex items-center space-x-2" style="color: #4c505b;">
+                                        <span>{{ lang.flagEmoji }}</span>
+                                        <span>{{ lang.nativeName }}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    `,
+    computed: {
+        cartUrl() {
+            const path = window.location.pathname;
+            const supportedLocales = ['en', 'de', 'es', 'fr', 'ca', 'it', 'pt', 'nl', 'pl', 'ru', 'ja', 'zh', 'ar', 'sv', 'no', 'da', 'fi', 'cs', 'sk', 'hu', 'ro', 'el', 'tr', 'uk', 'ko', 'hi', 'th', 'vi'];
+            const pathParts = path.split('/').filter(part => part.length > 0);
+            const locale = (pathParts.length > 0 && supportedLocales.includes(pathParts[0])) ? pathParts[0] : 'en';
+            return locale === 'en' ? '/cart' : `/${locale}/cart`;
+        }
+    },
+    async mounted() {
+        await this.loadSettings();
+        await this.loadMenu();
+        await this.loadLanguages();
+        await this.loadCartCount();
+        document.addEventListener('click', this.closeLanguageDropdown);
+        document.addEventListener('cartUpdated', this.handleCartUpdate);
+    },
+    beforeUnmount() {
+        document.removeEventListener('click', this.closeLanguageDropdown);
+        document.removeEventListener('cartUpdated', this.handleCartUpdate);
+    },
+    methods: {
+        async loadSettings() {
+            try {
+                const response = await fetch('/api/site-settings/public');
+                const data = await response.json();
+                const languageSwitcherSetting = data.find(s => s.key === 'language_switcher_enabled');
+                this.languageSwitcherEnabled = languageSwitcherSetting && languageSwitcherSetting.value === 'true';
+            } catch (error) {
+                console.error('Failed to load settings:', error);
+                this.languageSwitcherEnabled = false;
+            }
+        },
+        async loadMenu() {
+            try {
+                const response = await fetch(`/public-api/menus/${this.position}`);
+                const data = await response.json();
+                this.menuItems = data.items || [];
+            } catch (error) {
+                console.error('Failed to load menu:', error);
+            }
+        },
+        async loadLanguages() {
+            try {
+                const response = await fetch('/public-api/languages');
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    this.languages = data;
+                    console.log('Languages loaded from API:', this.languages);
+                } else {
+                    console.warn('No languages returned from API, using fallback');
+                }
+            } catch (error) {
+                console.error('Failed to load languages from API:', error);
+                console.log('Using fallback languages');
+            }
+
+            const savedLang = localStorage.getItem('preferred-language');
+            if (savedLang) {
+                this.currentLanguage = savedLang;
+            } else {
+                const defaultLang = this.languages.find(lang => lang.isDefault);
+                if (defaultLang) {
+                    this.currentLanguage = defaultLang.code;
+                }
+            }
+        },
+        changeLanguage(languageCode) {
+            this.currentLanguage = languageCode;
+            localStorage.setItem('preferred-language', languageCode);
+            this.languageDropdownOpen = false;
+
+            // Find the language object to get its URL path
+            const language = this.languages.find(lang => lang.code === languageCode);
+            if (language) {
+                // Use urlPath if available, otherwise route to root for default language
+                if (language.urlPath) {
+                    window.location.href = language.urlPath;
+                } else {
+                    window.location.href = '/';
+                }
+            }
+        },
+        closeLanguageDropdown() {
+            this.languageDropdownOpen = false;
+        },
+        async loadCartCount() {
+            try {
+                console.log('[Vue Navigation] Loading cart count...');
+                const response = await fetch('/api/cart', {
+                    credentials: 'same-origin',
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    console.error('[Vue Navigation] Cart API response not OK:', response.status, response.statusText);
+                    return;
+                }
+
+                const data = await response.json();
+                console.log('[Vue Navigation] Cart data received:', data);
+
+                this.cartCount = data.totals?.itemCount || 0;
+                console.log('[Vue Navigation] Cart item count set to:', this.cartCount);
+            } catch (error) {
+                console.error('[Vue Navigation] Failed to load cart count:', error);
+            }
+        },
+        handleCartUpdate(event) {
+            console.log('[Vue Navigation] Cart updated event received:', event.detail);
+            if (event.detail && typeof event.detail.count !== 'undefined') {
+                this.cartCount = event.detail.count;
+            } else {
+                // Refresh from API if count not provided
+                this.loadCartCount();
+            }
+        }
+    }
+};
+
+// StartPage Component
+const StartPage = {
+    name: 'StartPage',
+    data() {
+        return {
+            currentLanguage: 'en',
+            availableLanguages: [],
+            features: [
+                {
+                    title: 'Multi-language Support',
+                    description: 'Built-in internationalization with configurable language domains',
+                    icon: 'translate',
+                    color: 'blue'
+                },
+                {
+                    title: 'Modern Tech Stack',
+                    description: 'Powered by Symfony 7, Vue.js 3, and Tailwind CSS',
+                    icon: 'code',
+                    color: 'purple'
+                },
+                {
+                    title: 'Content Management',
+                    description: 'Flexible pages, posts, and categories with rich editing',
+                    icon: 'edit',
+                    color: 'green'
+                }
+            ]
+        }
+    },
+    template: `
+        <div class="min-h-screen" style="background: linear-gradient(135deg, #f0e8d0 0%, #d1b05f 50%, #d3c29d 100%);">
+
+
+            <section class="relative overflow-hidden">
+                <div class="absolute inset-0" style="background: linear-gradient(135deg, rgba(240, 232, 208, 0.3) 0%, rgba(209, 176, 95, 0.3) 50%, rgba(211, 194, 157, 0.3) 100%);"></div>
+                <div class="relative container mx-auto px-4 py-20 lg:py-32">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div class="text-center lg:text-left space-y-8">
+                            <div class="space-y-4">
+                                <h1 class="text-5xl lg:text-7xl font-bold" style="color: #4c505b;">
+                                    Welcome to
+                                    <span class="block">TabulariumCMS</span>
+                                </h1>
+                                <p class="text-xl lg:text-2xl text-gray-600 max-w-2xl">
+                                    A modern, powerful content management system built with cutting-edge technology
+                                </p>
+                            </div>
+
+                            <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                                <button @click="navigateTo('/admin')"
+                                    class="px-8 py-4 font-semibold rounded-xl transform hover:scale-105 transition-all duration-200 shadow-lg" style="background: linear-gradient(135deg, #f0e8d0 0%, #d1b05f 50%, #d3c29d 100%); color: #4c505b; border: 2px solid #d1b05f;">
+                                    <span class="flex items-center justify-center space-x-2">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        <span>Admin Dashboard</span>
+                                    </span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="relative">
+                            <div class="absolute inset-0 rounded-3xl transform rotate-6 opacity-20" style="background: linear-gradient(135deg, #f0e8d0 0%, #d1b05f 50%, #d3c29d 100%);"></div>
+                            <div class="relative bg-white rounded-3xl shadow-2xl p-8">
+                                <div class="aspect-video rounded-2xl flex items-center justify-center" style="background: linear-gradient(135deg, rgba(240, 232, 208, 0.5) 0%, rgba(209, 176, 95, 0.5) 50%, rgba(211, 194, 157, 0.5) 100%);">
+                                    <div class="text-center space-y-4">
+                                        <div class="w-96 h-96 mx-auto">
+                                            <img src="/tabulariumcms.png" alt="TabulariumCMS Logo" class="w-full h-full object-contain">
+                                        </div>
+                                        <h3 class="text-2xl font-bold text-gray-800">Modern & Secure</h3>
+                                        <p class="text-gray-600">Built with Symfony 7, Vue.js 3, and Tailwind CSS</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="py-20 bg-white">
+                <div class="container mx-auto px-4">
+                    <div class="text-center mb-16">
+                        <h2 class="text-4xl font-bold mb-4" style="color: #4c505b;">Powerful Features</h2>
+                        <p class="text-xl text-gray-600 max-w-3xl mx-auto">
+                            Everything you need to build and manage your digital presence
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div v-for="feature in features" :key="feature.title"
+                             class="p-6 bg-white border-2 rounded-xl hover:shadow-lg transition-all duration-200" style="border-color: #d1b05f;">
+                            <h3 class="text-xl font-bold mb-2" style="color: #4c505b;">{{ feature.title }}</h3>
+                            <p class="text-gray-600">{{ feature.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="bg-gray-800 text-white py-12 mt-16">
+                <div class="container mx-auto px-4">
+                    <div class="text-center text-gray-400">
+                        <p>&copy; 2026 Profundi Web Solutions, S.L. All rights reserved.</p>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    `,
+    methods: {
+        navigateTo(path) {
+            window.location.href = path;
+        }
+    }
+};
+
+// Main App component - no router, just render StartPage directly
+const App = {
+    components: {
+        Navigation,
+        StartPage
+    },
+    template: `
+        <div>
+            <Navigation position="header" />
+            <StartPage />
+        </div>
+    `
+};
+{% endverbatim %}

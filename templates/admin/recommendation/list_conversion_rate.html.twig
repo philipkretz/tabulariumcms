@@ -1,0 +1,18 @@
+{% extends '@SonataAdmin/CRUD/base_list_field.html.twig' %}
+
+{% block field %}
+    {% set rate = object.conversionRate %}
+    {% set badgeClass = 'secondary' %}
+
+    {% if rate >= 10 %}
+        {% set badgeClass = 'success' %}
+    {% elseif rate >= 5 %}
+        {% set badgeClass = 'info' %}
+    {% elseif rate >= 1 %}
+        {% set badgeClass = 'warning' %}
+    {% endif %}
+
+    <span class="badge badge-{{ badgeClass }}" title="Clicks: {{ object.clickCount }}, Purchases: {{ object.purchaseCount }}">
+        {{ rate }}%
+    </span>
+{% endblock %}

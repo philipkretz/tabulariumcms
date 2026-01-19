@@ -1,0 +1,317 @@
+/* Custom styles for Sonata Admin - TabulariumCMS */
+
+/* Header with logo and navbar side by side */
+.main-header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    z-index: 1050 !important;
+    background: #ffffff !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: stretch !important;
+    height: auto !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+/* Logo container - sized to fit image with white background */
+.main-header .logo-container {
+    width: 220px !important;
+    max-width: 220px !important;
+    height: auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid #e5e7eb !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    flex-shrink: 0 !important;
+}
+
+/* Logo link - fill container, no padding */
+.main-header .logo-container .logo,
+.main-header .logo {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    text-decoration: none !important;
+    padding: 0 !important;
+}
+
+/* Remove default logo styling */
+.skin-black .main-header .logo {
+    background-color: transparent !important;
+    background: none !important;
+    border: none !important;
+    border-left: none !important;
+    border-right: none !important;
+}
+
+/* Logo image - fills container width */
+.logo img {
+    display: block !important;
+    width: 100% !important;
+    height: auto !important;
+    max-width: 220px !important;
+    object-fit: contain !important;
+    margin: 0 !important;
+}
+
+/* Remove unwanted styles from main header logo image */
+.main-header .logo img {
+    padding: 0 !important;
+    object-fit: contain !important;
+}
+
+
+/* Navbar - fills remaining space with golden gradient */
+.main-header .navbar {
+    flex: 1 !important;
+    min-height: 50px !important;
+    background: linear-gradient(135deg, #f0e8d0 0%, #d1b05f 50%, #d3c29d 100%) !important;
+    border: none !important;
+    border-bottom: 1px solid #c8a84f !important;
+    margin: 0 !important;
+    margin-left: 15px !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+/* Navbar title text */
+.main-header .navbar .navbar-title {
+    font-size: 24px !important;
+    font-weight: bold !important;
+    color: #4c505b !important;
+    white-space: nowrap !important;
+    margin-left: 15px !important;
+    text-shadow: 0 1px 2px rgba(255,255,255,0.3) !important;
+}
+
+/* Sidebar toggle button */
+.main-header .navbar .sidebar-toggle {
+    padding: 15px !important;
+    color: #4c505b !important;
+}
+
+/* Navbar items */
+.main-header .navbar-left {
+    flex: 1 !important;
+}
+
+.main-header .navbar-custom-menu {
+    margin-left: auto !important;
+}
+
+/* Position sidebar below header */
+.main-sidebar {
+    position: fixed !important;
+    top: 115px !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    z-index: 1100 !important;
+    padding-top: 0 !important;
+    background: #f9fafb !important;
+    width: 230px !important;
+    transition: transform 0.3s ease-in-out !important;
+    border-right: 1px solid #e5e7eb !important;
+}
+
+/* When sidebar is collapsed */
+.sidebar-collapse .main-sidebar {
+    transform: translateX(-230px) !important;
+}
+
+/* Sidebar menu styling for modern background */
+.main-sidebar .sidebar-menu > li > a {
+    color: #374151 !important;
+    border-left: 3px solid transparent !important;
+}
+
+.main-sidebar .sidebar-menu > li:hover > a,
+.main-sidebar .sidebar-menu > li.active > a {
+    background: #f3f4f6 !important;
+    border-left-color: #3b82f6 !important;
+    color: #1f2937 !important;
+}
+
+.main-sidebar .sidebar-menu .treeview-menu > li > a {
+    color: #6b7280 !important;
+    background: transparent !important;
+    border: none !important;
+}
+
+.main-sidebar .sidebar-menu .treeview-menu > li:hover > a,
+.main-sidebar .sidebar-menu .treeview-menu > li.active > a {
+    background: transparent !important;
+    color: #3b82f6 !important;
+    border: none !important;
+}
+
+.main-sidebar .sidebar-menu .treeview-menu {
+    background: transparent !important;
+}
+
+/* Treeview menu-open background color - only for the first link */
+.treeview.menu-open > a {
+    background-color: #ccc !important;
+}
+
+/* Sidebar search form styling */
+.main-sidebar .sidebar-form,
+.skin-black .sidebar-form {
+    border: none !important;
+    border-top: none !important;
+    border-bottom: none !important;
+}
+
+.main-sidebar .sidebar-form input[type="text"] {
+    background: #ffffff !important;
+    border: 1px solid #d1d5db !important;
+    color: #374151 !important;
+    border-radius: 6px !important;
+}
+
+.main-sidebar .sidebar-form input[type="text"]:focus {
+    border-color: #3b82f6 !important;
+    outline: none !important;
+}
+
+.main-sidebar .sidebar-form .btn {
+    background: #6b7280 !important;
+    border: 1px solid #6b7280 !important;
+    color: #fff !important;
+    border-radius: 6px !important;
+}
+
+.main-sidebar .sidebar-form .btn:hover {
+    background: #4b5563 !important;
+    border-color: #4b5563 !important;
+}
+
+/* Remove black line below treeview menu */
+.main-sidebar .sidebar-menu .treeview-menu > li {
+    border-bottom: none !important;
+}
+
+.main-sidebar .sidebar-menu li {
+    border-bottom: none !important;
+}
+
+/* Adjust main content area */
+.content-wrapper {
+    margin-top: 15px !important;
+    margin-left: 0 !important;
+    padding-top: 10px !important;
+    background: #ffffff !important;
+    min-height: calc(100vh - 115px) !important;
+}
+
+/* Ensure proper spacing for body */
+body.fixed {
+    padding-top: 0 !important;
+}
+
+body {
+    background: #f9fafb !important;
+}
+
+/* Remove any black backgrounds from wrapper */
+.wrapper {
+    background: #f9fafb !important;
+}
+
+/* Modern card styling for content sections */
+.content-wrapper .box {
+    border: 1px solid #e5e7eb !important;
+    border-radius: 8px !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
+}
+
+.content-wrapper .box-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid #e5e7eb !important;
+}
+
+/* Mobile styles */
+@media (max-width: 767px) {
+    .main-header .logo-container {
+        width: 100px !important;
+        max-width: 100px !important;
+    }
+
+    .main-header .navbar .navbar-title {
+        font-size: 16px !important;
+        margin-left: 10px !important;
+    }
+
+    .main-sidebar {
+        top: 110px !important;
+    }
+
+    .content-wrapper {
+        margin-top: 110px !important;
+        min-height: calc(100vh - 110px) !important;
+    }
+}
+
+/* On larger screens with sidebar */
+@media (min-width: 768px) {
+    .content-wrapper {
+        margin-left: 230px !important;
+    }
+
+    .sidebar-collapse .content-wrapper {
+        margin-left: 0 !important;
+    }
+}
+
+/* Fix z-index for modals to appear above sidebar and all other elements */
+.modal,
+.modal-backdrop,
+.sonata-ba-modal,
+.select2-container--open,
+.select2-dropdown,
+.modal-open .modal,
+body.modal-open .modal {
+    z-index: 99999 !important;
+}
+
+.modal-dialog,
+.modal-content,
+.modal-header,
+.modal-body,
+.modal-footer {
+    z-index: 100000 !important;
+}
+
+/* Ensure media manager and file upload popups appear above everything */
+.modal.fade.in,
+.modal.show,
+.modal-backdrop.show,
+.modal-backdrop.fade.in,
+div[role="dialog"],
+.sonata-ba-field-inline-table .modal,
+.sonata-collection-add .modal,
+[id*="sonata-ba-field"] .modal {
+    z-index: 99999 !important;
+}
+
+/* Media picker specific overrides */
+.sonata-media-modal,
+.sonata-ba-field-standard-natural .modal,
+input[type="hidden"] + div[class*="modal"] {
+    z-index: 100001 !important;
+}
+
+/* Hide dropdown links in admin header navbar (except user menu) */
+.main-header .navbar .nav.navbar-nav > li.dropdown:not(.user-menu) {
+    display: none !important;
+}
+
+/* Hide the admin groups/menu dropdowns in navbar */
+.main-header .navbar .navbar-collapse > .nav.navbar-nav:first-child {
+    display: none !important;
+}

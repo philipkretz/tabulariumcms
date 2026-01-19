@@ -1,0 +1,444 @@
+dashboard: Tableau de bord
+language: Langue
+sign_out: Se déconnecter
+admin_login: Connexion administrateur
+username: Nom d'utilisateur
+password: Mot de passe
+enter_your_username: Entrez votre nom d'utilisateur
+enter_your_password: Entrez votre mot de passe
+remember_me: Se souvenir de moi
+sign_in: Se connecter
+sign_in_with_admin_credentials: Connectez-vous avec vos identifiants administrateur
+
+# Homepage
+homepage:
+  title: Accueil
+  meta_description: Bienvenue sur TabulariumCMS - Votre plateforme professionnelle de gestion de contenu et de commerce électronique
+  hero:
+    title: Bienvenue sur TabulariumCMS
+    subtitle: Votre plateforme professionnelle de gestion de contenu et de commerce électronique
+    browse_products: Parcourir les produits
+    admin_login: Connexion administrateur
+  featured_products:
+    title: Produits en vedette
+    view_all: Voir tout
+  latest_products:
+    title: Derniers produits
+    view_all: Voir tout
+  product:
+    featured: En vedette
+    in_stock: En stock
+    out_of_stock: Rupture de stock
+    view_details: Voir les détails
+  cta:
+    title: Prêt à commencer?
+    subtitle: Découvrez notre gamme complète de produits et services
+    explore_products: Explorer les produits
+
+# Login page
+login:
+  title: Connexion
+  welcome_back: Bon retour
+  sign_in_account: Connectez-vous à votre compte
+  username: Nom d'utilisateur
+  username_placeholder: Entrez votre nom d'utilisateur
+  password: Mot de passe
+  password_placeholder: Entrez votre mot de passe
+  remember_me: Se souvenir de moi
+  sign_in: Se connecter
+  no_account: Vous n'avez pas de compte?
+  register_here: Inscrivez-vous ici
+  back_to_homepage: Retour à la page d'accueil
+
+# Menu
+menu:
+  home: Accueil
+  products: Produits
+  admin: Admin
+  language: Langue
+
+
+# Products
+products:
+  title: Produits
+  subtitle: Découvrez notre gamme complète de produits de qualité
+  meta_description: Parcourez notre collection de produits et services professionnels
+  showing_count: Affichage de %count% produits
+  featured: En vedette
+  in_stock: En stock
+  out_of_stock: Rupture de stock
+  view_details: Voir les détails
+  back_to_all: Retour à tous les produits
+  no_products:
+    title: Aucun produit disponible
+    message: Il n'y a actuellement aucun produit disponible. Veuillez revenir plus tard.
+  back_to_home: Retour à l'accueil
+
+# Category
+category:
+  no_products:
+    title: Aucun produit dans cette catégorie
+    message: Cette catégorie n'a pas encore de produits. Revenez bientôt ou parcourez d'autres catégories.
+
+# Newsletter
+newsletter:
+  title: Restez Informé
+  subtitle: Abonnez-vous à notre newsletter pour les derniers produits, offres et actualités
+  email_placeholder: Entrez votre adresse e-mail
+  subscribe: S'abonner
+  sending: Envoi en cours...
+  error: Une erreur s'est produite. Veuillez réessayer.
+  privacy_notice: Nous respectons votre vie privée. Désabonnement à tout moment.
+
+# Two-Factor Authentication
+Two-Factor Authentication: Authentification à Deux Facteurs
+Secure your account with an additional layer of protection: Sécurisez votre compte avec une couche de protection supplémentaire
+2FA is Active: 2FA est Actif
+Your account is protected with two-factor authentication: Votre compte est protégé par l'authentification à deux facteurs
+Are you sure you want to disable 2FA?: Êtes-vous sûr de vouloir désactiver 2FA?
+Disable 2FA: Désactiver 2FA
+Enable Two-Factor Authentication: Activer l'Authentification à Deux Facteurs
+Scan the QR code below with your authenticator app (Google Authenticator, Microsoft Authenticator, or any TOTP app), then enter the 6-digit code to verify.: Scannez le code QR ci-dessous avec votre application d'authentification (Google Authenticator, Microsoft Authenticator ou toute application TOTP), puis entrez le code à 6 chiffres pour vérifier.
+Setup Instructions: Instructions de Configuration
+Download an authenticator app (Google Authenticator, Microsoft Authenticator, Authy, etc.): Téléchargez une application d'authentification (Google Authenticator, Microsoft Authenticator, Authy, etc.)
+Open the app and tap the add button (+): Ouvrez l'application et appuyez sur le bouton d'ajout (+)
+Scan the QR code shown above: Scannez le code QR affiché ci-dessus
+Enter the 6-digit code from the app below: Entrez le code à 6 chiffres de l'application ci-dessous
+Verification Code: Code de Vérification
+Enable 2FA: Activer 2FA
+Back to Profile: Retour au Profil
+Enter the 6-digit code from your authenticator app: Entrez le code à 6 chiffres de votre application d'authentification
+Authentication Code: Code d'Authentification
+Open your authenticator app and enter the current code: Ouvrez votre application d'authentification et entrez le code actuel
+Trust this device for 30 days: Faire confiance à cet appareil pendant 30 jours
+Verify: Vérifier
+Having trouble? Contact support for help.: Vous avez des problèmes? Contactez le support pour obtenir de l'aide.
+Cancel and Logout: Annuler et Se Déconnecter
+Two-factor authentication has been enabled successfully!: L'authentification à deux facteurs a été activée avec succès!
+Invalid verification code. Please try again.: Code de vérification invalide. Veuillez réessayer.
+Two-factor authentication has been disabled.: L'authentification à deux facteurs a été désactivée.
+Please enter the verification code.: Veuillez entrer le code de vérification.
+
+# Cart
+cart:
+  title: Panier
+  empty: Votre panier est vide
+  empty_message: Vous n'avez pas encore ajouté d'articles à votre panier.
+  add_to_cart: Ajouter au panier
+  adding: Ajout en cours...
+  added_success: ✓ Ajouté au panier! Redirection...
+  add_failed: Échec de l'ajout au panier
+  add_error: ✗ Erreur lors de l'ajout au panier
+
+# Profile translations
+profile:
+  edit_profile: Modifier le Profil
+  profile_images: Images du Profil
+  cover_photo: Photo de Couverture
+  cover_photo_hint: 1200x400px recommandé, max. 10Mo
+  click_to_upload: Cliquez pour télécharger
+  change_cover_photo: Changer la Photo de Couverture
+  profile_picture: Photo de Profil
+  profile_picture_hint: 400x400px recommandé, max. 5Mo
+  avatar: Avatar
+  upload_new_photo: Télécharger une Nouvelle Photo
+  photo_format_hint: Une image carrée fonctionne mieux. Accepte JPEG, PNG, GIF, WebP
+  personal_information: Informations Personnelles
+  first_name: Prénom
+  first_name_placeholder: Entrez votre prénom
+  last_name: Nom
+  last_name_placeholder: Entrez votre nom
+  username: Nom d'utilisateur
+  username_cannot_change: Le nom d'utilisateur ne peut pas être modifié
+  profile_details: Détails du Profil
+  tagline: Slogan
+  tagline_hint: affiché sous votre nom
+  tagline_placeholder: "ex., Développeur Web | Designer | Amateur de Café"
+  max_characters: "Max. %count% caractères"
+  characters_remaining: caractères restants
+  bio: Biographie
+  bio_hint: parlez de vous aux autres
+  bio_placeholder: Écrivez quelque chose sur vous...
+  looking_for: Je recherche
+  looking_for_placeholder: "Décrivez ce que vous recherchez, ex., connexions, opportunités, collaborations..."
+  offering: Ce que j'offre
+  offering_placeholder: "Décrivez ce que vous pouvez offrir, ex., compétences, services, produits, connaissances..."
+  location: Localisation
+  location_placeholder: "Ville, Pays"
+  website: Site Web
+  website_placeholder: "https://votresiteweb.com"
+  interests: Centres d'intérêt
+  interests_placeholder: "ex., Photographie, Voyages, Programmation, Musique"
+  comma_separated: séparés par des virgules
+  interests_hint: Séparez plusieurs intérêts par des virgules
+  social_media_links: Liens Réseaux Sociaux
+  social_media_description: Connectez vos comptes de réseaux sociaux pour les afficher sur votre profil
+  custom_links: Liens Personnalisés
+  custom_links_description: "Ajoutez d'autres liens (portfolio, blog, etc.)"
+  link_label: Libellé du Lien
+  add_custom_link: Ajouter un Lien Personnalisé
+  email_address: Adresse E-mail
+  email_change_warning: Changer votre e-mail nécessite une vérification de mot de passe. Votre statut de vérification d'e-mail sera réinitialisé.
+  new_email_address: Nouvelle Adresse E-mail
+  email_placeholder: votre@email.com
+  current_password: Mot de Passe Actuel
+  password_required_hint: Requis pour changer l'e-mail
+  password_only_for_email: Requis uniquement si vous changez l'e-mail
+  preferences: Préférences
+  language: Langue
+  preview: Aperçu
+  preview_mode: Mode Aperçu
+  preview_hint: Voici comment les autres verront votre profil
+  view_public: Voir Public
+  about: À propos
+  joined: Inscrit
+  views: vues
+  friends: Amis
+  media: Médias
+  recent_media: Médias Récents
+  manage_gallery: Gérer la Galerie
+  no_media: Aucun média téléchargé
+  upload_media: Télécharger des médias
+  no_friends: Pas encore d'amis
+  # Social media platforms
+  facebook: Facebook
+  instagram: Instagram
+  twitter: Twitter / X
+  linkedin: LinkedIn
+  youtube: YouTube
+  tiktok: TikTok
+  snapchat: Snapchat
+  pinterest: Pinterest
+  # Social media placeholders
+  facebook_placeholder: "https://facebook.com/votreprofil"
+  instagram_placeholder: "https://instagram.com/votreprofil"
+  twitter_placeholder: "https://twitter.com/votreprofil"
+  linkedin_placeholder: "https://linkedin.com/in/votreprofil"
+  youtube_placeholder: "https://youtube.com/@votrechaine"
+  tiktok_placeholder: "https://tiktok.com/@votreprofil"
+  snapchat_placeholder: "https://snapchat.com/add/votrenomdutilisateur"
+  pinterest_placeholder: "https://pinterest.com/votreprofil"
+  # Profile actions
+  add_friend: Ajouter ami
+  friends_status: Amis
+  message: Message
+  report: Signaler
+  cancel: Annuler
+  save_changes: Enregistrer les modifications
+  # Private profile
+  private_profile: Profil Privé
+  private_profile_message: Ce profil est privé. Ajoutez %name% comme ami pour en voir plus.
+  # View all
+  view_all: Voir tout
+  # Report modal
+  report_profile: Signaler le Profil
+  report_reason: Raison
+  report_reason_select: Sélectionnez une raison...
+  report_spam: Spam
+  report_inappropriate: Contenu inapproprié
+  report_harassment: Harcèlement
+  report_impersonation: Usurpation d'identité
+  report_other: Autre
+  report_details: Détails supplémentaires (Optionnel)
+  submit_report: Envoyer le signalement
+  # Friend request
+  sending: Envoi en cours...
+  request_sent: Demande envoyée
+  friend_request_sent: Demande d'ami envoyée à %name%
+  friend_request_failed: Échec de l'envoi de la demande d'ami
+  network_error: Erreur réseau. Veuillez réessayer.
+  # Media gallery
+  media_gallery: Galerie Multimédia
+  files_uploaded: "%count% fichiers téléchargés"
+  max_file_size_info: "(max. %size%Mo par fichier)"
+  upload_media_button: Télécharger des médias
+  gallery_full: Galerie pleine
+  uploading: Téléchargement...
+  no_media_title: Pas encore de médias
+  no_media_description: Téléchargez des images et vidéos pour les afficher sur votre profil
+  upload_first_file: Télécharger votre premier fichier
+  supported_formats: "Formats supportés :"
+  formats_list: "JPEG, PNG, GIF, WebP, MP4, WebM"
+  maximum_file_size: "Taille maximale du fichier :"
+  storage_limit: "Limite de stockage :"
+  files_per_user: "fichiers par utilisateur"
+  delete_media: Supprimer le média
+  delete_media_confirm: Êtes-vous sûr de vouloir supprimer ce média ? Cette action est irréversible.
+  delete: Supprimer
+  max_files_reached: Vous avez atteint le nombre maximum de fichiers.
+  file_size_exceeded: "Le fichier dépasse la taille maximale de %size%Mo"
+  upload_failed: Échec du téléchargement. Veuillez réessayer.
+  delete_failed: Échec de la suppression. Veuillez réessayer.
+  view_full_size: Voir en taille réelle
+  public_click_hide: Public - Cliquer pour masquer
+  hidden_click_show: Masqué - Cliquer pour afficher
+
+# Common/shared translations
+common:
+  save: Enregistrer
+  cancel: Annuler
+  delete: Supprimer
+  edit: Modifier
+  close: Fermer
+  back: Retour
+  language_english: English
+  language_spanish: Español
+  language_catalan: Català
+  language_german: Deutsch
+  language_french: Français
+
+# Checkout
+checkout:
+  title: Paiement
+  subtitle: Finalisez votre commande en quelques étapes simples
+  guest_checkout_title: Paiement en tant qu'invité
+  guest_checkout_message: Finalisez votre commande rapidement sans créer de compte
+  logged_in_title: Bon retour !
+  logged_in_message: Les informations de votre compte ont été pré-remplies.
+  steps:
+    customer_info: Informations client
+    address: Adresse
+    shipping: Livraison
+    payment: Paiement
+  customer_information: Informations Client
+  billing_and_shipping: Adresse de Facturation et de Livraison
+  shipping_method_title: Méthode de Livraison
+  payment_and_review: Paiement et Vérification
+  payment_method_title: Méthode de Paiement
+  order_notes_optional: Notes de Commande (Optionnel)
+  order_notes_placeholder: Instructions spéciales pour votre commande...
+  select_title: Sélectionner le titre
+  select_country: Sélectionner le pays
+  optional: Optionnel
+  address_line2_placeholder: Appartement, suite, unité, bâtiment, étage, etc.
+  continue_to_address: Continuer vers l'Adresse
+  continue_to_shipping: Continuer vers la Livraison
+  continue_to_payment: Continuer vers le Paiement
+  back: Retour
+  create_account_text: Enregistrez vos informations pour un paiement plus rapide la prochaine fois et suivez vos commandes
+  password_min_8: Minimum 8 caractères
+  passwords_no_match: Les mots de passe ne correspondent pas
+  subtotal: Sous-total
+  shipping: Livraison
+  payment_fee: Frais de Paiement
+  total: Total
+  place_order: Passer la Commande
+  secure_checkout: Paiement sécurisé - Vos données sont cryptées
+  order_summary: Résumé de la Commande
+  # Store finder
+  nearby_stores: Magasins à Proximité
+  store_finder_info: Trouvez des magasins près de chez vous où vous pouvez récupérer votre commande.
+  detect_location: Détecter Ma Position
+  location_permission_hint: Autorisez l'accès GPS pour trouver les magasins à proximité
+  finding_stores: Recherche de magasins à proximité...
+  no_stores_found: Aucun magasin trouvé près de votre position. Veuillez nous contacter.
+  store_load_error: Erreur lors du chargement des magasins. Veuillez réessayer.
+  selected_pickup_location: Point de Retrait Sélectionné
+  please_select_store: Veuillez sélectionner un magasin de retrait avant de passer commande
+
+# Setup Wizard
+setup:
+  title: Assistant d'Installation
+  subtitle: Bienvenue dans l'assistant d'installation de TabulariumCMS
+
+  steps:
+    welcome: Bienvenue
+    database: Base de Données
+    migrations: Migrations
+    admin: Utilisateur Admin
+    settings: Paramètres
+    complete: Terminé
+
+  welcome_title: Bienvenue sur TabulariumCMS
+  welcome_description: Cet assistant vous guidera dans la configuration initiale de votre CMS. Commençons par vérifier les prérequis système.
+  before_you_begin: Avant de commencer
+  requirement_database: Assurez-vous d'avoir une base de données MySQL/MariaDB prête
+  requirement_credentials: Ayez vos identifiants de base de données à portée de main
+  requirement_email: Préparez une adresse e-mail pour le compte administrateur
+  system_requirements: Prérequis Système
+  click_check_requirements: Cliquez sur "Vérifier les Prérequis" pour vérifier la configuration de votre système
+  check_requirements: Vérifier les Prérequis
+  checking: Vérification...
+  required: Requis
+  current: Actuel
+  all_requirements_met: Tous les prérequis sont satisfaits !
+  recheck_requirements: Revérifier
+  error_checking_requirements: Erreur lors de la vérification des prérequis
+  retry: Réessayer
+
+  database_config_title: Configuration de la Base de Données
+  database_config_description: Entrez vos informations de connexion MySQL/MariaDB ci-dessous. Assurez-vous que la base de données existe déjà.
+  db_host: Hôte de Base de Données
+  db_port: Port de Base de Données
+  db_name: Nom de la Base de Données
+  db_user: Utilisateur de Base de Données
+  db_password: Mot de Passe de Base de Données
+  test_connection: Tester la Connexion
+  testing: Test de connexion...
+  connection_error: Erreur de connexion
+  database_warning: La configuration de la base de données sera sauvegardée dans .env.local. Assurez-vous de sauvegarder ce fichier après l'installation.
+  error_saving_config: Erreur lors de la sauvegarde de la configuration
+
+  migrations_title: Migrations de Base de Données
+  migrations_description: Cliquez sur le bouton ci-dessous pour créer toutes les tables de base de données nécessaires.
+  migrations_info: Cette étape exécutera toutes les migrations de base de données pour créer les tables nécessaires.
+  migration_progress: Progression des Migrations
+  run_migrations: Exécuter les Migrations
+  running_migrations: Exécution des migrations...
+  migrations_complete: Migrations Terminées
+  retry_migrations: Réessayer les Migrations
+
+  admin_title: Créer un Compte Administrateur
+  admin_description: Créez le compte super administrateur qui aura un accès complet au système.
+  admin_firstname: Prénom
+  admin_lastname: Nom
+  admin_email: Adresse E-mail
+  admin_username: Nom d'Utilisateur
+  admin_password: Mot de Passe
+  admin_password_confirm: Confirmer le Mot de Passe
+  password_placeholder: Entrez le mot de passe (min. 8 caractères)
+  password_confirm_placeholder: Confirmez votre mot de passe
+  password_min_chars: Minimum 8 caractères requis
+  create_admin: Créer le Compte Admin
+  creating_admin: Création du compte admin...
+  passwords_dont_match: Les mots de passe ne correspondent pas
+  error_creating_admin: Erreur lors de la création du compte admin
+  admin_security_note: Conservez vos identifiants en sécurité. Ce compte a un accès administratif complet à l'ensemble du système.
+
+  settings_title: Configuration du Site
+  settings_description: Configurez les paramètres de base de votre site web. Vous pouvez les modifier plus tard dans le panneau d'administration.
+  site_name: Nom du Site
+  site_name_placeholder: Mon Super Site Web
+  default_language: Langue par Défaut
+  primary_color: Couleur Principale
+  secondary_color: Couleur Secondaire
+  color_help: Utilisée pour les boutons, en-têtes et accents
+  color_preview: Aperçu des Couleurs
+  primary: Principal
+  secondary: Secondaire
+  save_settings: Sauvegarder les Paramètres
+  saving_settings: Sauvegarde des paramètres...
+  error_saving_settings: Erreur lors de la sauvegarde des paramètres
+
+  complete_title: Installation Terminée !
+  complete_description: Votre installation de TabulariumCMS a été configurée avec succès et est prête à être utilisée.
+  complete_checklist: Étapes Complétées
+  complete_requirements: Prérequis système vérifiés
+  complete_database: Base de données configurée
+  complete_migrations: Tables de base de données créées
+  complete_admin: Compte administrateur créé
+  complete_settings: Paramètres du site configurés
+  complete_installation: Terminer l'Installation
+  completing: Finalisation de l'installation...
+  installation_complete: Installation Terminée !
+  completion_error: Erreur lors de la finalisation de l'installation
+  error_completing: Erreur lors de la finalisation de l'installation
+  whats_next: Et Maintenant ?
+  whats_next_description: Vous pouvez maintenant vous connecter au panneau d'administration pour commencer à créer du contenu et personnaliser votre site.
+  go_to_admin: Aller au Panneau Admin
+  go_to_frontend: Visiter le Site
+
+  continue: Continuer
+  back: Retour
+  saving: Sauvegarde...
+

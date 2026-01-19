@@ -1,0 +1,107 @@
+[03-Jan-2026 16:47:41 UTC] PHP Parse error:  syntax error, unexpected identifier "DB_HOST", expecting ")" in Command line code on line 5
+[03-Jan-2026 16:51:20 UTC] PHP Parse error:  syntax error, unexpected identifier "DB_HOST", expecting ")" in Command line code on line 5
+[03-Jan-2026 16:51:24 UTC] PHP Parse error:  syntax error, unexpected identifier "DB_HOST", expecting ")" in Command line code on line 5
+[03-Jan-2026 17:03:01 UTC] 2026-01-03T17:03:01+00:00 [critical] Uncaught Error: Symfony\Component\DependencyInjection\Definition::setArguments(): Argument #1 ($arguments) must be of type array, Symfony\Component\DependencyInjection\Reference given, called in /var/www/html/vendor/symfony/dependency-injection/Loader/YamlFileLoader.php on line 545
+[03-Jan-2026 17:03:26 UTC] PHP Warning:  require(vendor/doctrine/orm/lib/Doctrine/ORM/Tools/Console/EntityManagerProvider.php): Failed to open stream: No such file or directory in Command line code on line 5
+[03-Jan-2026 17:03:26 UTC] PHP Fatal error:  Uncaught Error: Failed opening required 'vendor/doctrine/orm/lib/Doctrine/ORM/Tools/Console/EntityManagerProvider.php' (include_path='.:/usr/local/lib/php') in Command line code:5
+Stack trace:
+#0 {main}
+  thrown in Command line code on line 5
+[03-Jan-2026 17:32:20 UTC] PHP Parse error:  syntax error, unexpected identifier "App", expecting ")" in Command line code on line 3
+[04-Jan-2026 22:39:35 UTC] 2026-01-04T22:39:35+00:00 [critical] Uncaught Error: syntax error, unexpected token "/"
+[04-Jan-2026 22:39:58 UTC] 2026-01-04T22:39:58+00:00 [critical] Uncaught Error: Undefined constant "App\EventSubscriber\en"
+[05-Jan-2026 02:13:07 UTC] 2026-01-05T02:13:07+00:00 [critical] Uncaught Error: syntax error, unexpected single-quoted string ",", expecting "]"
+[05-Jan-2026 02:13:23 UTC] 2026-01-05T02:13:23+00:00 [critical] Uncaught Error: syntax error, unexpected single-quoted string ",", expecting "]"
+[05-Jan-2026 08:17:52 UTC] 2026-01-05T08:17:52+00:00 [critical] Uncaught Error: syntax error, unexpected token "\"
+[05-Jan-2026 08:18:08 UTC] 2026-01-05T08:18:08+00:00 [critical] Uncaught Error: syntax error, unexpected token "\"
+[05-Jan-2026 08:39:00 UTC] 2026-01-05T08:39:00+00:00 [critical] Uncaught Error: syntax error, unexpected token "\"
+[05-Jan-2026 08:39:13 UTC] PHP Fatal error:  Type of App\Controller\Api\PosSyncApiController::$em must be Doctrine\ORM\EntityManagerInterface (as in class App\Controller\Api\BaseApiController) in /var/www/html/src/Controller/Api/PosSyncApiController.php on line 13
+[05-Jan-2026 08:39:47 UTC] 2026-01-05T08:39:47+00:00 [critical] Uncaught Error: syntax error, unexpected token "\"
+[05-Jan-2026 13:06:51 UTC] PHP Warning:  Undefined variable $object in Command line code on line 15
+[05-Jan-2026 13:06:51 UTC] PHP Fatal error:  Uncaught Error: Using $this when not in object context in Command line code:15
+Stack trace:
+#0 {main}
+  thrown in Command line code on line 15
+[05-Jan-2026 14:19:50 UTC] 2026-01-05T14:19:50+00:00 [critical] Uncaught Error: assert(class_exists($adminClass))
+[05-Jan-2026 14:19:51 UTC] 2026-01-05T14:19:51+00:00 [critical] Uncaught Error: assert(class_exists($adminClass))
+[05-Jan-2026 16:25:47 UTC] 2026-01-05T16:25:47+00:00 [critical] Uncaught Error: syntax error, unexpected variable "$this", expecting "function"
+[05-Jan-2026 16:26:18 UTC] 2026-01-05T16:26:18+00:00 [critical] Uncaught Error: syntax error, unexpected variable "$this", expecting "function"
+[05-Jan-2026 16:26:41 UTC] 2026-01-05T16:26:41+00:00 [critical] Uncaught Error: assert(class_exists($adminClass))
+[06-Jan-2026 15:18:17 UTC] PHP Parse error:  syntax error, unexpected token "\", expecting ")" in Command line code on line 70
+[06-Jan-2026 15:55:01 UTC] PHP Parse error:  syntax error, unexpected token "<<" in Command line code on line 2
+[06-Jan-2026 16:00:39 UTC] PHP Fatal error:  Uncaught Symfony\Component\DependencyInjection\Exception\EnvNotFoundException: Environment variable not found: "DEFAULT_URI". in /var/www/html/vendor/symfony/dependency-injection/EnvVarProcessor.php:221
+Stack trace:
+#0 /var/www/html/vendor/symfony/dependency-injection/Container.php(378): Symfony\Component\DependencyInjection\EnvVarProcessor->getEnv('string', 'DEFAULT_URI', Object(Closure))
+#1 /var/www/html/var/cache/dev/ContainerZhd6dDB/App_KernelDevDebugContainer.php(1488): Symfony\Component\DependencyInjection\Container->getEnv('DEFAULT_URI')
+#2 /var/www/html/var/cache/dev/ContainerZhd6dDB/App_KernelDevDebugContainer.php(816): ContainerZhd6dDB\App_KernelDevDebugContainer::getRouter_RequestContextService(Object(ContainerZhd6dDB\App_KernelDevDebugContainer))
+#3 /var/www/html/var/cache/dev/ContainerZhd6dDB/getTwigService.php(141): ContainerZhd6dDB\App_KernelDevDebugContainer::getRouterService(Object(ContainerZhd6dDB\App_KernelDevDebugContainer))
+#4 /var/www/html/var/cache/dev/ContainerZhd6dDB/App_KernelDevDebugContainer.php(509): ContainerZhd6dDB\getTwigService::do(Object(ContainerZhd6dDB\App_KernelDevDebugContainer), true)
+#5 /var/www/html/var/cache/dev/ContainerZhd6dDB/getTurbo_Doctrine_EventListenerService.php(27): ContainerZhd6dDB\App_KernelDevDebugContainer->load('getTwigService....')
+#6 /var/www/html/var/cache/dev/ContainerZhd6dDB/App_KernelDevDebugContainer.php(509): ContainerZhd6dDB\getTurbo_Doctrine_EventListenerService::do(Object(ContainerZhd6dDB\App_KernelDevDebugContainer), true)
+#7 /var/www/html/vendor/symfony/dependency-injection/Container.php(399): ContainerZhd6dDB\App_KernelDevDebugContainer->load('getTurbo_Doctri...')
+#8 /var/www/html/vendor/symfony/dependency-injection/Argument/ServiceLocator.php(36): Symfony\Component\DependencyInjection\Container->getService('privates', 'turbo.doctrine....', 'getTurbo_Doctri...', true)
+#9 /var/www/html/vendor/symfony/doctrine-bridge/ContainerAwareEventManager.php(169): Symfony\Component\DependencyInjection\Argument\ServiceLocator->get('turbo.doctrine....')
+#10 /var/www/html/vendor/symfony/doctrine-bridge/ContainerAwareEventManager.php(52): Symfony\Bridge\Doctrine\ContainerAwareEventManager->initializeListeners('onFlush')
+#11 /var/www/html/vendor/doctrine/orm/src/UnitOfWork.php(3153): Symfony\Bridge\Doctrine\ContainerAwareEventManager->dispatchEvent('onFlush', Object(Doctrine\ORM\Event\OnFlushEventArgs))
+#12 /var/www/html/vendor/doctrine/orm/src/UnitOfWork.php(363): Doctrine\ORM\UnitOfWork->dispatchOnFlushEvent()
+#13 /var/www/html/vendor/doctrine/orm/src/EntityManager.php(268): Doctrine\ORM\UnitOfWork->commit()
+#14 Command line code(24): Doctrine\ORM\EntityManager->flush()
+#15 {main}
+  thrown in /var/www/html/vendor/symfony/dependency-injection/EnvVarProcessor.php on line 221
+[06-Jan-2026 17:58:41 UTC] PHP Fatal error:  Uncaught PDOException: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '? WHERE language_id IS NULL' at line 1 in /var/www/html/vendor/doctrine/dbal/src/Driver/PDO/Statement.php:55
+Stack trace:
+#0 /var/www/html/vendor/doctrine/dbal/src/Driver/PDO/Statement.php(55): PDOStatement->execute()
+#1 /var/www/html/vendor/doctrine/dbal/src/Driver/Middleware/AbstractStatementMiddleware.php(24): Doctrine\DBAL\Driver\PDO\Statement->execute()
+#2 /var/www/html/vendor/doctrine/dbal/src/Logging/Statement.php(46): Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware->execute()
+#3 /var/www/html/vendor/doctrine/dbal/src/Driver/Middleware/AbstractStatementMiddleware.php(24): Doctrine\DBAL\Logging\Statement->execute()
+#4 /var/www/html/vendor/symfony/doctrine-bridge/Middleware/Debug/Statement.php(58): Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware->execute()
+#5 /var/www/html/vendor/doctrine/dbal/src/Statement.php(104): Symfony\Bridge\Doctrine\Middleware\Debug\Statement->execute()
+#6 /var/www/html/vendor/doctrine/dbal/src/Statement.php(133): Doctrine\DBAL\Statement->execute()
+#7 Command line code(25): Doctrine\DBAL\Statement->executeStatement(Array)
+#8 {main}
+
+Next Doctrine\DBAL\Driver\PDO\Exception: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '? WHERE language_id IS NULL' at line 1 in /var/www/html/vendor/doctrine/dbal/src/Driver/PDO/Exception.php:24
+Stack trace:
+#0 /var/www/html/vendor/doctrine/dbal/src/Driver/PDO/Statement.php(57): Doctrine\DBAL\Driver\PDO\Exception::new(Object(PDOException))
+#1 /var/www/html/vendor/doctrine/dbal/src/Driver/Middleware/AbstractStatementMiddleware.php(24): Doctrine\DBAL\Driver\PDO\Statement->execute()
+#2 /var/www/html/vendor/doctrine/dbal/src/Logging/Statement.php(46): Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware->execute()
+#3 /var/www/html/vendor/doctrine/dbal/src/Driver/Middleware/AbstractStatementMiddleware.php(24): Doctrine\DBAL\Logging\Statement->execute()
+#4 /var/www/html/vendor/symfony/doctrine-bridge/Middleware/Debug/Statement.php(58): Doctrine\DBAL\Driver\Middleware\AbstractStatementMiddleware->execute()
+#5 /var/www/html/vendor/doctrine/dbal/src/Statement.php(104): Symfony\Bridge\Doctrine\Middleware\Debug\Statement->execute()
+#6 /var/www/html/vendor/doctrine/dbal/src/Statement.php(133): Doctrine\DBAL\Statement->execute()
+#7 Command line code(25): Doctrine\DBAL\Statement->executeStatement(Array)
+#8 {main}
+
+Next Doctrine\DBAL\Exception\SyntaxErrorException: An exception occurred while executing a query: SQLSTATE[42000]: Syntax error or access violation: 1064 You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near '? WHERE language_id IS NULL' at line 1 in /var/www/html/vendor/doctrine/dbal/src/Driver/API/MySQL/ExceptionConverter.php:78
+Stack trace:
+#0 /var/www/html/vendor/doctrine/dbal/src/Connection.php(1460): Doctrine\DBAL\Driver\API\MySQL\ExceptionConverter->convert(Object(Doctrine\DBAL\Driver\PDO\Exception), Object(Doctrine\DBAL\Query))
+#1 /var/www/html/vendor/doctrine/dbal/src/Connection.php(1396): Doctrine\DBAL\Connection->handleDriverException(Object(Doctrine\DBAL\Driver\PDO\Exception), Object(Doctrine\DBAL\Query))
+#2 /var/www/html/vendor/doctrine/dbal/src/Statement.php(108): Doctrine\DBAL\Connection->convertExceptionDuringQuery(Object(Doctrine\DBAL\Driver\PDO\Exception), 'UPDATE translat...', Array, Array)
+#3 /var/www/html/vendor/doctrine/dbal/src/Statement.php(133): Doctrine\DBAL\Statement->execute()
+#4 Command line code(25): Doctrine\DBAL\Statement->executeStatement(Array)
+#5 {main}
+  thrown in /var/www/html/vendor/doctrine/dbal/src/Driver/API/MySQL/ExceptionConverter.php on line 78
+[06-Jan-2026 18:22:52 UTC] PHP Fatal error:  Redefinition of parameter $googlePayService in /var/www/html/src/Service/Payment/PaymentManager.php on line 12
+[06-Jan-2026 18:23:12 UTC] PHP Fatal error:  Uncaught Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException: The "App\Service\Payment\PaymentManager" service or alias has been removed or inlined when the container was compiled. You should either make it public, or stop using the container directly and use dependency injection instead. in /var/www/html/vendor/symfony/dependency-injection/Container.php:241
+Stack trace:
+#0 /var/www/html/vendor/symfony/dependency-injection/Container.php(203): Symfony\Component\DependencyInjection\Container::make(Object(ContainerS6xapOg\App_KernelDevDebugContainer), 'App\\Service\\Pay...', 1)
+#1 Command line code(7): Symfony\Component\DependencyInjection\Container->get('App\\Service\\Pay...')
+#2 {main}
+  thrown in /var/www/html/vendor/symfony/dependency-injection/Container.php on line 241
+[06-Jan-2026 18:24:16 UTC] PHP Fatal error:  Uncaught ReflectionException: Class "App\Service\Payment\PaymentManager" does not exist in Command line code:2
+Stack trace:
+#0 Command line code(2): ReflectionClass->__construct('App\\Service\\Pay...')
+#1 {main}
+  thrown in Command line code on line 2
+[07-Jan-2026 10:26:10 UTC] 2026-01-07T10:26:10+00:00 [critical] Uncaught Error: syntax error, unexpected token "->", expecting "]"
+[07-Jan-2026 10:33:25 UTC] 2026-01-07T10:33:25+00:00 [critical] Uncaught Error: syntax error, unexpected token "public", expecting ";" or "{"
+[07-Jan-2026 13:30:02 UTC] 2026-01-07T13:30:02+00:00 [critical] Uncaught Error: syntax error, unexpected token ",", expecting variable
+[07-Jan-2026 13:30:03 UTC] 2026-01-07T13:30:03+00:00 [critical] Uncaught Error: syntax error, unexpected token ",", expecting variable
+[07-Jan-2026 19:09:16 UTC] PHP Parse error:  syntax error, unexpected token "\" in /tmp/address_patch.php on line 6
+[12-Jan-2026 21:32:48 UTC] PHP Fatal error:  Uncaught Doctrine\DBAL\Exception\DriverRequired: The options "driver" or "driverClass" are mandatory if no PDO instance is given to DriverManager::getConnection(). in /var/www/html/vendor/doctrine/dbal/src/Exception/DriverRequired.php:24
+Stack trace:
+#0 /var/www/html/vendor/doctrine/dbal/src/DriverManager.php(177): Doctrine\DBAL\Exception\DriverRequired::new()
+#1 /var/www/html/vendor/doctrine/dbal/src/DriverManager.php(143): Doctrine\DBAL\DriverManager::createDriver(NULL, NULL)
+#2 Command line code(1): Doctrine\DBAL\DriverManager::getConnection(Object(SensitiveParameterValue))
+#3 {main}
+  thrown in /var/www/html/vendor/doctrine/dbal/src/Exception/DriverRequired.php on line 24

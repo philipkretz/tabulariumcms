@@ -1,0 +1,22 @@
+{# templates/admin/components/language_switch.html.twig #}
+{% if language_switch_enabled %}
+    {% set current_locale = app.request.locale %}
+    {% set active_languages = active_languages|default(['en', 'es', 'fr', 'de']) %}
+    
+    <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <i class="fas fa-globe"></i> {{ current_locale|upper }}
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+            {% for locale in active_languages %}
+                {% if locale != current_locale %}
+                    <li>
+                        <a class="dropdown-item" href="{{ path('easyadmin', app.request.query.all|merge({ locale: locale })) }}">
+                            {{ locale|upper }}
+                        </a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </li>
+{% endif %}

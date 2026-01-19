@@ -1,0 +1,153 @@
+{# Notification Dropdown - To be included in navigation #}
+{# This component shows recent notifications in a dropdown #}
+
+{% if app.user %}
+    {% set unreadCount = app.user.notifications|filter(n => not n.isRead)|length %}
+    {% set recentNotifications = app.user.notifications|slice(0, 5) %}
+
+    <div class="relative" x-data="{ open: false }">
+        <!-- Notification Bell Button -->
+        <button
+            @click="open = !open"
+            @click.away="open = false"
+            class="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition"
+            id="notifications-bell"
+        >
+            <i class="fas fa-bell text-xl"></i>
+            {% if unreadCount > 0 %}
+                <span class="absolute top-0 right-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-red-600 rounded-full">
+                    {{ unreadCount > 9 ? '9+' : unreadCount }}
+                </span>
+            {% endif %}
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div
+            x-show="open"
+            x-transition:enter="transition ease-out duration-100"
+            x-transition:enter-start="transform opacity-0 scale-95"
+            x-transition:enter-end="transform opacity-100 scale-100"
+            x-transition:leave="transition ease-in duration-75"
+            x-transition:leave-start="transform opacity-100 scale-100"
+            x-transition:leave-end="transform opacity-0 scale-95"
+            class="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl border border-gray-200 z-50"
+            style="display: none;"
+        >
+            <!-- Header -->
+            <div class="px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-gray-900">
+                    Notifications
+                    {% if unreadCount > 0 %}
+                        <span class="ml-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold text-yellow-800 bg-yellow-100 rounded-full">
+                            {{ unreadCount }}
+                        </span>
+                    {% endif %}
+                </h3>
+                <a href="{{ path('app_notifications') }}" class="text-xs text-yellow-600 hover:underline">
+                    View All
+                </a>
+            </div>
+
+            <!-- Notifications List -->
+            <div class="max-h-96 overflow-y-auto">
+                {% if recentNotifications is empty %}
+                    <div class="px-4 py-8 text-center">
+                        <i class="fas fa-bell-slash text-gray-300 text-3xl mb-2"></i>
+                        <p class="text-sm text-gray-500">No notifications yet</p>
+                    </div>
+                {% else %}
+                    {% for notification in recentNotifications %}
+                        <a
+                            href="{% if notification.type == constant('App\\Entity\\Notification::TYPE_MESSAGE_RECEIVED') and notification.relatedUser %}
+                                {{ path('app_messages_conversation', {userId: notification.relatedUser.id}) }}
+                            {% elseif notification.type == constant('App\\Entity\\Notification::TYPE_FRIEND_REQUEST') %}
+                                {{ path('app_friends_requests') }}
+                            {% else %}
+                                {{ path('app_notifications') }}
+                            {% endif %}"
+                            class="block px-4 py-3 hover:bg-gray-50 transition {{ not notification.isRead ? 'bg-yellow-50' : '' }}"
+                            onclick="markNotificationRead({{ notification.id }})"
+                        >
+                            <div class="flex items-start space-x-3">
+                                <!-- Icon -->
+                                <div class="flex-shrink-0">
+                                    {% if notification.type == constant('App\\Entity\\Notification::TYPE_FRIEND_REQUEST') %}
+                                        <div class="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user-plus text-yellow-600 text-sm"></i>
+                                        </div>
+                                    {% elseif notification.type == constant('App\\Entity\\Notification::TYPE_FRIEND_ACCEPTED') %}
+                                        <div class="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-user-check text-green-600 text-sm"></i>
+                                        </div>
+                                    {% elseif notification.type == constant('App\\Entity\\Notification::TYPE_MESSAGE_RECEIVED') %}
+                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-envelope text-blue-600 text-sm"></i>
+                                        </div>
+                                    {% else %}
+                                        <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
+                                            <i class="fas fa-bell text-gray-600 text-sm"></i>
+                                        </div>
+                                    {% endif %}
+                                </div>
+
+                                <!-- Content -->
+                                <div class="flex-1 min-w-0">
+                                    <p class="text-xs text-gray-900 {{ not notification.isRead ? 'font-semibold' : '' }} line-clamp-2">
+                                        {{ notification.message }}
+                                    </p>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        {% set diff = date().diff(notification.createdAt) %}
+                                        {% if diff.days == 0 and diff.h < 1 %}
+                                            {{ diff.i }}m ago
+                                        {% elseif diff.days == 0 %}
+                                            {{ diff.h }}h ago
+                                        {% elseif diff.days == 1 %}
+                                            Yesterday
+                                        {% else %}
+                                            {{ notification.createdAt|date('M d') }}
+                                        {% endif %}
+                                    </p>
+                                </div>
+
+                                <!-- Unread indicator -->
+                                {% if not notification.isRead %}
+                                    <div class="flex-shrink-0">
+                                        <span class="inline-block w-2 h-2 bg-yellow-600 rounded-full"></span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </a>
+                    {% endfor %}
+                {% endif %}
+            </div>
+
+            <!-- Footer -->
+            {% if recentNotifications is not empty %}
+                <div class="px-4 py-3 border-t border-gray-200 text-center">
+                    <a href="{{ path('app_notifications') }}" class="text-sm text-yellow-600 hover:underline font-medium">
+                        View All Notifications
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        async function markNotificationRead(notificationId) {
+            try {
+                await fetch(`/notifications/${notificationId}/mark-read`, {
+                    method: 'POST'
+                });
+                // Update badge count
+                updateNotificationBadge();
+            } catch (error) {
+                console.error('Error marking notification as read:', error);
+            }
+        }
+
+        function updateNotificationBadge() {
+            // In production, this would fetch the updated count via API
+            // For now, we'll just reload on next page visit
+        }
+    </script>
+{% endif %}

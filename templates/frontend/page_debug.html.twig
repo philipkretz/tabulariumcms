@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Debug Page</title>
+</head>
+<body>
+    <h1>Debug Information</h1>
+    <ul>
+        <li>Page Title: {{ page.title ?? 'NO TITLE' }}</li>
+        <li>Page Slug: {{ page.slug ?? 'NO SLUG' }}</li>
+        <li>Request Locale Type: {{ app.request.locale is iterable ? 'ARRAY/OBJECT' : 'STRING' }}</li>
+        <li>Request Locale Value:
+            {% if app.request.locale is iterable %}
+                {{ app.request.locale|json_encode }}
+            {% else %}
+                {{ app.request.locale ?? 'NULL' }}
+            {% endif %}
+        </li>
+    </ul>
+    <hr>
+    <pre>
+Page object dump:
+{{ dump(page) }}
+
+Request locale dump:
+{{ dump(app.request.locale) }}
+    </pre>
+</body>
+</html>

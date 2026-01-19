@@ -1,0 +1,19 @@
+sonata_doctrine_orm_admin:
+    templates:
+        types:
+            list:
+                array: '@SonataAdmin/CRUD/list_array.html.twig'
+                boolean: '@SonataAdmin/CRUD/list_boolean.html.twig'
+                date: '@SonataAdmin/CRUD/list_date.html.twig'
+                time: '@SonataAdmin/CRUD/list_time.html.twig'
+                datetime: '@SonataAdmin/CRUD/list_datetime.html.twig'
+            show:
+                array: '@SonataAdmin/CRUD/show_array.html.twig'
+                boolean: '@SonataAdmin/CRUD/show_boolean.html.twig'
+                date: '@SonataAdmin/CRUD/show_date.html.twig'
+                time: '@SonataAdmin/CRUD/show_time.html.twig'
+                datetime: '@SonataAdmin/CRUD/show_datetime.html.twig'
+
+    # Add filter type mappings
+    audit:
+        force: false

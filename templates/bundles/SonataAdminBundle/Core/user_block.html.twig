@@ -1,0 +1,114 @@
+<li class="dropdown user-menu">
+    <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-user fa-fw"></i>
+        <span class="hidden-xs">{{ app.user.username }}</span>
+        <i class="fas fa-caret-down"></i>
+    </a>
+    <ul class="dropdown-menu">
+        <li class="user-header" style="background: linear-gradient(135deg, #f0e8d0 0%, #d1b05f 50%, #d3c29d 100%);">
+            <i class="fas fa-user-circle fa-4x" style="color: #4c505b;"></i>
+            <p style="color: #4c505b; margin-top: 10px;">
+                {{ app.user.username }}
+                <small>{{ app.user.email }}</small>
+            </p>
+        </li>
+        
+        <li class="user-body">
+            <div class="row">
+                <div class="col-xs-12">
+                    <a href="{{ path("sonata_admin_dashboard") }}" style="padding: 8px 15px; display: block;">
+                        <i class="fas fa-tachometer-alt"></i> {{ "dashboard"|trans({}, "messages") }}
+                    </a>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12">
+                    <a href="{{ path("app_profile_locale", {"_locale": app.request.locale|default("en")}) }}" style="padding: 8px 15px; display: block;">
+                        <i class="fas fa-user-cog"></i> {{ "menu.my_profile"|trans({}, "messages") }}
+                    </a>
+                </div>
+            </div>
+            
+            <div class="row" style="margin-top: 10px;">
+                <div class="col-xs-12">
+                    <div class="language-selector" style="padding: 8px 15px;">
+                        <strong><i class="fas fa-globe"></i> {{ "language"|trans({}, "messages") }}</strong>
+                        <div id="admin-language-dropdown" style="margin-top: 5px;">
+                            {% set current_locale = app.request.locale|default("en") %}
+                            {% set languages = {
+                                "en": "English",
+                                "de": "Deutsch", 
+                                "es": "Español",
+                                "fr": "Français",
+                                "ca": "Català"
+                            } %}
+                            {% for locale, name in languages %}
+                                <a href="{{ path("change_language", {"locale": locale}) }}" 
+                                   class="language-item" 
+                                   style="display: inline-block; padding: 5px 10px; margin: 2px; border: 1px solid #ddd; border-radius: 4px; text-decoration: none; color: {{ locale == current_locale ? "#3b82f6" : "#333" }}; background: {{ locale == current_locale ? "#eff6ff" : "#fff" }}; font-size: 12px;">
+                                    {{ locale|upper }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </li>
+        
+        <li class="user-footer">
+            <div class="text-center">
+                <a href="{{ path("app_logout") }}" class="btn btn-default btn-flat" style="width: 100%;">
+                    <i class="fas fa-sign-out-alt"></i> {{ "sign_out"|trans({}, "messages") }}
+                </a>
+            </div>
+        </li>
+    </ul>
+</li>
+
+<style>
+    .user-menu .dropdown-menu {
+        width: 280px;
+        padding: 0;
+        margin: 0;
+        top: 100%;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+    }
+    
+    .user-header {
+        height: 175px;
+        padding: 10px;
+        text-align: center;
+    }
+    
+    .user-header > i {
+        margin-top: 20px;
+    }
+    
+    .user-body {
+        border-bottom: 1px solid #f4f4f4;
+        border-top: 1px solid #e8e8e8;
+        padding: 15px 0;
+    }
+    
+    .user-body a {
+        color: #333;
+    }
+    
+    .user-body a:hover {
+        color: #3b82f6;
+        text-decoration: none;
+        background: #f9f9f9;
+    }
+    
+    .user-footer {
+        background-color: #f9f9f9;
+        padding: 10px;
+    }
+    
+    .language-item:hover {
+        background: #f3f4f6 !important;
+        border-color: #3b82f6 !important;
+    }
+</style>

@@ -1,0 +1,688 @@
+<!-- Navigation Bar - Mobile First Responsive Design
+     Breakpoints configured in admin theme settings
+-->
+<style>
+    :root {
+        --theme-primary: {{ theme.primary_color }};
+        --theme-secondary: {{ theme.secondary_color }};
+        --theme-accent: {{ theme.accent_color }};
+        --theme-nav-bg: {{ theme.navigation_bg_color }};
+        --theme-nav-text: {{ theme.navigation_text_color }};
+        --theme-button: {{ theme.button_color }};
+        --theme-button-hover: {{ theme.button_hover_color }};
+        --breakpoint-mobile: {{ theme.breakpoint_mobile }}px;
+        --breakpoint-tablet: {{ theme.breakpoint_tablet }}px;
+        --breakpoint-desktop: {{ theme.breakpoint_desktop }}px;
+        --breakpoint-xl: {{ theme.breakpoint_xl }}px;
+    }
+</style>
+<nav class="navigation sticky top-0 z-50">
+    <div class="mx-auto px-4" style="max-width: {{ theme.container_max_width }}px;">
+        <!-- First Row: Logo and Right Side Icons -->
+        <div class="flex items-center justify-between py-3">
+            <!-- Logo -->
+            <a href="{{ path('app_homepage') }}" class="flex items-center space-x-3 flex-shrink-0">
+                <img src="{{ asset(theme.logo_path) }}"
+                     alt="{{ theme.site_name }}"
+                     class="frontend-logo object-contain rounded-xl bg-white p-2 sm:p-3 shadow-md">
+                <span class="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold hidden lg:block"
+                      style="background: linear-gradient(to right, {{ theme.secondary_color }}, {{ theme.accent_color }}); -webkit-background-clip: text; background-clip: text; color: transparent;">
+                    {{ theme.site_name }}
+                </span>
+            </a>
+
+            <!-- Right Side Icons -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Search Bar - Visible on tablet/desktop, hidden on mobile -->
+                <div class="max-md:hidden">
+                    <div class="search-container"
+                         data-controller="search-autocomplete"
+                         data-search-autocomplete-url-value="{{ path('api_search_query') }}">
+                        <div class="search-input-wrapper">
+                            <input type="text"
+                                   class="search-input w-28 lg:w-40 xl:w-48"
+                                   placeholder="{{ 'menu.search'|trans }}..."
+                                   data-search-autocomplete-target="input"
+                                   data-action="input->search-autocomplete#search keydown->search-autocomplete#handleKeydown"
+                                   autocomplete="off" />
+                            <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                        </div>
+                        <div class="search-results search-hidden" data-search-autocomplete-target="results"></div>
+                    </div>
+                </div>
+
+                <!-- Cart Icon -->
+                <a href="{{ path('app_cart') }}" class="relative text-amber-800 hover:text-amber-600 transition" title="{{ 'menu.cart'|trans }}">
+                    <i class="fas fa-shopping-cart text-xl sm:text-2xl"></i>
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-green-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center" style="display: none;">0</span>
+                </a>
+
+                <!-- Language Switcher - Hidden on mobile, visible on tablet/desktop -->
+                <div class="relative language-switcher max-md:hidden">
+                    <button class="flex items-center space-x-1 text-amber-800 hover:text-amber-600 transition" onclick="toggleLanguageMenu()">
+                        <i class="fas fa-globe text-lg"></i>
+                        <span class="text-sm">{{ get_locale_string()|upper }}</span>
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </button>
+                    <div id="language-menu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-amber-200 py-2 z-50">
+                        <a href="{{ path('app_homepage_locale', {'_locale': 'en'}) }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                            <i class="flag-icon flag-icon-gb mr-2"></i> English
+                        </a>
+                        <a href="{{ path('app_homepage_locale', {'_locale': 'de'}) }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                            <i class="flag-icon flag-icon-de mr-2"></i> Deutsch
+                        </a>
+                        <a href="{{ path('app_homepage_locale', {'_locale': 'es'}) }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                            <i class="flag-icon flag-icon-es mr-2"></i> Español
+                        </a>
+                        <a href="{{ path('app_homepage_locale', {'_locale': 'fr'}) }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                            <i class="flag-icon flag-icon-fr mr-2"></i> Français
+                        </a>
+                        <a href="{{ path('app_homepage_locale', {'_locale': 'ca'}) }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                            <i class="flag-icon flag-icon-es-ct mr-2"></i> Català
+                        </a>
+                    </div>
+                </div>
+
+                {% if app.user %}
+                    <!-- Social Features - Hidden on mobile and tablet, visible on desktop -->
+                    <a href="{{ path('app_messages_inbox') }}" class="relative text-amber-800 hover:text-amber-600 transition max-xl:hidden" title="{{ 'menu.messages'|trans }}">
+                        <i class="fas fa-envelope text-xl"></i>
+                        <span id="messages-badge" class="absolute -top-2 -right-2 bg-blue-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                    </a>
+
+                    <a href="{{ path('app_friends_requests') }}" class="relative text-amber-800 hover:text-amber-600 transition max-xl:hidden" title="{{ 'menu.friend_requests'|trans }}">
+                        <i class="fas fa-user-friends text-xl"></i>
+                        <span id="friend-requests-badge" class="absolute -top-2 -right-2 bg-green-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                    </a>
+
+                    <a href="{{ path('app_notifications') }}" class="relative text-amber-800 hover:text-amber-600 transition max-xl:hidden" title="{{ 'menu.notifications'|trans }}">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span id="notifications-badge" class="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center hidden">0</span>
+                    </a>
+
+                    <!-- User Profile Dropdown - Hidden on mobile, visible on tablet and desktop -->
+                    <div class="relative max-md:hidden" id="user-menu-container">
+                        <button class="flex items-center space-x-2 text-amber-800 hover:text-amber-600 transition" onclick="toggleUserMenu()">
+                            {% if app.user.avatar %}
+                                <img src="{{ asset('uploads/profiles/' ~ app.user.id ~ '/' ~ app.user.avatar) }}" alt="{{ app.user.username }}" class="w-8 h-8 rounded-full object-cover border-2 border-amber-600">
+                            {% else %}
+                                <div class="w-8 h-8 bg-gradient-to-br from-amber-600 to-amber-800 rounded-full flex items-center justify-center text-white font-bold text-sm">
+                                    {{ app.user.username|slice(0, 1)|upper }}
+                                </div>
+                            {% endif %}
+                            <span class="font-medium hidden xl:inline">{{ app.user.username }}</span>
+                            <i class="fas fa-chevron-down text-xs"></i>
+                        </button>
+                        <div id="user-menu" class="hidden absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl border border-amber-200 py-2 z-50">
+                            <!-- Profile Info -->
+                            <div class="px-4 py-3 border-b border-gray-200">
+                                <p class="text-sm font-semibold text-gray-900">{{ app.user.username }}</p>
+                                <p class="text-xs text-gray-600">{{ app.user.email }}</p>
+                                {% if 'ROLE_SELLER' in app.user.roles %}
+                                    <span class="inline-block mt-1 px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded">Seller</span>
+                                {% endif %}
+                                {% if 'ROLE_ADMIN' in app.user.roles %}
+                                    <span class="inline-block mt-1 px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded">Admin</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Menu Links -->
+                            <a href="{{ path('app_profile') }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                                <i class="fas fa-user mr-2"></i>{{ 'menu.my_profile'|trans }}
+                            </a>
+                            <a href="{{ path('app_messages_inbox') }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                                <i class="fas fa-envelope mr-2"></i>{{ 'menu.messages'|trans }}
+                                <span id="messages-badge-menu" class="ml-2 bg-blue-600 text-white text-xs font-bold rounded-full px-2 py-0.5 hidden">0</span>
+                            </a>
+                            <a href="{{ path('app_friends_requests') }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                                <i class="fas fa-user-friends mr-2"></i>{{ 'menu.friend_requests'|trans }}
+                                <span id="friend-requests-badge-menu" class="ml-2 bg-green-600 text-white text-xs font-bold rounded-full px-2 py-0.5 hidden">0</span>
+                            </a>
+                            <a href="{{ path('app_notifications') }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                                <i class="fas fa-bell mr-2"></i>{{ 'menu.notifications'|trans }}
+                                <span id="notifications-badge-menu" class="ml-2 bg-red-600 text-white text-xs font-bold rounded-full px-2 py-0.5 hidden">0</span>
+                            </a>
+                            <a href="{{ path('app_profile_directory') }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                                <i class="fas fa-users mr-2"></i>{{ 'menu.browse_profiles'|trans }}
+                            </a>
+                            <a href="{{ path('app_profile_edit') }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                                <i class="fas fa-edit mr-2"></i>{{ 'menu.edit_profile'|trans }}
+                            </a>
+                            <a href="{{ path('app_profile_settings') }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                                <i class="fas fa-cog mr-2"></i>{{ 'menu.settings'|trans }}
+                            </a>
+
+                            {% if 'ROLE_SELLER' in app.user.roles %}
+                                <div class="border-t border-gray-200 my-2"></div>
+                                <a href="{{ path('app_seller_dashboard') }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                                    <i class="fas fa-store mr-2"></i>{{ 'menu.seller_dashboard'|trans }}
+                                </a>
+                            {% endif %}
+
+                            {% if 'ROLE_ADMIN' in app.user.roles %}
+                                <div class="border-t border-gray-200 my-2"></div>
+                                <a href="{{ path('sonata_admin_dashboard') }}" class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition">
+                                    <i class="fas fa-tachometer-alt mr-2"></i>{{ 'menu.admin_panel'|trans }}
+                                </a>
+                            {% endif %}
+
+                            <div class="border-t border-gray-200 my-2"></div>
+                            <a href="{{ path('app_logout') }}" class="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition">
+                                <i class="fas fa-sign-out-alt mr-2"></i>{{ 'menu.logout'|trans }}
+                            </a>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Login / Register Buttons for Non-Authenticated Users -->
+                    <a href="{{ path('app_login') }}" class="px-2 sm:px-3 py-2 text-amber-800 hover:text-amber-600 font-medium transition max-md:hidden text-sm lg:text-base">
+                        <i class="fas fa-sign-in-alt mr-1"></i>{{ 'menu.login'|trans }}
+                    </a>
+                    <a href="{{ path('app_register') }}" class="register-button px-2 sm:px-3 py-2 text-white font-medium rounded-lg transition text-sm"
+                       style="background-color: {{ theme.button_color }};"
+                       onmouseover="this.style.backgroundColor='{{ theme.button_hover_color }}'"
+                       onmouseout="this.style.backgroundColor='{{ theme.button_color }}'">
+                        <i class="fas fa-user-plus mr-1"></i><span class="hidden sm:inline">{{ 'menu.register'|trans }}</span>
+                    </a>
+                {% endif %}
+
+                <!-- Mobile Menu Button - Only visible on mobile -->
+                <button class="hamburger-button text-amber-800 focus:outline-none ml-2" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Second Row: Desktop Menu Links - Hidden on mobile, visible on tablet/desktop -->
+        <div class="max-md:hidden pb-3">
+            <nav class="flex items-center gap-2 lg:gap-3 xl:gap-4">
+                {% if headerMenu is defined and headerMenu %}
+                    {% set menuItems = headerMenu.menuItems|filter(item => item.active and item.parent is null)|sort((a, b) => a.sortOrder <=> b.sortOrder) %}
+                    {% for item in menuItems %}
+                        {% set children = item.children|filter(child => child.active)|sort((a, b) => a.sortOrder <=> b.sortOrder) %}
+                        {% if children|length > 0 %}
+                            <!-- Dropdown Menu -->
+                            <div class="relative menu-dropdown">
+                                <button class="font-medium transition whitespace-nowrap flex items-center gap-1 text-sm lg:text-base"
+                                        style="color: {{ theme.navigation_text_color }};"
+                                        onmouseover="this.style.color='{{ theme.primary_color }}'"
+                                        onmouseout="this.style.color='{{ theme.navigation_text_color }}'"
+                                        onclick="toggleDropdown(event, this)">
+                                    {% if item.icon %}<i class="{{ item.icon }} mr-1 text-xs"></i>{% endif %}
+                                    {{ item.title }}
+                                    <i class="fas fa-chevron-down text-xs"></i>
+                                </button>
+                                <div class="hidden absolute top-full left-0 mt-2 w-48 bg-white rounded-lg shadow-xl border border-amber-200 py-2 z-50 dropdown-menu">
+                                    {% for child in children %}
+                                        <a href="{{ child.effectiveUrl ?? '#' }}"
+                                           class="block px-4 py-2 text-sm text-amber-800 hover:bg-amber-50 transition"
+                                           {% if child.openInNewTab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                                            {% if child.icon %}<i class="{{ child.icon }} mr-2 text-xs"></i>{% endif %}
+                                            {{ child.title }}
+                                        </a>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% else %}
+                            <!-- Simple Link -->
+                            <a href="{{ item.effectiveUrl ?? '#' }}"
+                               class="text-amber-800 hover:text-amber-600 font-medium transition whitespace-nowrap text-sm lg:text-base"
+                               {% if item.openInNewTab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                                {% if item.icon %}<i class="{{ item.icon }} mr-1 text-xs"></i>{% endif %}
+                                {{ item.title }}
+                            </a>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <!-- Fallback Menu -->
+                    <a href="{{ path('app_homepage') }}" class="text-amber-800 hover:text-amber-600 font-medium transition text-sm lg:text-base">{{ 'menu.home'|trans }}</a>
+                    <a href="{{ path('app_products') }}" class="text-amber-800 hover:text-amber-600 font-medium transition text-sm lg:text-base">{{ 'menu.products'|trans }}</a>
+                    <a href="{{ path('admin_login') }}" class="text-amber-800 hover:text-amber-600 font-medium transition text-sm lg:text-base">{{ 'menu.admin'|trans }}</a>
+                {% endif %}
+            </nav>
+        </div>
+
+        <!-- Mobile Menu - Only on mobile devices -->
+        <div id="mobile-menu" class="mobile-menu-wrapper hidden pb-4 border-t border-amber-200 mt-2">
+            <!-- Mobile Search Bar -->
+            <div class="mb-4 mt-4">
+                <div class="search-container"
+                     data-controller="search-autocomplete"
+                     data-search-autocomplete-url-value="{{ path('api_search_query') }}">
+                    <div class="search-input-wrapper">
+                        <input type="text"
+                               class="search-input"
+                               placeholder="{{ 'menu.search'|trans }}..."
+                               data-search-autocomplete-target="input"
+                               data-action="input->search-autocomplete#search keydown->search-autocomplete#handleKeydown"
+                               autocomplete="off" />
+                        <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </div>
+                    <div class="search-results search-hidden" data-search-autocomplete-target="results"></div>
+                </div>
+            </div>
+
+            <!-- Mobile Menu Items -->
+            {% if headerMenu is defined and headerMenu %}
+                {% set menuItems = headerMenu.menuItems|filter(item => item.active and item.parent is null)|sort((a, b) => a.sortOrder <=> b.sortOrder) %}
+                {% for item in menuItems %}
+                    <a href="{{ item.effectiveUrl ?? '#' }}"
+                       class="block py-2 text-amber-800 hover:text-amber-600 font-medium transition"
+                       {% if item.openInNewTab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                        {% if item.icon %}<i class="{{ item.icon }} mr-2"></i>{% endif %}
+                        {{ item.title }}
+                    </a>
+                    {% set children = item.children|filter(child => child.active)|sort((a, b) => a.sortOrder <=> b.sortOrder) %}
+                    {% if children|length > 0 %}
+                        <div class="pl-4 mb-2">
+                            {% for child in children %}
+                                <a href="{{ child.effectiveUrl ?? '#' }}"
+                                   class="block py-1 text-sm text-amber-700 hover:text-amber-600 transition"
+                                   {% if child.openInNewTab %}target="_blank" rel="noopener noreferrer"{% endif %}>
+                                    {% if child.icon %}<i class="{{ child.icon }} mr-2"></i>{% endif %}
+                                    {{ child.title }}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                <!-- Fallback Menu -->
+                <a href="{{ path('app_homepage') }}" class="block py-2 text-amber-800 hover:text-amber-600 font-medium transition">{{ 'menu.home'|trans }}</a>
+                <a href="{{ path('app_products') }}" class="block py-2 text-amber-800 hover:text-amber-600 font-medium transition">{{ 'menu.products'|trans }}</a>
+                <a href="{{ path('admin_login') }}" class="block py-2 text-amber-800 hover:text-amber-600 font-medium transition">{{ 'menu.admin'|trans }}</a>
+            {% endif %}
+
+            <a href="{{ path('app_cart') }}" class="block py-2 text-amber-800 hover:text-amber-600 font-medium transition">
+                <i class="fas fa-shopping-cart mr-2"></i>{{ 'menu.cart'|trans }}
+                <span id="cart-count-mobile" class="ml-2 bg-green-500 text-white text-xs font-bold rounded-full px-2 py-1" style="display: none;">0</span>
+            </a>
+
+            <!-- Mobile User Menu -->
+            {% if app.user %}
+                <div class="mt-3 pt-3 border-t border-amber-200">
+                    <p class="text-amber-700 font-semibold mb-2 text-sm uppercase tracking-wide">{{ 'menu.my_account'|trans }}</p>
+                    <a href="{{ path('app_profile') }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                        <i class="fas fa-user mr-2"></i>{{ 'menu.my_profile'|trans }}
+                    </a>
+                    <a href="{{ path('app_messages_inbox') }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                        <i class="fas fa-envelope mr-2"></i>{{ 'menu.messages'|trans }}
+                        <span id="messages-badge-mobile" class="ml-2 bg-blue-600 text-white text-xs font-bold rounded-full px-2 py-0.5 hidden">0</span>
+                    </a>
+                    <a href="{{ path('app_friends_requests') }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                        <i class="fas fa-user-friends mr-2"></i>{{ 'menu.friend_requests'|trans }}
+                        <span id="friend-requests-badge-mobile" class="ml-2 bg-green-600 text-white text-xs font-bold rounded-full px-2 py-0.5 hidden">0</span>
+                    </a>
+                    <a href="{{ path('app_notifications') }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                        <i class="fas fa-bell mr-2"></i>{{ 'menu.notifications'|trans }}
+                        <span id="notifications-badge-mobile" class="ml-2 bg-red-600 text-white text-xs font-bold rounded-full px-2 py-0.5 hidden">0</span>
+                    </a>
+                    <a href="{{ path('app_profile_directory') }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                        <i class="fas fa-users mr-2"></i>{{ 'menu.browse_profiles'|trans }}
+                    </a>
+                    <a href="{{ path('app_profile_edit') }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                        <i class="fas fa-edit mr-2"></i>{{ 'menu.edit_profile'|trans }}
+                    </a>
+                    <a href="{{ path('app_profile_settings') }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                        <i class="fas fa-cog mr-2"></i>{{ 'menu.settings'|trans }}
+                    </a>
+                    {% if 'ROLE_SELLER' in app.user.roles %}
+                        <a href="{{ path('app_seller_dashboard') }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                            <i class="fas fa-store mr-2"></i>{{ 'menu.seller_dashboard'|trans }}
+                        </a>
+                    {% endif %}
+                    {% if 'ROLE_ADMIN' in app.user.roles %}
+                        <a href="{{ path('sonata_admin_dashboard') }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                            <i class="fas fa-tachometer-alt mr-2"></i>{{ 'menu.admin_panel'|trans }}
+                        </a>
+                    {% endif %}
+                    <a href="{{ path('app_logout') }}" class="block py-2 text-red-600 hover:text-red-700 transition mt-2">
+                        <i class="fas fa-sign-out-alt mr-2"></i>{{ 'menu.logout'|trans }}
+                    </a>
+                </div>
+            {% else %}
+                <div class="mt-3 pt-3 border-t border-amber-200">
+                    <a href="{{ path('app_login') }}" class="block py-2 text-amber-800 hover:text-amber-600 font-medium transition">
+                        <i class="fas fa-sign-in-alt mr-2"></i>{{ 'menu.login'|trans }}
+                    </a>
+                    <a href="{{ path('app_register') }}" class="register-button block py-2 mt-2 text-white font-medium rounded-lg transition text-center"
+                       style="background-color: {{ theme.button_color }};"
+                       onmouseover="this.style.backgroundColor='{{ theme.button_hover_color }}'"
+                       onmouseout="this.style.backgroundColor='{{ theme.button_color }}'">
+                        <i class="fas fa-user-plus mr-2"></i>{{ 'menu.register'|trans }}
+                    </a>
+                </div>
+            {% endif %}
+
+            <!-- Mobile Language Switcher -->
+            <div class="mt-3 pt-3 border-t border-amber-200">
+                <p class="text-amber-700 font-semibold mb-2 text-sm uppercase tracking-wide">{{ 'menu.language'|trans }}</p>
+                <a href="{{ path('app_homepage_locale', {'_locale': 'en'}) }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                    <i class="flag-icon flag-icon-gb mr-2"></i> English
+                </a>
+                <a href="{{ path('app_homepage_locale', {'_locale': 'de'}) }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                    <i class="flag-icon flag-icon-de mr-2"></i> Deutsch
+                </a>
+                <a href="{{ path('app_homepage_locale', {'_locale': 'es'}) }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                    <i class="flag-icon flag-icon-es mr-2"></i> Español
+                </a>
+                <a href="{{ path('app_homepage_locale', {'_locale': 'fr'}) }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                    <i class="flag-icon flag-icon-fr mr-2"></i> Français
+                </a>
+                <a href="{{ path('app_homepage_locale', {'_locale': 'ca'}) }}" class="block py-2 text-amber-800 hover:text-amber-600 transition">
+                    <i class="flag-icon flag-icon-es-ct mr-2"></i> Català
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<style>
+    /* Navigation Link Colors */
+    nav a:not(.register-button),
+    nav button:not(.register-button) {
+        color: var(--theme-nav-text);
+        transition: color 0.3s;
+    }
+
+    nav a:not(.register-button):hover,
+    nav button:not(.register-button):hover {
+        color: var(--theme-primary);
+    }
+
+    /* Logo styling - Desktop: 200px, Mobile: 100px */
+    .frontend-logo {
+        height: 200px;
+        width: 200px;
+        margin-right: 10px;
+    }
+
+    @media (max-width: 767px) {
+        .frontend-logo {
+            height: 100px;
+            width: 100px;
+            margin-right: 5px;
+        }
+    }
+
+    /* Search styling */
+    .search-container {
+        position: relative;
+    }
+
+    .search-input-wrapper {
+        position: relative;
+    }
+
+    .search-input {
+        padding: 0.5rem 2.5rem 0.5rem 1rem;
+        border: 2px solid var(--theme-primary);
+        border-radius: 0.5rem;
+        outline: none;
+        transition: all 0.3s;
+        width: 100%;
+    }
+
+    .search-input:focus {
+        border-color: var(--theme-secondary);
+        box-shadow: 0 0 0 3px rgba(var(--theme-primary-rgb), 0.1);
+    }
+
+    .search-icon {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 1.25rem;
+        height: 1.25rem;
+        color: var(--theme-primary);
+        pointer-events: none;
+    }
+
+    .search-results {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        margin-top: 0.5rem;
+        background: white;
+        border: 2px solid var(--theme-primary);
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        max-height: 24rem;
+        overflow-y: auto;
+        z-index: 50;
+    }
+
+    .search-hidden {
+        display: none;
+    }
+
+    /* Hamburger button - only visible on mobile */
+    .hamburger-button {
+        display: inline-block;
+    }
+
+    @media (min-width: {{ theme.breakpoint_mobile }}px) {
+        .hamburger-button {
+            display: none !important;
+        }
+    }
+
+    /* Mobile menu - only visible on screens < mobile breakpoint */
+    .mobile-menu-wrapper {
+        display: none;
+    }
+
+    @media (max-width: {{ theme.breakpoint_mobile - 1 }}px) {
+        .mobile-menu-wrapper {
+            display: block;
+        }
+        .mobile-menu-wrapper.hidden {
+            display: none;
+        }
+    }
+
+    @media (min-width: {{ theme.breakpoint_mobile }}px) {
+        .mobile-menu-wrapper {
+            display: none !important;
+        }
+    }
+
+    /* Responsive utility classes based on theme breakpoints */
+    .max-md\:hidden {
+        display: inherit;
+    }
+
+    @media (max-width: {{ theme.breakpoint_mobile - 1 }}px) {
+        .max-md\:hidden {
+            display: none !important;
+        }
+    }
+
+    .max-xl\:hidden {
+        display: inherit;
+    }
+
+    @media (max-width: {{ theme.breakpoint_desktop - 1 }}px) {
+        .max-xl\:hidden {
+            display: none !important;
+        }
+    }
+
+    /* Mobile menu animation */
+    #mobile-menu {
+        animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Dropdown menus */
+    .dropdown-menu {
+        animation: fadeIn 0.2s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-5px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+    // Toggle mobile menu
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+    }
+
+    // Toggle dropdown menus
+    function toggleDropdown(event, button) {
+        event.stopPropagation();
+        const dropdown = button.nextElementSibling;
+        dropdown.classList.toggle('hidden');
+
+        // Close other dropdowns
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            if (menu !== dropdown) {
+                menu.classList.add('hidden');
+            }
+        });
+    }
+
+    // Toggle language menu
+    function toggleLanguageMenu() {
+        const menu = document.getElementById('language-menu');
+        menu.classList.toggle('hidden');
+    }
+
+    // Toggle user menu
+    function toggleUserMenu() {
+        const menu = document.getElementById('user-menu');
+        menu.classList.toggle('hidden');
+    }
+
+    // Close menus when clicking outside
+    document.addEventListener('click', function(event) {
+        // Close dropdowns
+        if (!event.target.closest('.menu-dropdown')) {
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                menu.classList.add('hidden');
+            });
+        }
+
+        // Close language menu
+        if (!event.target.closest('.language-switcher')) {
+            const langMenu = document.getElementById('language-menu');
+            if (langMenu) langMenu.classList.add('hidden');
+        }
+
+        // Close user menu
+        if (!event.target.closest('#user-menu-container')) {
+            const userMenu = document.getElementById('user-menu');
+            if (userMenu) userMenu.classList.add('hidden');
+        }
+    });
+
+    // Update cart count
+    function updateCartCount() {
+        fetch('{{ path("api_cart_count") }}')
+            .then(response => {
+                if (!response.ok) {
+                    console.warn('Cart count API returned status:', response.status);
+                    return { count: 0 }; // Return default value on error
+                }
+                return response.json();
+            })
+            .then(data => {
+                const badges = document.querySelectorAll('#cart-count, #cart-count-mobile');
+                badges.forEach(badge => {
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.style.display = 'flex';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error updating cart count:', error);
+                // Silently fail - don't break the UI
+                const badges = document.querySelectorAll('#cart-count, #cart-count-mobile');
+                badges.forEach(badge => badge.style.display = 'none');
+            });
+    }
+
+    // Update notification badges (if user is logged in)
+    {% if app.user %}
+    function updateNotificationBadges() {
+        // Messages
+        fetch('{{ path("api_messages_unread_count") }}')
+            .then(response => response.json())
+            .then(data => {
+                const badges = document.querySelectorAll('#messages-badge, #messages-badge-menu, #messages-badge-mobile');
+                badges.forEach(badge => {
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                });
+            })
+            .catch(error => console.error('Error updating message count:', error));
+
+        // Friend requests
+        fetch('{{ path("api_friends_pending_count") }}')
+            .then(response => response.json())
+            .then(data => {
+                const badges = document.querySelectorAll('#friend-requests-badge, #friend-requests-badge-menu, #friend-requests-badge-mobile');
+                badges.forEach(badge => {
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                });
+            })
+            .catch(error => console.error('Error updating friend request count:', error));
+
+        // Notifications
+        fetch('{{ path("api_notifications_unread") }}')
+            .then(response => response.json())
+            .then(data => {
+                const badges = document.querySelectorAll('#notifications-badge, #notifications-badge-menu, #notifications-badge-mobile');
+                badges.forEach(badge => {
+                    if (data.count > 0) {
+                        badge.textContent = data.count;
+                        badge.classList.remove('hidden');
+                    } else {
+                        badge.classList.add('hidden');
+                    }
+                });
+            })
+            .catch(error => console.error('Error updating notification count:', error));
+    }
+
+    // Update badges on page load and every 30 seconds
+    updateNotificationBadges();
+    setInterval(updateNotificationBadges, 30000);
+    {% endif %}
+
+    // Update cart count on page load
+    updateCartCount();
+</script>
